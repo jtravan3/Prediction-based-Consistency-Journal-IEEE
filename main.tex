@@ -1381,16 +1381,38 @@ In the event that a decline action is required of an operation $p_{i}[x]$ then t
 
 \begin{proposition}
 \label{prop:decline}
-Let $H$ be a history produced by  a prediction-based scheduler. If $p_{i}[x]$ requires a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists an operation $q_{j}[x]$ $(i \neq j)$ and $p_{i}[x]$ $\exists$ $C(H)$ and $q_{j}[x]$ $\exists$ $C(H)$. Therefore $qu_{j}[x] < pl_{i}[x]$ and $p_{i}[x] < pu_{i}[x]$.
+Let $H$ be a history produced by  a prediction-based scheduler. If $p_{i}[x]$ requires a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists an operation $q_{j}[x]$ $(i \neq j)$ and $p_{i}[x]$ $\exists$ $C(H)$ and $q_{j}[x]$ $\exists$ $C(H)$. Therefore $qu_{j}[x] < pl_{i}[x] < p_{i}[x] < pu_{i}[x]$.
 \end{proposition}
 
 The final action that could potentially be required for database operations is the elevate action. This action behaves much like the decline action however instead of waiting for the lock to be released, all locks are premptively dropped so that the new operation can obtain a lock to the resource. Therefore, before an operation $p_{1}[x]$ can issue a lock operation $pl_{1}[x]$ all operations within the set $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ must drop their locks. This causes all unlock operations $qu_{i}[x] < pl_{1}[x]$.
 
 \begin{proposition}
 \label{prop:elevate}
-Let $H$ be a history produced by a prediction-based scheduler. If $p_{1}[x]$ requires an eleveate action ($\delta$) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists one or many $q_{i}[x]$ where $q_{i}[x]$ $\subseteq$ $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ and $Q$ $\subseteq$ $C(H)$. Therefore $\forall$ $q_{i}[x]$ in $Q$ then $qu_{i}[x] < pl_{1}[x]$.
+Let $H$ be a history produced by a prediction-based scheduler. If $p_{1}[x]$ requires an eleveate action ($\delta$) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists one or many $q_{i}[x]$ where $q_{i}[x]$ $\subseteq$ $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ and $Q$ $\subseteq$ $C(H)$. Therefore $\forall$ $q_{i}[x]$ in $Q$ then $qu_{i}[x] < pl_{1}[x] < p_{i}[x] < pu_{i}[x]$.
 \end{proposition}
 
+Now that we have formal propositions for the three actions involved for each operation within the scheduler, we can formally prove serializability of the prediction-based solution. This is proof is done in three steps. First we show that if $T_{1} \rightarrow T_{2}$ is in $SG(H)$ then there exists a conflicting operation on a resource $x$ where $T_{1}$ must have released its lock on $x$ \textit{before} $T_{2}$ was able to obtain a lock on $x$. The second step shows that for any path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ in $SG(H)$ we can show by transitivity that every $T_{i}$ must release locks for conflicting operations before each $T_{i+1}$. The third and final step uses contradiction to assume that $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$. This contradiction shows that it is impossible for a cycle to occur because then $T_{1}$ would have performed an unlock operation before a lock operation. The following lemmas and theorem formalize these three steps.
+
+\begin{lemma}
+\label{lemma1}
+Let $H$ be a prediction-based history, and suppose $T_{1} \rightarrow T_{2}$ is in $SG(H)$. Then, for some resource $x$ and some conflicting operations $p_{1}[x]$ and $q_{2}[x]$ in $H$, $pu_{1}[x] < ql_{2}[x]$.
+\end{lemma}
+
+\textit{Proof:} By having $T_{1} \rightarrow T_{2}$, there must exist conflicting operations $p_{1}[x]$ and $q_{2}[x]$ contained in $C(H)$ where $p_{1}[x] < q_{2}[x]$. Proposition \ref{prop:grant} does not conflict in this case since there are conflicting operations. By looking at Proposition \ref{prop:decline} \& Proposition \ref{prop:elevate} we see,
+
+\begin{enumerate}
+  \item $pl_{1}[x] < p_{1}[x] < pu_{1}[x]$
+  \item $ql_{2}[x] < q_{2}[x] < qu_{2}[x]$
+\end{enumerate}
+
+Since the lemma states that $T_{1} \rightarrow T_{2}$ we then have the operation sequence $pl_{1}[x] < p_{1}[x] < pu_{1}[x] < ql_{2}[x] < q_{2}[x] < qu_{2}[x]$ therefore proving that $pu_{1}[x] < ql_{2}[x]$.\qed
+
+\begin{lemma}
+\label{lemma2}
+Let $H$ be a prediction-based history, and let $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ be a path in $SG(H)$, where $n > 1$. Then, for some resources $x$ and $y$, and some operations $p_{1}[x]$ and $q_{n}[y]$ in $H$, $pu_{1}[x] < ql_{n}[y]$.
+\end{lemma}
+
+\textit{Proof:}
 
 \begin{algorithm}
 \caption{Top Level Scheduler Algorithm}

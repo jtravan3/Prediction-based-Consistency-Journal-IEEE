@@ -1408,174 +1408,173 @@ Every prediction-based history $H$ is serializable.
 
 \textit{Proof:} In order to show this is true we use a proof by contradiction. We assume that, by contradiction, $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ where $n > 1$. The proof provided by the previous lemma (Lemma \ref{lemma2}) states that for some resources $x$ and $y$ and conflicting operations $p_{1}[x]$ and $q_{1}[y]$ in $H$, $pu_{1}[x] < ql_{1}[y]$. However, this contradicts with Proposition \ref{prop:elevate_decline} due to an unlock operation occurring on a resource before the lock operation\footnote{See footnote \ref{note1}.}. Therefore the contradiction fails and $ql_{1}[y] < pu_{1}[x]$. \qed
 
-\begin{algorithm}
-\caption{Top Level Scheduler Algorithm}
-\label{alg:top_level}
-\begin{algorithmic}[1]
+% \begin{algorithm}
+% \caption{Top Level Scheduler Algorithm}
+% \label{alg:top_level}
+% \begin{algorithmic}[1]
 
-\Procedure{manage\_transactions}{}
-  \State // This method is the top level procedure call
-  \State // that will be called as long as transactions
-  \State // are available and need to be scheduled
-  \State // for execution
-  \\
-  \State Transaction[] trans;
-  \While{true}
-    \State // Clears the list from last execution
-    \State trans.\Call{clear}{}
-    \\
-    \State // This method gets the available transactions that
-    \State // are submitted to the scheduler for processing.
-    \State // This includes preemptively aborted transactions
-    \State // from previous executions
-    \State Transaction[] aborted = \Call{getAbortedTrans}{}
-    \State Transaction[] schedTrans = \Call{getSchedTrans}{};
-    \\
-    \State // Adds the available transactions from the
-    \State // scheduler to the overall collection of
-    \State // transactions that need to be scheduled. 
-    \State // These are added behind any transactions that
-    \State // were aborted from the previous execution
-    \State trans.\Call{add}{aborted};
-    \State trans.\Call{add}{schedTrans};
-    \\
-    \State // Generates serializable schedules from the 
-    \State // available transactions
-    \State SerialSched[] ss = \Call{generate\_schedules}{trans};
-    \\
-    \State // Orders the generated schedules according to their
-    \State // priorities
-    \State ss = \Call{order\_schedules}{ss};
-    \\
-    \State // Executes each generated schedule. Transactions
-    \State // that are aborted preemptively will be scheduled
-    \State // in the next execution
-    \ForAll{s in ss}
-      \State \Call{exec\_sched}{s};
-    \EndFor
-  \EndWhile
-\EndProcedure
+% \Procedure{manage\_transactions}{}
+%   \State // This method is the top level procedure call
+%   \State // that will be called as long as transactions
+%   \State // are available and need to be scheduled
+%   \State // for execution
+%   \\
+%   \While{true}
+%     \State // Clears the list from last execution
+%     \State trans.\Call{clear}{}
+%     \\
+%     \State // This method gets the available transactions that
+%     \State // are submitted to the scheduler for processing.
+%     \State // This includes preemptively aborted transactions
+%     \State // from previous executions
+%     \State Transaction[] aborted = \Call{getAbortedTrans}{}
+%     \State Transaction[] schedTrans = \Call{getSchedTrans}{};
+%     \\
+%     \State // Adds the available transactions from the
+%     \State // scheduler to the overall collection of
+%     \State // transactions that need to be scheduled. 
+%     \State // These are added behind any transactions that
+%     \State // were aborted from the previous execution
+%     \State trans.\Call{add}{aborted};
+%     \State trans.\Call{add}{schedTrans};
+%     \\
+%     \State // Generates serializable schedules from the 
+%     \State // available transactions
+%     \State SerialSched[] ss = \Call{generate\_schedules}{trans};
+%     \\
+%     \State // Orders the generated schedules according to their
+%     \State // priorities
+%     \State ss = \Call{order\_schedules}{ss};
+%     \\
+%     \State // Executes each generated schedule. Transactions
+%     \State // that are aborted preemptively will be scheduled
+%     \State // in the next execution
+%     \ForAll{s in ss}
+%       \State \Call{exec\_sched}{s};
+%     \EndFor
+%   \EndWhile
+% \EndProcedure
 
-\end{algorithmic}
-\end{algorithm}
+% \end{algorithmic}
+% \end{algorithm}
 
 \section{Algorithms}
 \label{sec:algorithms}
-In the existing web service environment the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the concurrent transactions and executed on the database for processing. The transaction metrics solution begins here with Algorithm \ref{alg:top_level}. The algorithm implemented in Algorithm \ref{alg:top_level} is a simulation of how schedulers execute continuously and obtain transactions to be submitted for processing. The function call within the scheduler may not be known but, for purposes of explanation, it is called \textit{manage\_transactions}. The first step in this algorithm is to gather any aborted transactions from the previous execution and any new incoming transactions. Once this step is complete, the scheduler initiates the process and continues to Algorithm \ref{alg:generate_sched}. This algorithm generates the serializable schedules based on the proposed solutions parameters.This algorithm will be further analyzed later in this section. After the serializable schedules have been generated from the given transactions they must be ordered appropriately from the priorities given above. At this point, Algorithm \ref{alg:priority_algorithm} will be executed. This algorithm will also be discussed in further detail later in this section. Once the correct ordering of the serializable schedules have been determined, each schedule will be executed using Algorithm \ref{alg:exec_sched}. This uses the existing logic of the DBMS along with other custom logic in order to perform the execution. Along with the execution, it also updates the transaction metrics appropriately in order to build a more accurate prediction. Each execution of Algorithm \ref{alg:exec_sched} is within an independent thread to prevent a bottleneck in the process. An asynchronous procedure call back to the scheduler will send any aborted transactions that were preemptively aborted and need to be rescheduled. This algorithm will also be discussed in detail to elaborate on the updating of Transaction Metrics. Once this algorithm has completed, the top-level scheduling algorithm, returns to the top of its processing loop and repeats the same process. The next sections give an explanation of the algorithms mentioned above that compose this entire process.
+In the existing web service environment the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the concurrent transactions and executed on the database for processing. In this section we discuss the algorithms needed in order to make these concurrent executions possible. The prediction-based solution uses a great deal of the existing logic that is already implemented within schedulers. The only algorithm that is needed for this solution uses the existing logic to execute operations and the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). This algorithm is outlined in Algorithm \ref{alg:exec_sched}.
 
-\begin{algorithm}
-\caption{DBMS Scheduler Generation Algorithm}
-\label{alg:generate_sched}
-\begin{algorithmic}[1]
+% \begin{algorithm}
+% \caption{DBMS Scheduler Generation Algorithm}
+% \label{alg:generate_sched}
+% \begin{algorithmic}[1]
 
- \Function{generate\_schedules}{Transaction[] trans} 
-   \\
-   \State // Create map of transaction and category
-   \State // relationships
-   \State Map[Transaction, Category] transCats;
-   \ForAll{t in trans}
-      \State // Transaction Metrics Algorithm Function Call
-      \State // Function call will take a max of O(1) time
-      \State // to complete.
-      \State Category c = \Call{getCatForTrans}{t}; \label{l:getcatfortrans}
-      \\
-      \State // Assign lock behavior to the transaction from
-      \State // the compatibility matrices provided. The 
-      \State // lock behaviors are associated directly with
-      \State // a category
-      \State LockBehavior[] lb = c.\Call{getLockBehaviors}{}; 
-      \State t.\Call{setLockBehaviors}{lb}; \label{l:setlockbehaviors}
-      \\
-      \State transCats.\Call{add}{t,c}; \label{l:tcadd}
-   \EndFor
-   \\
-   \State // Create collection of serializable schedules to
-   \State // be returned
-   \State SerialSched[] schedules;
-   \State // Create temporary collection of non-conflicting
-   \State // transactions
-   \State Transaction[] nonConflictingTrans;
-   \ForAll{entry in transCats}
-      \State // Method call to determine if the category 
-      \State // passed in will conflict with other transactions
-      \State // based on the definition of conflicting transactions
-      \State bool isConflict = \Call{isCatConflict}{entry.cat};
-      \If{isConflict}
-        \State // Generate serializable schedule with only one
-        \State // transaction using the existing scheduler 
-        \State // mechanism
-        \State SerialSched s = \Call{genSchedule}{entry.trans};\label{l:gencsched}
-        \State schedules.\Call{add}{s};
-      \Else
-        \State // Add transaction to a temporary collection
-        \State // to generate schedule
-        \State nonConflictingTrans.\Call{add}{entry.trans}; \label{l:tempds}
-      \EndIf
-   \EndFor
-   \\
-   \State // Generate a bulk schedule composed of 
-   \State // non-conflicting transactions that can execute
-   \State // concurrently without consequence
-   \State SerialSched s = \Call{genSchedule}{nonConflictingTrans};\label{l:bulksched}
-   \State schedules.\Call{add}{s};
-   \\
-   \State \Return schedules; \label{l:rtnsched}
- \EndFunction
+%  \Function{generate\_schedules}{Transaction[] trans} 
+%   \\
+%   \State // Create map of transaction and category
+%   \State // relationships
+%   \State Map[Transaction, Category] transCats;
+%   \ForAll{t in trans}
+%       \State // Transaction Metrics Algorithm Function Call
+%       \State // Function call will take a max of O(1) time
+%       \State // to complete.
+%       \State Category c = \Call{getCatForTrans}{t}; \label{l:getcatfortrans}
+%       \\
+%       \State // Assign lock behavior to the transaction from
+%       \State // the compatibility matrices provided. The 
+%       \State // lock behaviors are associated directly with
+%       \State // a category
+%       \State LockBehavior[] lb = c.\Call{getLockBehaviors}{}; 
+%       \State t.\Call{setLockBehaviors}{lb}; \label{l:setlockbehaviors}
+%       \\
+%       \State transCats.\Call{add}{t,c}; \label{l:tcadd}
+%   \EndFor
+%   \\
+%   \State // Create collection of serializable schedules to
+%   \State // be returned
+%   \State SerialSched[] schedules;
+%   \State // Create temporary collection of non-conflicting
+%   \State // transactions
+%   \State Transaction[] nonConflictingTrans;
+%   \ForAll{entry in transCats}
+%       \State // Method call to determine if the category 
+%       \State // passed in will conflict with other transactions
+%       \State // based on the definition of conflicting transactions
+%       \State bool isConflict = \Call{isCatConflict}{entry.cat};
+%       \If{isConflict}
+%         \State // Generate serializable schedule with only one
+%         \State // transaction using the existing scheduler 
+%         \State // mechanism
+%         \State SerialSched s = \Call{genSchedule}{entry.trans};\label{l:gencsched}
+%         \State schedules.\Call{add}{s};
+%       \Else
+%         \State // Add transaction to a temporary collection
+%         \State // to generate schedule
+%         \State nonConflictingTrans.\Call{add}{entry.trans}; \label{l:tempds}
+%       \EndIf
+%   \EndFor
+%   \\
+%   \State // Generate a bulk schedule composed of 
+%   \State // non-conflicting transactions that can execute
+%   \State // concurrently without consequence
+%   \State SerialSched s = \Call{genSchedule}{nonConflictingTrans};\label{l:bulksched}
+%   \State schedules.\Call{add}{s};
+%   \\
+%   \State \Return schedules; \label{l:rtnsched}
+%  \EndFunction
  
-\end{algorithmic}
-\end{algorithm}
+% \end{algorithmic}
+% \end{algorithm}
 
-\subsection{Generate Schedules}
-The process of generating schedules from incoming transactions will use the existing logic in the scheduler however this functionality is overloaded. The overloaded logic of generating schedules includes two additional actions: 1.) assigning the correct lock behaviors provided by Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and 2.) generating separate schedules based on conflicting and non-conflicting transactions derived from the definition of conflicting transactions (see Definition \ref{conflict_trans}). The first part of the algorithm steps through each transaction passed in as an argument and obtains the category for that particular transaction by the execution of Algorithm \ref{alg:cat_for_trans} (line.\ref{l:getcatfortrans}); which will be discussed in a later section. After the categorization of the transaction has been obtained, the correct lock behaviors that are allowed by categorization (referenced in Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility}) are enforced on the particular transaction (line.\ref{l:setlockbehaviors}) and both the transaction and the category are placed in a temporary data structure in order to store the relationships (line.\ref{l:tcadd}). The second part of the algorithm generates the schedules based on conflicting and non-conflicting transactions. By generating dedicated schedules for transactions that are predicted to conflict with others, this prevents conflicting transactions from causing a cascading rollback on a serializable schedule with transactions that are sure to execute successfully. In this part of the algorithm a dedicated serializable schedule is created for any transaction that is considered conflicting (line.\ref{l:gencsched}) while transactions that are not considered conflicting are stored in a temporary data structure (line.\ref{l:tempds}). Once all transactions have been analyzed, all transactions that are not considered conflicting in the temporary data structure are composed into a single interleaved serializable schedule for the database to execute (line.\ref{l:bulksched}). Since we know the transactions will commit the outcome to the database we can allow these transactions to execute concurrently with confidence that a cascading rollback will not be required. After all serializable schedules have been generated the algorithm returns the collection of schedules (line.\ref{l:rtnsched}).
+% \subsection{Generate Schedules}
+% The process of generating schedules from incoming transactions will use the existing logic in the scheduler however this functionality is overloaded. The overloaded logic of generating schedules includes two additional actions: 1.) assigning the correct lock behaviors provided by Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and 2.) generating separate schedules based on conflicting and non-conflicting transactions derived from the definition of conflicting transactions (see Definition \ref{conflict_trans}). The first part of the algorithm steps through each transaction passed in as an argument and obtains the category for that particular transaction by the execution of Algorithm \ref{alg:cat_for_trans} (line.\ref{l:getcatfortrans}); which will be discussed in a later section. After the categorization of the transaction has been obtained, the correct lock behaviors that are allowed by categorization (referenced in Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility}) are enforced on the particular transaction (line.\ref{l:setlockbehaviors}) and both the transaction and the category are placed in a temporary data structure in order to store the relationships (line.\ref{l:tcadd}). The second part of the algorithm generates the schedules based on conflicting and non-conflicting transactions. By generating dedicated schedules for transactions that are predicted to conflict with others, this prevents conflicting transactions from causing a cascading rollback on a serializable schedule with transactions that are sure to execute successfully. In this part of the algorithm a dedicated serializable schedule is created for any transaction that is considered conflicting (line.\ref{l:gencsched}) while transactions that are not considered conflicting are stored in a temporary data structure (line.\ref{l:tempds}). Once all transactions have been analyzed, all transactions that are not considered conflicting in the temporary data structure are composed into a single interleaved serializable schedule for the database to execute (line.\ref{l:bulksched}). Since we know the transactions will commit the outcome to the database we can allow these transactions to execute concurrently with confidence that a cascading rollback will not be required. After all serializable schedules have been generated the algorithm returns the collection of schedules (line.\ref{l:rtnsched}).
 
-\begin{algorithm}
-\caption{T.M. Category Determination Algorithm}
-\label{alg:cat_for_trans}
-\begin{algorithmic}[1]
+% \begin{algorithm}
+% \caption{T.M. Category Determination Algorithm}
+% \label{alg:cat_for_trans}
+% \begin{algorithmic}[1]
 
- \Function{getcatfortrans}{Transaction t}
-    \\
-    \State // Category enum to be returned
-    \State Category c;
-    \\
-    \State // Obtain ID from transaction
-    \State String id = t.id; \label{l:tid}
-    \\
-    \State // Execute query to obtain transaction information
-    \State // This transaction does not have to worry about
-    \State // concurrency control issues since it is only
-    \State // known to this logical unit
-    \State MetricsData data = \Call{getMetricsData}{id};\label{l:metdata}
-    \\
-    \State // Categorization Graph data is also stored 
-    \State // in the database so that the categorization 
-    \State // bounds can be used easily. This data must 
-    \State // be returned before evaluation
-    \State TransBounds bounds = \Call{getTransBounds}{};\label{l:boundsdata}
-    \\
-    \State // Evaluate the data returned and return the category
-    \If{data.ER\_rate $>=$ bounds.ER\_rate} \label{l:start_eval}
-        \If{data.exec\_t $>=$ bounds.exec\_t}
-           \State c = HCLE;
-         \Else
-           \State c = HCHE;
-         \EndIf
-    \Else
-         \If{data.exec\_t $>=$ bounds.exec\_t}
-           \State c = LCLE;
-         \Else
-           \State c = LCHE;
-         \EndIf
-    \EndIf \label{l:end_eval}
-    \\
-    \State \Return c;
- \EndFunction
+%  \Function{getcatfortrans}{Transaction t}
+%     \\
+%     \State // Category enum to be returned
+%     \State Category c;
+%     \\
+%     \State // Obtain ID from transaction
+%     \State String id = t.id; \label{l:tid}
+%     \\
+%     \State // Execute query to obtain transaction information
+%     \State // This transaction does not have to worry about
+%     \State // concurrency control issues since it is only
+%     \State // known to this logical unit
+%     \State MetricsData data = \Call{getMetricsData}{id};\label{l:metdata}
+%     \\
+%     \State // Categorization Graph data is also stored 
+%     \State // in the database so that the categorization 
+%     \State // bounds can be used easily. This data must 
+%     \State // be returned before evaluation
+%     \State TransBounds bounds = \Call{getTransBounds}{};\label{l:boundsdata}
+%     \\
+%     \State // Evaluate the data returned and return the category
+%     \If{data.ER\_rate $>=$ bounds.ER\_rate} \label{l:start_eval}
+%         \If{data.exec\_t $>=$ bounds.exec\_t}
+%           \State c = HCLE;
+%          \Else
+%           \State c = HCHE;
+%          \EndIf
+%     \Else
+%          \If{data.exec\_t $>=$ bounds.exec\_t}
+%           \State c = LCLE;
+%          \Else
+%           \State c = LCHE;
+%          \EndIf
+%     \EndIf \label{l:end_eval}
+%     \\
+%     \State \Return c;
+%  \EndFunction
 
-\end{algorithmic}
-\end{algorithm}
+% \end{algorithmic}
+% \end{algorithm}
 
-\subsection{Get Category For Transaction}
-As a part of the \textit{generate schedule} algorithm mentioned above, a helper function was required in order to obtain the category based on a particular transaction. This helper function is outlined in Algorithm \ref{alg:cat_for_trans}. The first part of the algorithm obtains the unique identifier used to identify a transaction among other transactions submitted for processing (line.\ref{l:tid}). Once an identifier is obtained, the Transaction Metrics data is obtained by the identifier provided (line.\ref{l:metdata}) and the categorization thresholds set by the Categorization Graph for commit rate and efficiency rate (line.\ref{l:boundsdata})\footnote{This data is pulled by a SQL query from the database that can use traditional locking techniques since the relations storing this data are only known to the scheduler and Transaction Metrics units}. Once this data is available the appropriate evaluations are made to ensure that the correct category is chosen for the transaction provided (lines.\ref{l:start_eval}-\ref{l:end_eval}). The evaluations made are based on the data presented in Table \ref{tbl:default_tmetrics}. After a category has been evaluated, an enumeration is set with the correct category and returned.
+% \subsection{Get Category For Transaction}
+% As a part of the \textit{generate schedule} algorithm mentioned above, a helper function was required in order to obtain the category based on a particular transaction. This helper function is outlined in Algorithm \ref{alg:cat_for_trans}. The first part of the algorithm obtains the unique identifier used to identify a transaction among other transactions submitted for processing (line.\ref{l:tid}). Once an identifier is obtained, the Transaction Metrics data is obtained by the identifier provided (line.\ref{l:metdata}) and the categorization thresholds set by the Categorization Graph for commit rate and efficiency rate (line.\ref{l:boundsdata})\footnote{This data is pulled by a SQL query from the database that can use traditional locking techniques since the relations storing this data are only known to the scheduler and Transaction Metrics units}. Once this data is available the appropriate evaluations are made to ensure that the correct category is chosen for the transaction provided (lines.\ref{l:start_eval}-\ref{l:end_eval}). The evaluations made are based on the data presented in Table \ref{tbl:default_tmetrics}. After a category has been evaluated, an enumeration is set with the correct category and returned.
 
 % \begin{algorithm}
 % \caption{Calculate Categorization Threshold}
@@ -1643,37 +1642,37 @@ As a part of the \textit{generate schedule} algorithm mentioned above, a helper 
 % The first step of this algorithm is to step through each category available (line.\ref{l:each_cat}). This does not include the NO\_TREND category since this is the default category that transactions are placed if a categorization cannot be made. For each category that needs calculated thresholds we obtain the start and end values for both the x and y axis (lines.\ref{l:getstart}-\ref{l:getend}). This is a key section of the algorithm to ensure the correct calculations are made. For example, if the LCLE category was processed the start values for both axes would be 0 and the end values would be 25. However for a HCHE transaction the start values for both axes would be 100 and the end values would be 75. Once the start and end values are obtained we step through each possible x-value and y-value within each range (lines.\ref{l:forx} and \ref{l:fory}). For every x and y-value within the ranges, we calculate the absolute value of the current value subtracted from the start value (lines.\ref{l:absx} and \ref{l:absy}). In some cases the current value will always be greater than the start value (e.g. LCLE) but in other cases it will not (e.g. HCHE). By using the absolute value we are always guaranteed to have the positive x and y-values from which we are going to calculate the ratio. Next we count the number of transactions within the particular range (line.\ref{l:numtcount}). Once the transaction count is obtained we calculate a ratio of the number of transactions divided by the area of the particular range (line.\ref{l:tmpratio}). Once that ratio is calculated we compare it to highest ratio that was calculated for this particular category. At this point it becomes a simple comparison between which is higher and lower (lines.\ref{l:comparestart}-\ref{l:compareend}). If the new ratio is higher, it is cached and the new thresholds are also cached (lines.\ref{l:ratiohigher_start}-\ref{l:ratiohigher_end}). If the new ratio is lower, the algorithm continues processing (line.\ref{l:comparestart}). In the event that the new ratio is equal to the highest ratio for that category, the largest denominator will be stored (lines.\ref{l:equalstart}-\ref{l:compareend}). Once the thresholds have been calculated for each comparison for that particular category, the thresholds will be sent to the local relation through an SQL query (line. \ref{l:writetodb}). This will ensure that when Algorithm \ref{alg:cat_for_trans} executes a read on the local database to obtain the most recent thresholds that they will always be up to date. This also prevents Algorithm \ref{alg:cat_for_trans} from causing a bottleneck in the performance of the system. Before processing the next category, the variables used to store the ratio and the category thresholds are reset before the next category in the collection is calculated (line.\ref{l:reset}).
 
 
-\begin{algorithm}
-\caption{Priority Ordering Algorithm}
-\label{alg:priority_algorithm}
-\begin{algorithmic}[1]
+% \begin{algorithm}
+% \caption{Priority Ordering Algorithm}
+% \label{alg:priority_algorithm}
+% \begin{algorithmic}[1]
 
-  \Function{order\_schedules}{SerialSched[] ss}
-    \State // Create collection to hold the relationship
-    \State // between a serializable schedule and its
-    \State // priority averaged across all transactions
-    \State // that compose that schedule
-    \State Map[SerialSched, Integer] ssAvg; \label{l:mapstart}
-    \\
-    \ForAll{s in ss}\label{l:forstart}
-      \State Transaction[] t = s.\Call{getTransactions}{}; \label{l:gettrans}
-      \State int i = \Call{AVG}{t}; \label{l:avgt}
-      \State ssAvg.\Call{add}{s,i}; \label{l:mapadd}
-    \EndFor
-    \\
-    \State // Sort the temporary map by the priority
-    \State // average
-    \State \Call{sort}{ssAvg.valueSet};
-    \\
-    \State \Return ssAvg.keySet; \label{l:returnkeys}
-    \\
-  \EndFunction
+%   \Function{order\_schedules}{SerialSched[] ss}
+%     \State // Create collection to hold the relationship
+%     \State // between a serializable schedule and its
+%     \State // priority averaged across all transactions
+%     \State // that compose that schedule
+%     \State Map[SerialSched, Integer] ssAvg; \label{l:mapstart}
+%     \\
+%     \ForAll{s in ss}\label{l:forstart}
+%       \State Transaction[] t = s.\Call{getTransactions}{}; \label{l:gettrans}
+%       \State int i = \Call{AVG}{t}; \label{l:avgt}
+%       \State ssAvg.\Call{add}{s,i}; \label{l:mapadd}
+%     \EndFor
+%     \\
+%     \State // Sort the temporary map by the priority
+%     \State // average
+%     \State \Call{sort}{ssAvg.valueSet};
+%     \\
+%     \State \Return ssAvg.keySet; \label{l:returnkeys}
+%     \\
+%   \EndFunction
 
-\end{algorithmic}
-\end{algorithm}
+% \end{algorithmic}
+% \end{algorithm}
 
-\subsection{Order Schedules}
-Once the schedules have been generated they must be ordered by their respective priority (placed on them in Table \ref{tbl:priority}). Algorithm \ref{alg:priority_algorithm} is the function call responsible for the prioritization. In this function a data structure of serializable schedules are passed in and an ordered collection of the same schedules is returned. Before starting the ordering process, a temporary data structure is created in order to store the relationship of a serializable schedule to its priority value (line.\ref{l:mapstart}). Once the data structure is established, the algorithm steps through each serializable schedule passed in as an argument (line.\ref{l:forstart}). Within the loop, all the transactions for a particular serializable schedule are obtained and averaged (lines.\ref{l:gettrans} and \ref{l:avgt}). The average is derived from the priorities of each transaction in the serializable schedule. These priorities are related to the particular category that a transaction is categorized (see Table \ref{tbl:priority}). Once the average has been computed, the serializable schedule and the priority average associated with that schedule is placed in the temporary data structure to store the relationship (line.\ref{l:mapadd}). After all averages have been calculated for each serializable schedule that was passed in as an argument, the temporary data structure is sorted based on the value set of each relationship. The value set of the data structure is the averaged priority. Once the data structure is sorted, the key set is returned (line.\ref{l:returnkeys}). At this point the key set will be a collection of the same serializable schedules but sorted in the correct order for execution. This ensures that the collection returned is a sorted data structure with the non-conflicting serializable schedules available for execution first and the conflicting schedules last.
+% \subsection{Order Schedules}
+% Once the schedules have been generated they must be ordered by their respective priority (placed on them in Table \ref{tbl:priority}). Algorithm \ref{alg:priority_algorithm} is the function call responsible for the prioritization. In this function a data structure of serializable schedules are passed in and an ordered collection of the same schedules is returned. Before starting the ordering process, a temporary data structure is created in order to store the relationship of a serializable schedule to its priority value (line.\ref{l:mapstart}). Once the data structure is established, the algorithm steps through each serializable schedule passed in as an argument (line.\ref{l:forstart}). Within the loop, all the transactions for a particular serializable schedule are obtained and averaged (lines.\ref{l:gettrans} and \ref{l:avgt}). The average is derived from the priorities of each transaction in the serializable schedule. These priorities are related to the particular category that a transaction is categorized (see Table \ref{tbl:priority}). Once the average has been computed, the serializable schedule and the priority average associated with that schedule is placed in the temporary data structure to store the relationship (line.\ref{l:mapadd}). After all averages have been calculated for each serializable schedule that was passed in as an argument, the temporary data structure is sorted based on the value set of each relationship. The value set of the data structure is the averaged priority. Once the data structure is sorted, the key set is returned (line.\ref{l:returnkeys}). At this point the key set will be a collection of the same serializable schedules but sorted in the correct order for execution. This ensures that the collection returned is a sorted data structure with the non-conflicting serializable schedules available for execution first and the conflicting schedules last.
 
 \begin{algorithm}
 \caption{DBMS Execute Schedule Algorithm}
@@ -1681,51 +1680,24 @@ Once the schedules have been generated they must be ordered by their respective 
 \begin{algorithmic}[1]
 
 \Procedure{exec\_sched}{SerialSched s}
-    \State Transaction [] aborted;
-    \State RCDS rcds = RCDS.\Call{getinstance}{}
     \\
-    \ForAll{o in s}
-        \State Action a;
-        \If{o = WRITE}
-            \State Category c = rcds.\Call{getmaxcat}{o.resrc}
-            \State a = CM.\Call{getAction}{c, o.resrc}
-        \Else
-            \State a = CM.\Call{getAction}{o.cat, o.resrc}
-        \EndIf
-        \\
-        \If{a = DECLINE}
-            \State \Call{wait}{}
-            \\
-            \If{o = READ}
-                \State rcds.\Call{add}{o.resrc, o.cat}
-            \EndIf
-            \State DBMS.\Call{submit}{o}
-        \ElsIf{a = ELEVATE}
-            \ForAll{l in o.resource.locks}
-                \State DBMS.\Call{abort}{l.transaction}
-                \State aborted.\Call{add}{l.transaction}
-            \EndFor
-            \\
-            \If{o = READ}
-                \State rcds.\Call{add}{o.resrc, o.cat}
-            \EndIf
-            \State DBMS.\Call{submit}{o}
-        \Else
-        \State rcds.\Call{add}{o.resrc, o.cat}
-        \State DBMS.\Call{submit}{o}
-        \EndIf
-        \\
-        \If{o = READ}
-            \State rcds.\Call{remove}{o.resrc, o.cat}
+    \ForAll{operations in s}
+        \State \textit{Get operation action from RCDS}
+        \If{operation is a DECLINE action}
+            \State \textit{Wait until all locks are released.}
+            \State \textit{The execute operation.}
+        \ElsIf{operation is an ELEVATE action}
+            \State \textit{Abort transactions with locks}
+            \State \textit{and execute operation}
+        \Else{ operation is GRANT action}
+            \State \textit{Execute operation}
         \EndIf
     \EndFor
     \\
-    \State data = DBMS.\Call{get\_trans\_data}{}
-    \ForAll{e in data}
-        \State \Call{updateTMetricsData}{e.result, e.time, e.t\_id};\label{l:updatetmetrics}
-    \EndFor
+    \State \textit{Update Transaction Metrics}
     \\
-    \State SCHEDULER.\Call{schedule}{aborted}
+    \State \textit{Send aborted transactions back to}
+    \State \textit{scheduler to be rescheduled}
 \EndProcedure
 
 \end{algorithmic}
@@ -1745,24 +1717,24 @@ The final step in the execution process is to reschedule any transactions that w
 \subsection{Complexity Analysis}
 For each of the algorithms listed above a complexity analysis is provided for clarity and transparency. All complexity analyses are presented using Big O notation for an upper bound of the algorithm's worst case scenario.
 
-\subsubsection{Algorithm \ref{alg:top_level}: Top Level Scheduler Algorithm}
-This algorithm is used to emulate the database scheduler which will continuously obtain transactions needed for scheduling. It contains a \verb|while true| that does not provide a way for any user input to exit the infinite loop. Since there is no way to exit the execution of the scheduler, then the complexity is $O(\infty)$. However, we can analyze the inner functionality contained within the \verb|while true|.
+% \subsubsection{Algorithm \ref{alg:top_level}: Top Level Scheduler Algorithm}
+% This algorithm is used to emulate the database scheduler which will continuously obtain transactions needed for scheduling. It contains a \verb|while true| that does not provide a way for any user input to exit the infinite loop. Since there is no way to exit the execution of the scheduler, then the complexity is $O(\infty)$. However, we can analyze the inner functionality contained within the \verb|while true|.
 
-The more important analysis for this algorithm is the time complexity before more transactions are scheduled and executed. If we analyze the complexity of the operations within the infinite loop we see a total of six operations however only three contribute to the time complexity\footnote{The fourth operation within the loop is executed within a dedicated thread to prevent any unneeded blocking.}. The first two function calls, \verb|GETABORTEDTRANS| and \verb|GETSCHEDTRANS|, are simple lookup operations responsible for getting the current transactions needed for scheduling. This executes in constant time (e.g. $O(1)$) and does not affect the total complexity. The second function call, \verb|GENERATE_SCHEDULES|, (see Section \ref{alg_complex:gen_sched}) executes with a complexity of $O(n)$. The third function call, \verb|ORDER_SCHEDULES|, (see Section \ref{alg_complexity:order_alg}) executes with a complexity of $O(n\log n)$. The final operation that impacts the overall complexity within the loop is a nested \verb|for| loop. This loop iterates over $n$ elements where $n$ is equal to the number of serializable schedules generated. The operation within this loop, the procedure call \verb|EXECUTE_SCHED| (see Section\ref{alg_complexity:exec_sched}), executes within a dedicated thread for each execution to allow concurrency of transactions. Therefore if there are $n$ schedules needing execution and each execution executes with a complexity of $O(1)$, the total complexity of the final \verb|for| is $O(n)$. With all components analyzed we see that out of the three major contributing functions that $O(n\log n)$ consumes the other two complexities and we can conclude that the total complexity within the infinite execution is an asymptotic upper bound of $O(n\log n)$.
+% The more important analysis for this algorithm is the time complexity before more transactions are scheduled and executed. If we analyze the complexity of the operations within the infinite loop we see a total of six operations however only three contribute to the time complexity\footnote{The fourth operation within the loop is executed within a dedicated thread to prevent any unneeded blocking.}. The first two function calls, \verb|GETABORTEDTRANS| and \verb|GETSCHEDTRANS|, are simple lookup operations responsible for getting the current transactions needed for scheduling. This executes in constant time (e.g. $O(1)$) and does not affect the total complexity. The second function call, \verb|GENERATE_SCHEDULES|, (see Section \ref{alg_complex:gen_sched}) executes with a complexity of $O(n)$. The third function call, \verb|ORDER_SCHEDULES|, (see Section \ref{alg_complexity:order_alg}) executes with a complexity of $O(n\log n)$. The final operation that impacts the overall complexity within the loop is a nested \verb|for| loop. This loop iterates over $n$ elements where $n$ is equal to the number of serializable schedules generated. The operation within this loop, the procedure call \verb|EXECUTE_SCHED| (see Section\ref{alg_complexity:exec_sched}), executes within a dedicated thread for each execution to allow concurrency of transactions. Therefore if there are $n$ schedules needing execution and each execution executes with a complexity of $O(1)$, the total complexity of the final \verb|for| is $O(n)$. With all components analyzed we see that out of the three major contributing functions that $O(n\log n)$ consumes the other two complexities and we can conclude that the total complexity within the infinite execution is an asymptotic upper bound of $O(n\log n)$.
 
-\subsubsection{Algorithm \ref{alg:generate_sched}: DBMS Scheduler Generation Algorithm}
-\label{alg_complex:gen_sched}
-The \verb|GENERATE_SCHEDULES| algorithm uses the existing logic of the scheduler along with categorization data from the prediction-based solution to generate serializable schedules. There are two non-nested iterations of $n$ items where the operations in each iteration are constant. This brings the total complexity analysis of the entire algorithm to $O(2n)$ which inherently translates to an asymptotic upper bound of $O(n)$.
+% \subsubsection{Algorithm \ref{alg:generate_sched}: DBMS Scheduler Generation Algorithm}
+% \label{alg_complex:gen_sched}
+% The \verb|GENERATE_SCHEDULES| algorithm uses the existing logic of the scheduler along with categorization data from the prediction-based solution to generate serializable schedules. There are two non-nested iterations of $n$ items where the operations in each iteration are constant. This brings the total complexity analysis of the entire algorithm to $O(2n)$ which inherently translates to an asymptotic upper bound of $O(n)$.
 
-\subsubsection{Algorithm \ref{alg:cat_for_trans}: T.M. Category Determination Algorithm}
-In this algorithm lies the responsibility of determining the category in which a transaction is placed depending on its metrics. This algorithm is designed to specifically execute in constant time so that a bottleneck is not created. A bottleneck would cause a huge performance degradation in the prediction-based solution. There are only \verb|if| comparisons within the processing logic and no \verb|for| or \verb|while| loops causing $n$ number of comparisons. Therefore, the overall complexity for the entire function is an an asymptotic upper bound of $O(1)$. 
+% \subsubsection{Algorithm \ref{alg:cat_for_trans}: T.M. Category Determination Algorithm}
+% In this algorithm lies the responsibility of determining the category in which a transaction is placed depending on its metrics. This algorithm is designed to specifically execute in constant time so that a bottleneck is not created. A bottleneck would cause a huge performance degradation in the prediction-based solution. There are only \verb|if| comparisons within the processing logic and no \verb|for| or \verb|while| loops causing $n$ number of comparisons. Therefore, the overall complexity for the entire function is an an asymptotic upper bound of $O(1)$. 
 
 % \subsubsection{Algorithm \ref{alg:calc_threshold}: Calculate Categorization Threshold}
 % Out of all the algorithms presented in this solution, this algorithm contains most computational expensive operations. The entire algorithm is contained within a \verb|for| loop iterating through each category available. Nested within this loop is another \verb|for| loop iterating through every x-value that could be possible for that particular category (see Figure \ref{graph:cat_graph}). Within this nested loop is yet another \verb|for| loop iterating through every possible y-value for that category. At this point, every operation within the last nested loop executes in constant time and is not a factor. At this point with the three nested loops we have a complexity of $O(n^{3})$. Even though this algorithm will execute within its own dedicated thread to prevent any blocking of calling functions, this not ideal. Taking the analysis a step further we see that the first \verb|for| loop iterates through all possible categories. This is a finite number with a max of 4\footnote{There is no need to calculate thresholds for the NO\_TREND category since it will be the default case; therefore only 4 out of the 5 total categories need thresholds calculated}. The second and third \verb|for| loops are also constrained to finite number of 25 due to the categorization bounds placed on categories (see Definition \ref{cat_bounds}). With these finite bounds taken into consideration we see that the complexity is much more efficient with an upper bound of $O(4*25*25) = O(2500)$. This translates to an asymptotic upper bound of $O(1)$ or $\Theta(1)$ since we know this is a tight bound.
 
-\subsubsection{Algorithm \ref{alg:priority_algorithm}: Priority Ordering Algorithm}
-\label{alg_complexity:order_alg}
-The \verb|ORDER_SCHEDULES| function orders a collection argument of serializable schedules by averaging the priorities across all transactions within that schedule. Once an average priority has been obtained for each schedule, the schedules are sorted by their average priority in ascending order. Within this algorithm, there is a single \verb|for| loop that iterates over $n$ elements. After this iteration, a collection of $n$ elements is sorted using the language's built-in sorting function. If we assume this is an optimized language we can assume the sorting will have an asymptotic tight bound of $\Theta(n\log n)$. By adding the two complex operations of the function we have a time complexity of $O(2n\log n)$ which translates to an asymptotic upper bound of $O(n\log n)$.
+% \subsubsection{Algorithm \ref{alg:priority_algorithm}: Priority Ordering Algorithm}
+% \label{alg_complexity:order_alg}
+% The \verb|ORDER_SCHEDULES| function orders a collection argument of serializable schedules by averaging the priorities across all transactions within that schedule. Once an average priority has been obtained for each schedule, the schedules are sorted by their average priority in ascending order. Within this algorithm, there is a single \verb|for| loop that iterates over $n$ elements. After this iteration, a collection of $n$ elements is sorted using the language's built-in sorting function. If we assume this is an optimized language we can assume the sorting will have an asymptotic tight bound of $\Theta(n\log n)$. By adding the two complex operations of the function we have a time complexity of $O(2n\log n)$ which translates to an asymptotic upper bound of $O(n\log n)$.
 
 \subsubsection{Algorithm \ref{alg:exec_sched}: DBMS Execute Schedule Algorithm}
 \label{alg_complexity:exec_sched}

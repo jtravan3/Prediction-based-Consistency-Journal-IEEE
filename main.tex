@@ -656,9 +656,9 @@ For example, an e-commerce web site allows users to purchase products through an
     \node[text width=1cm] at (2,0) {$Node_{4}$};
     \node[text width=7cm] at (-.5,-2) {$WS_{1} = Decrement Inventory By Product ID$};
     \node[text width=7cm] at (-.5,-2.5) {$WS_{2} = Process Payment$};
-    \node[text width=7cm] at (-.5,-3) {$WS_{3} = Add Order By User ID$};
+    \node[text width=7cm] at (-.5,-3) {$WS_{3} = Get Order By User ID$};
     \node[text width=7cm] at (-.5,-3.5) {$WS_{4} = Generate Receipt$};
-    \node[text width=7cm] at (-.5,-4) {$WS_{5} = Delete User Payment Info$};
+    \node[text width=7cm] at (-.5,-4) {$WS_{5} = Delete Order By User ID$};
 \end{tikzpicture}
 
 \caption{Business Process for e-Commerce Web Site} % title of the Figure
@@ -666,23 +666,23 @@ For example, an e-commerce web site allows users to purchase products through an
 
 \end{figure}
 
-Each dotted rectangle within Figure \ref{fig:bp_env} represents a distributed node containing a public web service executing transactions on an underlying database. In order for a successful purchase to take place within the e-commerce environment, the business process containing the web service sequence $WS_{1}, WS_{2}, WS_{3},$ and $WS_{4}$ must execute successfully. $WS_{1}$ ($DecrementInventoryByProductID$) uses the $productID$ provided from the current ticket in order to query the database regarding the requested product. This web service is responsible for searching the product and decrementing the number of items available for purchase. Once this task has been completed the ticket is passed off to $WS_{2}$. $WS_{2}$ ($ProcessPayment$) uses the payment information provided in the ticket to charge the user. If the payment is processed successfully, the ticket is forwarded to $WS_{3}$. $WS_{3}$ ($AddOrderByUserID$) is a service that takes the given $userID$, $product ID$, and creates a record of purchase history for the user. This allows the user to log in to their account at any time and see a record of their purchases. Once this has been processed successfully, it is handed off to $WS_{4}$ which is the final step in this purchase business process. $WS_{4}$ ($GenerateReceipt$) simply generates a receipt from the ticket information and is returned to the user's interface. A generated email with the attached receipt is also sent to the user for their own records. This web service does not require a database for its processing needs. Once $WS_{4}$ has completed processing, and only when it is finished, a purchase is considered successful.
+Each dotted rectangle within Figure \ref{fig:bp_env} represents a distributed node containing a public web service executing transactions on an underlying database. In order for a successful purchase to take place within the e-commerce environment, the business process containing the web service sequence $WS_{1}, WS_{2}, WS_{3},$ and $WS_{4}$ must execute successfully. $WS_{1}$ ($DecrementInventoryByProductID$) uses the $productID$ provided from the current ticket in order to query the database regarding the requested product. This web service is responsible for searching the product and decrementing the number of items available for purchase. Once this task has been completed the ticket is passed off to $WS_{2}$. $WS_{2}$ ($ProcessPayment$) uses the payment information provided in the ticket to charge the user. If the payment is processed successfully, the ticket is forwarded to $WS_{3}$. $WS_{3}$ ($GetOrderByUserID$) is a service that takes the given $userID$, $product ID$, and returns a record of purchase for the user. Once this has been processed successfully, it is handed off to $WS_{4}$ which is the final step in this purchase business process. $WS_{4}$ ($GenerateReceipt$) simply generates a receipt from the ticket information and is returned to the user's interface. A generated email with the attached receipt is also sent to the user for their own records. This web service does not require a database for its processing needs. Once $WS_{4}$ has completed processing, and only when it is finished, a purchase is considered successful.
 
 The issue that arises in this situation is that web services can be executed by multiple hosts where the hosts are unaware of each others presence. This can cause issues for a node such as $Node_{3}$ where there are two different web services executing transactions on a single database instance. $WS_{3}$ and $WS_{5}$ provide two completely different services to requesting hosts, however the changes are reflected within the same database. $WS_{3}$ is a crucial part of the purchase business process in the provided use case but that does not mean that $WS_{3}$ can only be used in that process. In the event that both $WS_{3}$ and $WS_{5}$ are executed simultaneously, some type of concurrency control will need to be applied to retain consistency within the shared database. The next section will discuss the details of the two transactions that could potentially cause an inconsistent state along with cascading rollbacks throughout $Node_{1}$ and $Node_{2}$.
 
 \subsection{Use Case Transactions for $Node_{3}$}
 
-In Figure \ref{fig:webform} we see the contents of the two transactions executing on $Node_{3}$. $T_{DeleteUserPaymentInfo}$ is a transaction generated by $W_{5}$. The responsibility of this web service is to determine if the user exists and if they do exist, then to delete the user's payment information from the database by the provided \textit{userID}. $T_{AddOrderByUserID}$ is a transaction generated by $WS_{3}$ (mentioned above from Figure \ref{fig:bp_env}) that is responsible for adding an order record to a user account. $T_{AddOrderByUserID}$ executes under the pretext that the \textit{userID} given exists in the database or the web service would not have been able to be executed. If the \textit{userID}, does not exist then a new blank record will be created for the user and the order added to that record. If $T_{AddOrderByUserID}$ fails then an abort must be issued and all the previous operations committed from $WS_{1}$ and $WS_{2}$ must be rolled back. This includes operations that were executed from subsequent transactions that depended on the results of $WS_{1}$ and $WS_{2}$.
+In Figure \ref{fig:webform} we see the contents of the two transactions executing on $Node_{3}$. $T_{DeleteOrderByUserID}$ is a transaction generated by $W_{5}$. The responsibility of this web service is to determine if the user exists and if they do exist, then to delete the user's order information from the database by the provided \textit{userID}. $T_{GetOrderByUserID}$ is a transaction generated by $WS_{3}$ (mentioned above from Figure \ref{fig:bp_env}) that is responsible for getting an order from a user account. $T_{GetOrderByUserID}$ executes under the pretext that the \textit{userID} given exists in the database or the web service would not have been able to be executed. If the \textit{userID}, does not exist then a new blank record will be returned for the user. If $T_{GetOrderByUserID}$ fails then an abort must be issued and all the previous operations committed from $WS_{1}$ and $WS_{2}$ must be rolled back. This includes operations that were executed from subsequent transactions that depended on the results of $WS_{1}$ and $WS_{2}$.
 
-The two transactions executed from $WS_{3}$ and $WS_{5}$ consist of only two operations each. $T_{DeleteUserPaymentInfo}$ contains a single $R_{1}(b)$ and $W_{1}(b)$ where $b$ represents the user account associated with the given \textit{userID}. The transaction will first READ from the database to ensure the user exists and then WRITE out the user record if the user does exist\footnote{In this instance the WRITE operation executed would write a $NULL$ or empty record to the database in order to "delete" the record.}. The other transaction, $T_{AddOrderByUserID}$, also contains a single $R_{2}(b)$ and a single $W_{2}(b)$ where $b$ represents the order record to be persisted to the user's order history. The READ operation also ensures that the user exists first before the WRITE operation is executed. Each transaction contains a $C_{i}$ operation that represents the COMMIT operation that the database executes after all operations have completed. Figure \ref{fig:webform} shows the two transactions along with the operations contained within.
+The two transactions executed from $WS_{3}$ and $WS_{5}$ are $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$. $T_{DeleteOrderByUserID}$ contains four operations: $R_{2}(b)$, $W_{2}(b)$, $R_{2}(a)$, and $W_{2}(a)$. The transaction will first READ from the database to ensure the user exists and then WRITE out the order infromation if the order does exist\footnote{In this instance the WRITE operation executed would write a $NULL$ or empty record to the database in order to "delete" the record.}. The other transaction, $T_{GetOrderByUserID}$, contains a single $R_{1}(a)$ and $R_{1}(b)$. Each transaction contains a $C_{i}$ operation that represents the COMMIT operation that the database executes after all operations have completed. Figure \ref{fig:webform} shows the two transactions along with the operations contained within.
 
 \begin{figure}[h]
 \captionsetup{justification=centering}
 \centering % used for centering Figure
 
 \begin{picture}(50,40)
-    \put(-70.5,25){$T_{AddOrderByUserID}$ = $R_{1}(b)W_{1}(b)C_{1}$}
-    \put(-87,10){$T_{DeleteUserPaymentInfo}$ = $R_{2}(b)W_{2}(b)C_{2}$}
+    \put(-70.5,25){$T_{GetOrderByUserID}$ = $R_{1}(a)R_{1}(b)C_{1}$}
+    \put(-87,10){$T_{DeleteOrderByUserID}$ = $R_{2}(b)W_{2}(b)R_{2}(a)W_{2}(a)C_{2}$}
 \end{picture}
 
 \caption{e-Commerce Web Service Transaction Sequences} % title of the Figure
@@ -701,8 +701,8 @@ For the transactions listed above, we know certain attributes regarding their ex
 \hline
 \multicolumn{4}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{Transaction Metrics}}                                                   \\ \hline
 \textbf{Transactions} & \textbf{Commit Rate} & \textbf{\# of Transactions} & {\color[HTML]{000000} \textbf{Eff. Rate}} \\ \hline
-$T_{DeleteUserPaymentInfo}$         & 98\%                  & 200                         & 98\%                                          \\ \hline
-$T_{AddOrderByUserID}$          & 97\%                     & 520                           & 99\%                                              \\ \hline
+$T_{DeleteOrderByUserID}$         & 98\%                  & 200                         & 98\%                                          \\ \hline
+$T_{GetOrderByUserID}$          & 97\%                     & 520                           & 99\%                                              \\ \hline
 \end{tabular}
 
 \caption{Transaction Metrics} % title of the Figure
@@ -710,14 +710,14 @@ $T_{AddOrderByUserID}$          & 97\%                     & 520                
 
 \end{table}
 
-In the scenario when the two transactions above are executed simultaneously, some form of concurrency control must be used to ensure that the database is left in a consistent state. In a web service context the isolation property will be relaxed and a serializable execution will be created. This serializable execution will be based on the conflicting operations of the two transactions. Figure \ref{fig:combined_history} displays an example of a generated serializable execution from $T_{AddOrderByUserID}$ and $T_{DeleteUserPaymentInfo}$.
+In the scenario when the two transactions above are executed simultaneously, some form of concurrency control must be used to ensure that the database is left in a consistent state. In a web service context the isolation property will be relaxed and a serializable execution will be created. This serializable execution will be based on the conflicting operations of the two transactions. Figure \ref{fig:combined_history} displays an example of a generated serializable execution from $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$.
 
 \begin{figure}[h]
 \captionsetup{justification=centering}
 \centering % used for centering Figure
 
 \begin{picture}(50,25)
-    \put(-65,5){$T_{Serialized}$ = $R_{1}(b)W_{1}(b)R_{2}(b)W_{2}(b)C_{2}C_{1}$}
+    \put(-90,5){$T_{Serialized}$ = $R_{1}(a)R_{2}(b)W_{2}(b)R_{1}(b)R_{2}(a)W_{2}(a)C_{2}C_{1}$}
 \end{picture}
 
 \caption{Generated Serializable Execution} % title of the Figure
@@ -725,9 +725,9 @@ In the scenario when the two transactions above are executed simultaneously, som
 
 \end{figure}
 
-$T_{Serialized}$ is a well-formed serializable execution that does not violate any rules regarding conflicting operations. However, if $W_{2}(b)$ fails, a cascading rollback will be issued causing the operations of $T_{AddOrderByUserID}$ to be rolled back regardless of their successful execution. The operations of $T_{AddOrderByUserID}$ must be rolled back since they are a part of $T_{Serialized}$ and a COMMIT operation has not been executed yet. If $T_{AddOrderByUserID}$ was executed as a part of the business process outlined in the use case then the operations of the previous web services ($WS_{1}$ and $WS_{2}$) must be rolled back also.
+$T_{Serialized}$ is a well-formed serializable execution that does not violate any rules regarding conflicting operations. However, if $W_{2}(b)$ fails, a cascading rollback will be issued causing the operations of $T_{GetOrderByUserID}$ to be rolled back regardless of their successful execution. The operations of $T_{GetOrderByUserID}$ must be rolled back since they are a part of $T_{Serialized}$ and a COMMIT operation has not been executed yet. If $T_{GetOrderByUserID}$ was executed as a part of the business process outlined in the use case then the operations of the previous web services ($WS_{1}$ and $WS_{2}$) must be rolled back also.
 
-Conversely, if the data in Table \ref{tbl:trans_metrics} were taken into consideration before generating the serializable execution, $T_{AddOrderByUserID}$ could be given a more restrictive concurrency control mechanism, such as locking. Table \ref{tbl:trans_metrics} contains data that proves instances of $T_{AddOrderByUserID}$ have a high rate of commit with high percentage of efficiency throughout the system. Table \ref{tbl:trans_metrics} also displays that instances of $T_{DeleteUserPaymentInfo}$ could use locking techniques due to its history. Therefore $T_{AddOrderByUserID}$ and $T_{DeleteUserPaymentInfo}$ could execute within the same schedule using traditional locking techniques, commit changes quickly and successfully, and prevent a cascading rollback from reverting the effects of $WS_{1}$ and $WS_{2}$ just by using the reputation provided by the separate transactions. The next section will discuss the existing research that has taken place to remediate this problem without the current knowledge of transaction metrics.
+Conversely, if the data in Table \ref{tbl:trans_metrics} were taken into consideration before generating the serializable execution, $T_{GetOrderByUserID}$ could be given a more restrictive concurrency control mechanism, such as locking. Table \ref{tbl:trans_metrics} contains data that proves instances of $T_{GetOrderByUserID}$ have a high rate of commit with high percentage of efficiency throughout the system. Table \ref{tbl:trans_metrics} also displays that instances of $T_{DeleteOrderByUserID}$ could use locking techniques due to its history. Therefore $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$ could execute within the same schedule using traditional locking techniques, commit changes quickly and successfully, and prevent a cascading rollback from reverting the effects of $WS_{1}$ and $WS_{2}$ just by using the reputation provided by the separate transactions. The next section will discuss the existing research that has taken place to remediate this problem without the current knowledge of transaction metrics.
 
 \section{Existing Research}
 \label{sec:existing_research}
@@ -913,7 +913,7 @@ Transactions of conflicting categories are not allowed within the same schedule 
 
 \begin{definition}
 \label{elevate_action}
- (Elevate Action) - the elevate action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the delta symbol ($\delta$) which signifies that the transaction requesting access to the resource is in a category that contains a higher prioritization (see Table \ref{tbl:priority}) than the transaction that currently holds the lock to the resource.
+ (Elevate Action) - the elevate action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the delta symbol ($\delta$) which signifies that the transaction requesting access to the resource is in a category that contains a higher prioritization (see Table \ref{tbl:priority}) than the transactions that currently hold locks to the resource. In this situation all locks held by transactions of lower priority will be preemptively aborted so the transaction with the higher priority can obtain the needed lock.
  
  \begin{example}
  \label{ex_elevate_action}
@@ -1180,30 +1180,32 @@ The categorization graph is grouped into four sections where each section repres
     grid style=dashed,
 ]
 
-\addplot[
-    color=blue,
-    mark=diamond,
-    ]
-    coordinates {
-    (0,49)(49,49)(49,0)};
-\addplot[
-    color=red,
-    mark=o,
-    ]
-    coordinates {
-    (0,51)(49,51)(49,100)};
-\addplot[
-    color=black,
-    mark=triangle,
-    ]
-    coordinates {
-    (51,0)(51,49)(100,49)};
-\addplot[
-    color=purple,
-    mark=square,
-    ]
-    coordinates {
-    (51,100)(51,51)(100,51)};
+% \addplot[
+%     color=blue,
+%     mark=diamond,
+%     ]
+%     coordinates {
+%     (0,49)(49,49)(49,0)};
+% \addplot[
+%     color=red,
+%     mark=o,
+%     ]
+%     coordinates {
+%     (0,50)(50,50)(50,100)};
+% \addplot[
+%     color=black,
+%     mark=triangle,
+%     ]
+%     coordinates {
+%     (50,0)(50,50)(100,50)};
+\draw[-] (0,50) -- (100,50);
+\draw[-] (50,0) -- (50,100);
+% \addplot[
+%     color=purple,
+%     mark=square,
+%     ]
+%     coordinates {
+%     (51,100)(51,51)(100,51)};
 \addplot[
     only marks,
     color=red,
@@ -1460,7 +1462,7 @@ Every prediction-based history $H$ is serializable.
 
 \section{Algorithms}
 \label{sec:algorithms}
-In the existing web service environment the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the concurrent transactions and executed on the database for processing. In this section we discuss the algorithms needed in order to make these concurrent executions possible. The prediction-based solution uses a great deal of the existing logic that is already implemented within schedulers. The only algorithm that is needed for this solution uses the existing logic to execute operations and the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). This algorithm is outlined in Algorithm \ref{alg:exec_sched}.
+In the existing web service environment the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the submitted transactions and executed on the database for processing. The prediction-based solution uses a great deal of the existing logic that is already implemented within schedulers. The only algorithm that is needed for this solution uses the existing logic to execute operations and the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). This algorithm is outlined in Algorithm \ref{alg:exec_sched}.
 
 % \begin{algorithm}
 % \caption{DBMS Scheduler Generation Algorithm}
@@ -1682,14 +1684,19 @@ In the existing web service environment the scheduler is the first stage of the 
 \Procedure{exec\_sched}{SerialSched s}
     \\
     \ForAll{operations in s}
-        \State \textit{Get operation action from RCDS}
-        \If{operation is a DECLINE action}
+        \State \textit{Get the highest category available from the RCDS}
+        \State \textit{based on the resource that the operation is}
+        \State \textit{executing on.}
+        \\
+        \State \textit{Use this category to get the action from the}
+        \State \textit{compatibility matrices}
+        \If{action is a DECLINE action}
             \State \textit{Wait until all locks are released.}
-            \State \textit{The execute operation.}
-        \ElsIf{operation is an ELEVATE action}
+            \State \textit{Then execute operation.}
+        \ElsIf{action is an ELEVATE action}
             \State \textit{Abort transactions with locks}
             \State \textit{and execute operation}
-        \Else{ operation is GRANT action}
+        \Else{ action is GRANT action}
             \State \textit{Execute operation}
         \EndIf
     \EndFor
@@ -1704,18 +1711,20 @@ In the existing web service environment the scheduler is the first stage of the 
 \end{algorithm}
 
 \subsection{Execute Schedules}
-The final procedure needed in the scheduler for executing transactions is the actual execution of the generated serializable schedule. Each execution of this procedure is executed in a dedicated thread in order to prevent blocking execution in the calling scope. This is what designates the need for the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). Although there may be single scheduler organizing and submitting transactions, there can be multiple concurrent executions going on with varying execution times. The RCDS keeps track of the multiple read-locks that are granted for a resource so the correct comparison can be made between executions. This function is outlined in Algorithm \ref{alg:exec_sched}.
+Each execution of this procedure will be concurrent with other executions. This is what designates the need for the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). Although there may be single scheduler organizing and submitting transactions, there can be multiple concurrent executions going on with varying execution times. The RCDS keeps track of the multiple read-locks that are granted for a resource so the correct comparison can be made between executions.
 
-The existing logic for executing an operation on the database within the DBMS is needed but, before the operation can be performed there are numerous conditions that have to be taken into consideration. This procedure begins by iterating through each operation contained within a serializable schedule. Before any processing can take place, the action must be obtained based on the operation's category (derived by the category placed on the transaction containing the operation) and the operated resource (Based on Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and Definitions \ref{grant_action}, \ref{decline_action}, and \ref{elevate_action}). If the operation is a write, then we consult the RCDS for the highest category lock granted for the operation's resource. This is performed for only write operations because there could be different actions for different categories of requesting write locks.
+The existing logic for executing an operation on the database within the DBMS is needed but, before the operation can be performed there are numerous conditions that have to be taken into consideration. This procedure begins by iterating through each operation contained within a serializable schedule. Before any processing can take place, the action must be obtained based on the operation's category (derived by the category placed on the transaction containing the operation) and the operated resource (Based on Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and Definitions \ref{grant_action}, \ref{decline_action}, and \ref{elevate_action}).
 
-If the action obtained is a \textit{decline action} then, by definition, the operation would wait until the all locks were released and then it would perform the operation. If the action obtained is an \textit{elevate action} then all current locks granted for the operations resource would be dropped, their corresponding transactions would be aborted, and then the operation would be submitted for processing. Only preemptively aborted transactions in this case are obtained and automatically resubmitted for processing. The final action, \textit{grant action} is simply submitted to the DBMS for processing. In each of the three action cases, if the operation requesting a lock is a read operation then an entry in the RCDS is added. This ensure that other executions that are occurring concurrently obtain the most accurate information for comparisons within the compatibility matrices. After the operation has completed processing from the DBMS, the entry in the RCDS is removed if it was a read operation.
+If the action obtained is a \textit{decline action} then, by definition, the operation would wait until the all locks were released and then it would perform the operation. If the action obtained is an \textit{elevate action} then all current locks granted for the operations resource would be dropped, their corresponding transactions would be aborted, and then the operation would be submitted for processing. Only preemptively aborted transactions in this case are obtained and automatically resubmitted for processing. The final action, \textit{grant action} is simply submitted to the DBMS for processing. In each of the three action cases, if the operation requesting a lock is a read operation then an entry in the RCDS is added. This ensures that other executions that are occurring concurrently obtain the most accurate information for comparisons within the compatibility matrices. After the operation has completed processing from the DBMS, the entry in the RCDS is removed.
 
-After all operations have completed processing, the transactional metadata for all operation executions is retained from the DBMS. This information is then used to populate the Transactional Metrics logical unit. This step ensures that the data pulled for Algorithm \ref{alg:cat_for_trans} is always up to date and the correct categorization is always used.
+After all operations have completed processing, the transactional metadata for all operation executions is retained from the DBMS. This information is then used to populate the Transactional Metrics. 
 
-The final step in the execution process is to reschedule any transactions that were preemptively aborted due to the \textit{elevate action}. These transactions are entered back into the beginning of the process by an asynchronous call back to the scheduler. This prevents any starvation that could potentially occur from preemptive transactional aborts.
+% This step ensures that the data pulled for Algorithm \ref{alg:cat_for_trans} is always up to date and the correct categorization is always used.
+
+The final step in the execution process is to reschedule any transactions that were preemptively aborted due to the \textit{elevate action}. These transactions are entered back into the scheduler for rescheduling. This prevents any starvation that could potentially occur from preemptive transactional aborts.
 
 \subsection{Complexity Analysis}
-For each of the algorithms listed above a complexity analysis is provided for clarity and transparency. All complexity analyses are presented using Big O notation for an upper bound of the algorithm's worst case scenario.
+To ensure that the solution is feasible with the added overhead an analysis of the algorithm was completed. The complexity analysis is presented using Big O notation for an upper bound of the algorithm's worst case scenario.
 
 % \subsubsection{Algorithm \ref{alg:top_level}: Top Level Scheduler Algorithm}
 % This algorithm is used to emulate the database scheduler which will continuously obtain transactions needed for scheduling. It contains a \verb|while true| that does not provide a way for any user input to exit the infinite loop. Since there is no way to exit the execution of the scheduler, then the complexity is $O(\infty)$. However, we can analyze the inner functionality contained within the \verb|while true|.
@@ -1738,7 +1747,7 @@ For each of the algorithms listed above a complexity analysis is provided for cl
 
 \subsubsection{Algorithm \ref{alg:exec_sched}: DBMS Execute Schedule Algorithm}
 \label{alg_complexity:exec_sched}
-The final algorithm in the analysis is the overridden \verb|EXECUTE_SCHED| procedure. This algorithm makes use of the existing logic within the DBMS to execute operations from the generated schedules. The additional logic contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing within its own dedicated thread to prevent any blocking on upper level function calls. The next and final section outlines the future research anticipated in regards to prediction-based categorization.
+This algorithm makes use of the existing logic within the DBMS to execute operations from the generated schedule. The additional logic contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing concurrently. The next and final section outlines the future research anticipated in regards to prediction-based categorization.
 
 \section{Future Research}
 \label{sec:future_research}

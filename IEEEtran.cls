@@ -219,7 +219,8 @@
 
 
 % class option conditionals
-\newif\ifCLASSOPTIONonecolumn       \CLASSOPTIONonecolumnfalse
+\newif\ifCLASSOPTIONonecolumn
+\CLASSOPTIONonecolumnfalse
 \newif\ifCLASSOPTIONtwocolumn       \CLASSOPTIONtwocolumntrue
 
 \newif\ifCLASSOPTIONoneside         \CLASSOPTIONonesidetrue
@@ -341,7 +342,7 @@
 
 
 % default to US letter paper, 10pt, twocolumn, one sided, final, journal
-\ExecuteOptions{letterpaper,10pt,twocolumn,oneside,final,journal}
+\ExecuteOptions{letterpaper,10pt,onecolumn,oneside,final,journal}
 % overrride these defaults per user requests
 \ProcessOptions
 
@@ -602,7 +603,7 @@
 
 
 % set the default \baselinestretch
-\def\baselinestretch{1}
+\def\baselinestretch{1.4}
 \ifCLASSOPTIONdraftcls
   \def\baselinestretch{1.5}% default baselinestretch for draft modes
 \fi 

@@ -736,18 +736,18 @@ Ensuring successful concurrency control in web service transactions has been stu
 
 \section{System Model}
 \label{sec:system_model}
-This section outlines the system model on which the solution is built. Definitions for new concepts are introduced first considering they will be used to describe the different components that consist of the system model. Later subsections explain in detail the different components and processes required for the prediction-based solution.
+This section outlines the system model on which the solution is built. Definitions for new concepts are introduced first considering they will be used to describe the different components that consist of the system model. Later subsections explain in detail the different components and processes required for the prediction-based solution. We assume that all the transactions are well-formed and the scheduler is legal.
 
 \subsection{Definitions}
 \label{definitions}
 
 \begin{definition}
 \label{cmt_rate}
- (Commit Rate) - commit rate is calculated by the given formula:
+ (Commit Rate) - the commit rate of a transaction $T_{i}$, denoted as  $C_{r}(T_{i})$, is calculated by the given formula:
  
- \[\textrm{$c$} = \textrm{\# of executions ending with a COMMIT result}\]
- \[\textrm{$a$} = \textrm{\# of executions ending with a ABORT result}\]
- \[\textrm{\textit{Commit Rate}} =\frac{\abs{c}}{\abs{c + a}}\]
+ \[\textrm{$\abs{c_{i}}$} = \textrm{\# of executions of $T_{i}$ ending with a COMMIT result}\]
+ \[\textrm{$\abs{a_{i}}$} = \textrm{\# of executions of $T_{i}$ ending with a ABORT result}\]
+ \[\textrm{$C_{r}(T_{i})$} =\frac{\textrm{$\abs{c_{i}}$}}{\textrm{$\abs{c_{i} + a_{i}}$}}\]
  
  Once this ratio is calculated it is compared to the overall ratio of commit to abort executions for all transactions.
  
@@ -755,15 +755,15 @@ This section outlines the system model on which the solution is built. Definitio
 
 \begin{definition}
 \label{eff_rate}
- (Efficiency Rate) - efficiency rate is based on how its execution time compares to all transactions executed within the execution environment. The efficiency rate is calculated based on the given formula:
+ (Efficiency Rate) - the efficiency rate of a transaction $T_{i}$, denoted as  $E_{r}(T_{i})$, is based on how its execution time compares to all transactions executed within the execution environment. The efficiency rate is calculated based on the given formula:
  
-\[\textrm{\textit{Efficiency Rate}} =\frac{\textrm{$AVG(AVG(T_{1}),...,AVG(T_{n}))$}}{\textrm{$AVG(T_{i})$}}\]
+\[\textrm{$E_{r}(T_{i})$} =\frac{\textrm{$AVG(AVG(T_{1}),...,AVG(T_{n}))$}}{\textrm{$AVG(T_{i})$}}\]
  
 \end{definition}
 
 \begin{definition}
 \label{cat_bounds}
- (Categorization Bounds) - categorization bounds are upper and lower limits of both commit rate and efficiency rate that are used when categorizing transactions. These are put in place to prevent any particular transaction category from potentially covering the entire categorization graph. The categorization bounds are static values that do not change throughout the system execution. Both the efficiency rate and the commit rate bounds are currently at 50\% creating full coverage of all transactions.
+ (Categorization Thresholds) - categorization thresholds are upper and lower limits of both commit rate and efficiency rate that are used when categorizing transactions\footnote{The categorization bounds are static values that do not change throughout the system execution. Both the efficiency rate and the commit rate bounds are currently at 50\% creating full coverage of all transactions.}.
 \end{definition}
 
 % \begin{definition}
@@ -772,45 +772,102 @@ This section outlines the system model on which the solution is built. Definitio
 % \end{definition}
 
 \begin{definition}
-\label{min_commit}
-(HCHE) - HCHE, acronym for High Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the upper 50\% and higher as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+\label{transaction_categories}
+(Transaction Categories) - Let $T$ = \{$T_{1}$, ... , $T_{n}$\} be a set of transactions and $C$ = \{$HCHE$, $HCLE$, $LCHE$, $LCLE$\} a set of category names. The mapping $\tau$ associates a category name with each transaction as follows:
+
+\[ 
+\tau : \textrm{$T_{i}$}\rightarrow
+\left \{
+  \begin{tabular}{cc}
+  HCHE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) > 0.5$ \\
+  HCLE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) \le 0.5$ \\
+  LCHE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) > 0.5$ \\
+  LCLE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) \le 0.5$
+  \end{tabular}
+\right \}
+\]
+
 \end{definition}
 
 \begin{definition}
-\label{min_abrt}
-(LCHE) - LCHE, acronym for Low Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the upper 50\% and higher (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+\label{cat_dominance}
+(Transaction Category Dominance) - The Transaction Category Dominance is a pair, denoted as $C_{D} = (C,L)$, where $C$ is the set of transaction categories, and $L$ is a partial order of the categories such that:
+ 
+\[\textrm{$HCHE > HCLE > LCLE$}\]
+\[\textrm{$HCHE > LCHE > LCLE$} \]
+
+\begin{figure}[h]
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{tikzpicture}
+    % [list/.style={rectangle split, rectangle split parts=3,
+    % draw, rectangle split horizontal}, >=stealth, start chain]
+  \node[text width=1.5cm] at (3.8,5) {$HCHE$};
+  \node[text width=1.5cm] at (2.8,4) {$HCLE$};
+  \node[text width=1.5cm] at (4.8,4) {$LCHE$};
+  \node[text width=1.5cm] at (3.8,3) {$LCLE$};
+  \draw (3.55,4.8) -- (2.7,4.2);
+  \draw (3.75,4.8) -- (4.7,4.2);
+  \draw (3.55,3.2) -- (2.7,3.8);
+  \draw (3.75,3.2) -- (4.7,3.8);
+  
+\end{tikzpicture}
+
+% \caption{Web Service Environment with Scheduler} % title of the Figure
+\label{fig:category_lattice} % label to refer figure in text
+
+\end{figure}
+
+Note, that the categories $HCLE$ and $LCHE$ are not comparable. That is, we cannot establish a dominance relation between transactions in $HCLE$ and $LCHE$ categories.
+
+However, in our model, we focus on reducing the need of compensation for aborted transactions. Therefore, we prioritize the commit property over the efficiency property. We introduce the dominance relation below. Table \ref{tbl:priority} displays the defined dominance.
+
+\[\textrm{$HCLE > LCHE$} \]
+ 
+\begin{table}[h]
+\captionsetup{justification=centering}
+\centering
+\begin{tabular}{l|c|}
+\cline{2-2}
+                                          & \multicolumn{1}{l|}{\textbf{Priority}} \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCHE}}  & I                                      \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCLE}}  & II                                     \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCHE}} & III                                     \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCLE}} & IV                                      \\ \hline
+\end{tabular}
+
+\caption{Category Priorities} % title of the Figure
+\label{tbl:priority} % label to refer figure in text
+
+\end{table} 
+
 \end{definition}
 
-\begin{definition}
-\label{ext_commit}
-(HCLE) - HCLE, acronym for High Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the bottom 50\% and lower (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-\end{definition}
+% \begin{definition}
+% \label{min_commit}
+% (HCHE) - HCHE, acronym for High Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the upper 50\% and higher as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+% \end{definition}
 
-\begin{definition}
-\label{ext_abrt}
-(LCLE) - LCLE, acronym for Low Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the bottom 50\% and lower as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-\end{definition}
+% \begin{definition}
+% \label{min_abrt}
+% (LCHE) - LCHE, acronym for Low Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the upper 50\% and higher (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+% \end{definition}
+
+% \begin{definition}
+% \label{ext_commit}
+% (HCLE) - HCLE, acronym for High Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the bottom 50\% and lower (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+% \end{definition}
+
+% \begin{definition}
+% \label{ext_abrt}
+% (LCLE) - LCLE, acronym for Low Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the bottom 50\% and lower as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
+% \end{definition}
 
 %\begin{definition}
 %\label{no_trend}
 %(NO\_TREND) - NO\_TREND is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that include all %the outlining space that the previous four categories do not include. If the efficiency rate is less than or equal to 25\% then the %commit rate must be between 25\% and 75\% (see Definitions \ref{cmt_rate} and \ref{eff_rate}). If the efficiency rate is between 25\% %and 75\% then the commit rate includes all values ranging from 0\% to 100\%. Finally, if the efficiency rate is greater than or equal %to 75\% then the commit rate must be between 25\% and 75\%. Table \ref{tbl:default_tmetrics} outlines all transaction categories.
 %\end{definition}
-
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|c|}
-\cline{2-3}
-                                          & \multicolumn{1}{l|}{\textbf{Efficiency Rate ($E_{r}$)}} & \multicolumn{1}{l|}{\textbf{Commit Rate ($C_{r}$)}} \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCLE}}  & $\le$ 50\%                       & $\ge$ 50\%                               \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCLE}} & $\le$ 50\%                       & $\le$ 50\%                                 \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCHE}}  & $\ge$ 50\%                          & $\ge$ 50\%                                \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCHE}} & $\ge$ 50\%                          & $\le$ 50\%                                  \\ \hline
-%\multicolumn{1}{|l|}{\textbf{No Trnd.}} &    \multicolumn{2}{c|}{See equation below}                                    \\ \hline
-\end{tabular}
-\caption{Transaction Categorization Bounds} % title of the Figure
-\label{tbl:default_tmetrics} % label to refer figure in text
-\end{table}
 
 %\[
 %\left \{
@@ -826,52 +883,52 @@ This section outlines the system model on which the solution is built. Definitio
 
 \begin{definition}
 \label{conflict_ops}
- (Conflicting Operations) - two operations are considered conflicting if they contain all of the following attributes:
+ (Conflicting Operations) - two operations are conflicting if they,
 
  \begin{enumerate}
-   \item both are contained within different transactions
-   \item both operations are operating on the same data item
-   \item and at least one of the operations is a WRITE
+   \item are contained within two different transactions,
+   \item both operations are operating on the same data item, and
+   \item at least one of the operations is a WRITE
  \end{enumerate}
 
  \begin{example}
  \label{ex_conflict_ops}
-  $o_{1}$ is a READ operation on resource $R_{User ID}$ in $T_{1}$ and $o_{2}$ is a WRITE operation on $R_{User ID}$ in    $T_{2}$. These two operations are considered conflicting.
+  Let $o_{1}$ be a READ operation on data item $User ID$ in transaction $T_{1}$ and let $o_{2}$ be a WRITE operation on $User ID$ in $T_{2}$. These two operations are conflicting.
  \end{example}
 \end{definition}
 
-\begin{definition}
-\label{conflict_trans}
- (Conflicting Transactions) - two transactions are considered conflicting if they contain all of the following attributes:
+% \begin{definition}
+% \label{conflict_trans}
+%  (Conflicting Transactions) - two transactions are considered conflicting if they contain all of the following attributes:
  
- \begin{enumerate}
- \item both transactions contain conflicting operations (see Definition \ref{conflict_ops})
- \item both transactions are contained within the same serializable schedule
- \item and at least one of the transactions is categorized to abort
- \end{enumerate}
+%  \begin{enumerate}
+%  \item both transactions contain conflicting operations (see Definition \ref{conflict_ops})
+%  \item both transactions are contained within the same serializable schedule
+%  \item and at least one of the transactions is categorized to abort
+%  \end{enumerate}
  
- \begin{example}
- \label{ex_conflict_trans}
-  Using the transactions mentioned in Example \ref{ex_conflict_ops} let's say the serializable schedule $S_{1}$ contains   an interleaved execution of $T_{1}$ and $T_{2}$. These transactions are now considered conflicting.
- \end{example}
-\end{definition}
+%  \begin{example}
+%  \label{ex_conflict_trans}
+%   Using the transactions mentioned in Example \ref{ex_conflict_ops} let's say the serializable schedule $S_{1}$ contains   an interleaved execution of $T_{1}$ and $T_{2}$. These transactions are now considered conflicting.
+%  \end{example}
+% \end{definition}
 
-\begin{definition}
-\label{conflict_cat}
-  (Conflicting Categories) - conflicting categories are very much related to conflicting transactions (see Definition \ref{conflict_trans}) however this definition is concerned with the categories the transactions have been placed in rather than the transactions themselves. Two categories are said to be conflicting if they contain all of the following attributes:
+% \begin{definition}
+% \label{conflict_cat}
+%   (Conflicting Categories) - conflicting categories are very much related to conflicting transactions (see Definition \ref{conflict_trans}) however this definition is concerned with the categories the transactions have been placed in rather than the transactions themselves. Two categories are said to be conflicting if they contain all of the following attributes:
   
-  \begin{enumerate}
-  \item both are contained within the same serializable schedule
-  \item and at least one of the categories is predicted to abort
-  \end{enumerate}
+%   \begin{enumerate}
+%   \item both are contained within the same serializable schedule
+%   \item and at least one of the categories is predicted to abort
+%   \end{enumerate}
   
-Transactions of conflicting categories are not allowed within the same schedule within this solution.  
+% Transactions of conflicting categories are not allowed within the same schedule within this solution.  
   
-  \begin{example}
-  For example, let's say we have transaction $T_{1}$ that has been placed in the category HCHE and transaction $T_{2}$ that has been placed in the category LCLE. These two categories are considered conflicting even if $T_{1}$ and $T_{2}$ are not considered to be conflicting transactions themselves.
-  \end{example}
+%   \begin{example}
+%   For example, let's say we have transaction $T_{1}$ that has been placed in the category HCHE and transaction $T_{2}$ that has been placed in the category LCLE. These two categories are considered conflicting even if $T_{1}$ and $T_{2}$ are not considered to be conflicting transactions themselves.
+%   \end{example}
   
-\end{definition}
+% \end{definition}
 
 % \begin{definition}
 % \label{serial_sched}
@@ -891,34 +948,44 @@ Transactions of conflicting categories are not allowed within the same schedule 
 % \end{definition}
 
 \begin{definition}
-\label{grant_action}
- (Grant Action) - the grant action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the plus sign (+) which signifies that there is not a conflict between the granted and requesting transactions and the lock can be granted to the transaction that is requesting access to the resource.
+\label{legal_scheduler}
+ (Legal Scheduler) - a prediction-based scheduler is legal if:
+ 
+ \begin{enumerate}
+    \item \textbf{Grant:} a transaction is permitted to lock a data item if the data item is not already locked in a non-compatible mode by an other transaction\footnote{In the event that a lock is requested of a resource that has not issued any locks, then the lock will be automatically granted. There is no conflict and therefore the compatibility matrices do not apply.}.
+    \item \textbf{Decline:} a transaction $T_{i}$ is denied to lock a data item if the data item is already locked in a non-compatible mode by another transaction $T_{j}$ where $\tau(T_{i}) \le \tau(T_{j})$
+    \item \textbf{Elevate:} a transaction $T_{i}$ is permitted to lock a data item if all the non-compatible locks on the data item are being held by transactions $T_{1}, ... , T_{k}$ such that $\tau(T_{j}) < \tau(T_{i})$ for all $j = 1, ..., k$ in this case $T_{1}, ... , T_{k}$ must first release the locks on the data item before $T_{i}$ is permitted to lock the data item.
+ \end{enumerate}
+
+% \begin{definition}
+% \label{grant_action}
+%  (Grant Action) - the grant action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the plus sign (+) which signifies that there is not a conflict between the granted and requesting transactions and the lock can be granted to the transaction that is requesting access to the resource.
  
  \begin{example}
  \label{ex_grant_action}
-  A read-lock for a resource $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is also requesting a read-lock to resource $R$. This does not cause a conflict and therefore the grant action will be taken and the requested lock will be issued to $T_{2}$.
+  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is also requesting a read-lock to data item $R$. This does not cause a conflict and therefore the grant action will be taken and the requested lock will be issued to $T_{2}$.
  \end{example}
  
-\end{definition}
+% \end{definition}
 
-\begin{definition}
-\label{decline_action}
- (Decline Action) - the decline action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the minus sign (-) which signifies that there is a conflict between the granted and requesting transactions and the lock can not be granted to the transaction that is requesting access to the resource.
+% \begin{definition}
+% \label{decline_action}
+%  (Decline Action) - the decline action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the minus sign (-) which signifies that there is a conflict between the granted and requesting transactions and the lock can not be granted to the transaction that is requesting access to the resource.
  
  \begin{example}
  \label{ex_decline_action}
-  A write-lock for a resource $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is requesting a write-lock to resource $R$. This causes a conflict and therefore the decline action will be taken and the requested lock will not be issued to $T_{2}$.
+  A write-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is requesting a write-lock to data item $R$. This causes a conflict and therefore the decline action will be taken and the requested lock will not be issued to $T_{2}$.
  \end{example}
  
-\end{definition}
+% \end{definition}
 
-\begin{definition}
-\label{elevate_action}
- (Elevate Action) - the elevate action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the delta symbol ($\delta$) which signifies that the transaction requesting access to the resource is in a category that contains a higher prioritization (see Table \ref{tbl:priority}) than the transactions that currently hold locks to the resource. In this situation all locks held by transactions of lower priority will be preemptively dropped so the transaction with the higher priority can obtain the needed lock.
+% \begin{definition}
+% \label{elevate_action}
+%  (Elevate Action) - the elevate action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the delta symbol ($\delta$) which signifies that the transaction requesting access to the resource is in a category that contains a higher prioritization (see Table \ref{tbl:priority}) than the transactions that currently hold locks to the resource. In this situation all locks held by transactions of lower priority will be preemptively dropped so the transaction with the higher priority can obtain the needed lock.
  
  \begin{example}
  \label{ex_elevate_action}
-  A read-lock for a resource $R$ has been granted to transaction $T_{1}$ within the $LCLE$ transactional category. Transaction $T_{2}$ within the $HCHE$ is requesting a write-lock to resource $R$. This causes a conflict however since $T_{2}$ contains a higher priority than $T_{1}$ the elevate action will be taken and the requested lock will be issued to $T_{2}$.
+  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $LCLE$ transactional category. Transaction $T_{2}$ within the $HCHE$ is requesting a write-lock to data item $R$. This causes a conflict however since $T_{2}$ contains a higher priority than $T_{1}$ the elevate action will be taken and the requested lock will be issued to $T_{2}$.
  \end{example}
  
 \end{definition}
@@ -978,40 +1045,21 @@ After receiving the concurrent transactions (e.g., $T_{1}$, $T_{2}$, ... , $T_{N
 The architecture shown in Figure \ref{fig:ws_env} is a typical web service environment that exists currently. The existing web service environment treats all transactions equally. Every transaction submitted to the DBMS scheduler is compiled into a schedule and submitted to the database. The drawback of this type of architecture is the case of a cascading rollback. In the event of a cascading rollback, operations that have successfully completed must be reverted due to the failure of a dependant operation in a separate transaction. The prediction-based architecture used in this solution adds a new logical component (Transaction Metrics). This component is added at the scheduling level to analyze certain metadata about transactions submitted to the scheduler. Table \ref{tbl:trans_metrics} displays the type of data that will be calculated in order to make an accurate prediction on the likelihood that a transaction will either commit or abort. Once implemented, transactions will build a history, or a reputation, based on commit rate and efficiency rate. The Transaction Metrics logical unit will store this data within the database instance itself. Transactions executing from this component ($T_{Metrics}$) can use traditional locking techniques since it is known that no other web service transactions will be conflicting with these transactions. The relation used to store this metric data will be known only to the internal components of this database instance; not outside web services. Figure \ref{fig:ws_env_with_metrics} displays the addition to the existing architecture in the prediction-based solution.
 
 \subsection{Transaction Categorization}
-
 In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
 
-In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed. These transactions will consist of the majority of transactions that are going to execute on the database. Transactions of this nature could potentially execute on the system for days or could be a long running BPEL transaction \cite{BPEL}.
+In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed. Transactions of this nature could potentially execute on the system for days or could be a long running BPEL transaction \cite{BPEL}.
 
-The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions and persisted to disk (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions and has not persisted to disk (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
+The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
 
 With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control. The next section will discuss the compatibility of the lock types among transactional categories.
 
 \subsection{Lock Compatibility Among Transaction Categories}
-
 There are two main lock types when it comes to lock types in a DBMS: shared read-locks and exclusive write-locks. Shared read-locks allow read access to resource, \textit{R}, to be accessed by multiple parties. \textit{R} can be a relation, tuple, or even an individual cell in a database, depending on the lock granularity set by the system. Exclusive write-locks only allow write access to the particular resource for the transaction that holds the lock. This is considered a binary lock. At any point in time in the execution of multiple concurrent transactions, there is only one exclusive write-lock per resource and only the lock holder can manipulate the data.
 
 %Based on Fekete's pre-emptive priority scheduling
-To improve the performance of the system during the execution of concurrent transactions, we force lower priority transactional categories to release locks to higher priority categories. The system leverages the existing two-phase locking (2PL) protocol in order to obtain locks with the addition of prediction-based metrics. This allows transactions with a better reputation to execute more quickly while transactions with a poor reputation do not create a bottleneck for later transactions. This process increases throughput for transactional execution while preserving the consistency of the database through traditional locking. In order to successfully prioritize transactions, an objective priority was placed on each of the four transactional categories mentioned above. Table \ref{tbl:priority} displays the priorities that are used to make these decisions.
+To improve the performance of the system during the execution of concurrent transactions, we force lower priority transactional categories to release locks to higher priority categories. The system leverages the existing two-phase locking (2PL) protocol in order to obtain locks with the addition of prediction-based metrics. This allows transactions with a better reputation to execute more quickly while transactions with a poor reputation do not create a bottleneck for later transactions. This process increases throughput for transactional execution while preserving the consistency of the database through traditional locking. In order to successfully prioritize transactions, an objective priority was placed on each of the four transactional categories mentioned above. Definition \ref{cat_dominance} and Table \ref{tbl:priority} displays the transaction category dominance.
 
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|}
-\cline{2-2}
-                                          & \multicolumn{1}{l|}{\textbf{Priority}} \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCHE}}  & I                                      \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCLE}}  & II                                     \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCHE}} & III                                     \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCLE}} & IV                                      \\ \hline
-\end{tabular}
-
-\caption{Category Priorities} % title of the Figure
-\label{tbl:priority} % label to refer figure in text
-
-\end{table}
-
-There are two compatibility matrices that were created as a result of the four transactional categories and two lock types. These matrices explicitly define the actions that should be taken when transactional categories request locks to the resources that have already granted locks.\footnote{In the event that a lock is requested of a resource that has not issued any locks, then the lock will be automatically granted. There is no conflict and therefore the compatibility matrices do not apply.} The actions defined within the matrices are derived based on the category prioritization made in Table \ref{tbl:priority}. Table \ref{tbl:read_lock_compatibility} displays the lock compatibility for all transactional categories where a read-lock has already been granted. Table \ref{tbl:write_lock_compatibility} displays the lock compatibility for all transactional categories where a write-lock has already been granted. There are three actions that can be taken in regards to the lock compatibility matrix: \textit{grant action} (see Definition \ref{grant_action}), \textit{decline action} (see Definition \ref{decline_action}), and \textit{elevate action} (see Definition \ref{elevate_action}). The combination of these actions within the DBMS ensure consistency for transactions but they also prevent transactions with bad reputations from holding up transactions with good reputations. The next section will address the issue of multiple locks that are granted for a single resource.
+There are two compatibility matrices that were created as a result of the four transactional categories and two lock types. These matrices explicitly define the actions that should be taken when transactional categories request locks to the resources that have already granted locks. The actions defined within the matrices are derived based on the category prioritization made in Definition \ref{cat_dominance} and Table \ref{tbl:priority}. Table \ref{tbl:read_lock_compatibility} displays the lock compatibility for all transactional categories where a read-lock has already been granted. Table \ref{tbl:write_lock_compatibility} displays the lock compatibility for all transactional categories where a write-lock has already been granted. There are three actions that can be taken in regards to the lock compatibility matrix: \textit{grant action}, \textit{decline action}, and \textit{elevate action} (see Definition \ref{legal_scheduler}). The combination of these actions within the DBMS ensure consistency for transactions but they also prevent transactions with bad reputations from holding up transactions with good reputations. The next section will address the issue of multiple locks that are granted for a single resource.
 
 \begin{table}[h]
 \captionsetup{justification=centering}
@@ -1069,7 +1117,7 @@ There are two compatibility matrices that were created as a result of the four t
 \subsection{Resource Category Data Structure}
 \label{RCDS}
 
-In Table \ref{tbl:read_lock_compatibility} there are multiple \textit{grant actions} (see Definition \ref{grant_action}) which could potentially cause multiple read-locks to be granted for a single resource. It is appropriate for a resource to grant multiple read-locks however in order to properly handle the \textit{elevate actions} the comparison must be made with the granted lock of the highest priority. For example, a resource $R_{a}$ has granted two read-locks to transactions $T_{1}$ and $T_{2}$ with categories $HCLE_{r}$ and $LCLE_{r}$. While these two locks are still granted a transaction $T_{3}$ categorized as $HCLE$ requests a write-lock $HCLE_{w}$ to $R_{a}$. If the evaluation based on Table \ref{tbl:read_lock_compatibility} is completed by using the read-lock granted to $T_{2}$ then an \textit{elevate action} would be issued since the requesting lock contains a higher priority than the granted lock. However, if the evaluation is completed by using the read-lock granted to $T_{1}$ then a \textit{decline action} would be issued since the requesting lock contains a priority of equal standing with the granted lock.
+In Table \ref{tbl:read_lock_compatibility} there are multiple \textit{grant actions} (see Definition \ref{legal_scheduler}) which could potentially cause multiple read-locks to be granted for a single resource. It is appropriate for a resource to grant multiple read-locks however in order to properly handle the \textit{elevate actions} the comparison must be made with the granted lock of the highest priority. For example, a resource $R_{a}$ has granted two read-locks to transactions $T_{1}$ and $T_{2}$ with categories $HCLE_{r}$ and $LCLE_{r}$. While these two locks are still granted a transaction $T_{3}$ categorized as $HCLE$ requests a write-lock $HCLE_{w}$ to $R_{a}$. If the evaluation based on Table \ref{tbl:read_lock_compatibility} is completed by using the read-lock granted to $T_{2}$ then an \textit{elevate action} would be issued since the requesting lock contains a higher priority than the granted lock. However, if the evaluation is completed by using the read-lock granted to $T_{1}$ then a \textit{decline action} would be issued since the requesting lock contains a priority of equal standing with the granted lock.
 
 When situations such as this arise in the system, the evaluation completed in the compatibility matrix should be completed against the granted lock with the highest priority. By evaluating against the granted lock whose transaction has been categorized with the highest priority, this prevents starvation of transactions with categorizations of lower priority. Using the example illustrated above, if the comparison was completed with transaction $T_{2}$ instead, then an \textit{elevate action} would be issued and the locks of transaction $T_{2}$ would be preemptively dropped and therefore cause $T_{2}$ to compete for the lock again. If transactions are continually submitted to the system that are categorized with a higher priority than $T_{2}$ then locks obtained by $T_{2}$ will continually be dropped and will never successfully complete.
 
@@ -1114,15 +1162,13 @@ In order to ensure that Table \ref{tbl:read_lock_compatibility} is used with the
 
 \end{figure}
 
-\subsection{Transaction Conflict Resolution}
+% \subsection{Transaction Conflict Resolution}
+% Although the transactions will receive a level of categorization when submitted to the scheduler there has to be some mechanism in place in order to handle the conflicting categorizations (see Section \ref{conflict_cat}).  When two transactions are submitted to execute concurrently with this property they must be executed serially rather than concurrently to  maintain the consistency of the database. If two conflicting transactions were executed concurrently then one aborted operation in either of the two transactions would cause an inconsistent state. A cascading rollback would have to occur in order to re-establish consistency within the database.
 
-Although the transactions will receive a level of categorization when submitted to the scheduler there has to be some mechanism in place in order to handle the conflicting categorizations (see Section \ref{conflict_cat}).  When two transactions are submitted to execute concurrently with this property they must be executed serially rather than concurrently to  maintain the consistency of the database. If two conflicting transactions were executed concurrently then one aborted operation in either of the two transactions would cause an inconsistent state. A cascading rollback would have to occur in order to re-establish consistency within the database.
-
-In order to choose which transaction is executed first in the serial execution of two conflicting categories, a priority system was needed. For this priority system, the categorization priorities outlined in Table \ref{tbl:priority} were used just as they were used in the lock compatibility matrices. For example, if two transactions are submitted to the scheduler to execute concurrently but neither are predicted to abort then no conflict is detected. The two transactions will execute concurrently, commit successfully, and consistency is preserved in the database. However, if one of the transactions is predicted to abort, then this transaction could potentially affect the outcome of the successful transaction. In this situation we want to preserve consistency and therefore the transaction that is predicted to commit will execute first, preserving all of its changes without a cascading rollback, and then the other transaction will execute. If the second transaction either commits or aborts, the consistency property is still preserved since no other transaction is dependant on that transaction's operations.
+% In order to choose which transaction is executed first in the serial execution of two conflicting categories, a priority system was needed. For this priority system, the categorization priorities outlined in Table \ref{tbl:priority} were used just as they were used in the lock compatibility matrices. For example, if two transactions are submitted to the scheduler to execute concurrently but neither are predicted to abort then no conflict is detected. The two transactions will execute concurrently, commit successfully, and consistency is preserved in the database. However, if one of the transactions is predicted to abort, then this transaction could potentially affect the outcome of the successful transaction. In this situation we want to preserve consistency and therefore the transaction that is predicted to commit will execute first, preserving all of its changes without a cascading rollback, and then the other transaction will execute. If the second transaction either commits or aborts, the consistency property is still preserved since no other transaction is dependant on that transaction's operations.
 
 \subsection{Transaction Metrics}
-
-The Transaction Metrics logical unit will contain all processing logic to accurately categorize the transactions submitted to the database. When a transaction is submitted to the scheduler to be added to a serializable schedule, the scheduler will look to the transaction metrics to determine the locking technique that should be used for that particular transaction. All transaction metrics will be computed within the component before the scheduler issues a query so that the max time required for a response will be of complexity \textit{O(1)}. In order to make decisions based on the transaction categorizations an objective measurement had to be put in place for each one of the attributes collected. The objective measurements are placed in a relation within the database itself to ensure flexibility. These metrics are updated as the execution environment matures and the Transaction Categorization Graph (see Section \ref{section_cat_graph}) becomes more densely populated. 
+The Transaction Metrics logical unit will contain all processing logic to accurately categorize the transactions submitted to the database. When a transaction is submitted to the scheduler to be added to a serializable schedule, the scheduler will look to the transaction metrics to determine the locking action that should be used for that particular transaction. All transaction metrics will be computed within the component before the scheduler issues a query so that the max time required for a response will be of complexity \textit{O(1)}. In order to make decisions based on the transaction categorizations an objective measurement had to be put in place for each one of the attributes collected. The objective measurements are placed in a relation within the database itself to ensure flexibility. These metrics are updated as the execution environment matures and the Transaction Categorization Graph (see Section \ref{section_cat_graph}) becomes more densely populated. 
 
 \begin{figure}[ht]  
 \captionsetup{justification=centering}
@@ -1161,7 +1207,7 @@ The Transaction Metrics logical unit will contain all processing logic to accura
 
 % The objective bounds that the system can be measured against must be set for commit and abort rate percentages and also for the upper and lower bounds for rate of efficiency. A static value could be used for these bounds but then the solution would not be flexible for different environments. Another considered solution could store the category bounds in a relation within the local database but then this approach places the responsibility on the database administrator to ensure the bounds are appropriate for the execution environment. In order to allow the categorization bounds to flex within the execution environment while also allowing the flexibility without the aid of an administrator, we created the categorization graph.
 
-The categorization graph is grouped into four sections where each section represents a category that a transaction can be placed. Categorization bounds (see Definition \ref{cat_bounds}) seperate the graph into four sections and determine what locking techniques the transaction will receive once placed. Transactions are graphed based on the percentages of their previous execution metrics in comparison to the other transactions executing on the same system. This allows the system to flex accordingly with different environments without the aid of an administrator. Depending on the metrics that each transaction possesses, the transactions will be categorized into the previous four categories listed above: LCLE, HCLE, HCHE, and LCHE. Transactions categorized as LCLE must have an efficiency rate that is in the 50 percentile or lower where the commit rate is also in the 50 percentile or lower (Definition \ref{ext_abrt}). Transactions categorized as HCLE must have an efficiency rate that is also in the 50 percentile or lower however the commit rate must be in the 50 percentile or higher (Definition \ref{ext_commit}). LCHE transactions must have an efficiency rate that is in the 50 percentile or higher where the commit rate is in the 50 percentile or lower (Definition \ref{min_abrt}). Transactions categorized as HCHE must have an efficiency rate that is in the 50 percentile or higher where the commit rate is also in the 50 percentile or higher (Definition \ref{min_commit}). Figure \ref{graph:cat_graph} shows the categorizations described above.
+The categorization graph is a graphical representation of the transaction metrics. It is grouped into four sections where each section represents a category that a transaction can be placed. Categorization bounds (see Definition \ref{cat_bounds}) separate the graph into four sections and determine what category the transaction will receive once placed. Transactions are categorized based on the percentages of their previous execution metrics in comparison to the other transactions executing on the same system. This allows the system to flex accordingly with different environments. Depending on the metrics that each transaction possesses, the transactions will be categorized into the previous four categories listed above: $LCLE$, $HCLE$, $HCHE$, and $LCHE$. Transactions categorized as $LCLE$ must have an efficiency rate that is in the 50 percentile or lower where the commit rate is also in the 50 percentile or lower. Transactions categorized as $HCLE$ must have an efficiency rate that is also in the 50 percentile or lower however the commit rate must be in the 50 percentile or higher. $LCHE$ transactions must have an efficiency rate that is in the 50 percentile or higher where the commit rate is in the 50 percentile or lower. Transactions categorized as $HCHE$ must have an efficiency rate that is in the 50 percentile or higher where the commit rate is also in the 50 percentile or higher. Figure \ref{graph:cat_graph}, Table \ref{tbl:default_tmetrics}, and Definition \ref{transaction_categories} show the categorizations described above.
 
 
 \begin{figure}[ht]
@@ -1310,13 +1356,29 @@ The categorization graph is grouped into four sections where each section repres
     90  89
     };
 
-\legend{LCLE, HCLE, LCHE, HCHE}
+\legend{HCLE, LCLE, LCHE, HCHE}
  
 \end{axis}
 \end{tikzpicture}
 \caption{Categorization Graph} % title of the Figure
 \label{graph:cat_graph} % label to refer figure in text
 \end{figure}
+
+\begin{table}[h]
+\captionsetup{justification=centering}
+\centering
+\begin{tabular}{l|c|c|}
+\cline{2-3}
+                                          & \multicolumn{1}{l|}{\textbf{Commit Rate ($C_{r}$)}} & \multicolumn{1}{l|}{\textbf{Efficiency Rate ($E_{r}$)}} \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCHE}}  & $>$ 50\%                          & $>$ 50\%                                \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCLE}}  & $>$ 50\%                       & $\le$ 50\%                               \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCHE}} & $\le$ 50\%                          & $>$ 50\%                                  \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCLE}} & $\le$ 50\%                       & $\le$ 50\%                                 \\ \hline
+%\multicolumn{1}{|l|}{\textbf{No Trnd.}} &    \multicolumn{2}{c|}{See equation below}                                    \\ \hline
+\end{tabular}
+\caption{Transaction Categorization Bounds} % title of the Figure
+\label{tbl:default_tmetrics} % label to refer figure in text
+\end{table}
 
 % \subsection{Transaction Concentration Ratio}
 % \label{sec:TCR}
@@ -1351,8 +1413,8 @@ The categorization graph is grouped into four sections where each section repres
  
 %  \end{example}
  
-\subsection{Category Selection}
-Concurrent transactions that are submitted to the scheduler are graphed on the Transaction Categorization Graph (see Figure \ref{graph:cat_graph}) which will therefore place the transaction into one of the four categories based on the metadata stored about the transaction. The set of transactions that are submitted to the scheduler will be composed within one or many serializable schedules depending on the transactions categories. Any transaction that is contained within a conflicting category (see Definition \ref{conflict_cat}) will be the sole transaction within a serializable schedule. This is a key component of the prediction-based solution that ensures consistency among known transactions. By allowing a misbehaving transaction to execute solely without the interleaving of other transactions, this prevents cascading rollbacks and inconsistent states within the database. Any transactions that are not contained within a conflicting category will be scheduled within a separate serializable schedule that contains other transactions of non-conflicting categories. This separation of conflicting and non-conflicting transactions allows for concurrent execution of transactions but with the reduction of cascading rollbacks and the increase in consistency. The next section outlines the formal analysis of the solution presented.
+% \subsection{Category Selection}
+% Concurrent transactions that are submitted to the scheduler are graphed on the Transaction Categorization Graph (see Figure \ref{graph:cat_graph}) which will therefore place the transaction into one of the four categories based on the metadata stored about the transaction. The set of transactions that are submitted to the scheduler will be composed within one or many serializable schedules depending on the transactions categories. Any transaction that is contained within a conflicting category (see Definition \ref{conflict_cat}) will be the sole transaction within a serializable schedule. This is a key component of the prediction-based solution that ensures consistency among known transactions. By allowing a misbehaving transaction to execute solely without the interleaving of other transactions, this prevents cascading rollbacks and inconsistent states within the database. Any transactions that are not contained within a conflicting category will be scheduled within a separate serializable schedule that contains other transactions of non-conflicting categories. This separation of conflicting and non-conflicting transactions allows for concurrent execution of transactions but with the reduction of cascading rollbacks and the increase in consistency. The next section outlines the formal analysis of the solution presented.
 
 \section{Analysis}
 \label{sec:analysis}

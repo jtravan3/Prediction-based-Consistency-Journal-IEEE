@@ -779,13 +779,21 @@ This section outlines the system model on which the solution is built. Definitio
 \tau : \textrm{$T_{i}$}\rightarrow
 \left \{
   \begin{tabular}{cc}
-  HCHE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) > 0.5$ \\
+  HCHE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) > 1$ \\
   HCLE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) \le 0.5$ \\
-  LCHE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) > 0.5$ \\
+  LCHE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) > 1$ \\
   LCLE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) \le 0.5$
   \end{tabular}
 \right \}
 \]
+
+In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
+
+In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed.
+
+The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
+
+With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control.
 
 \end{definition}
 
@@ -948,13 +956,23 @@ However, in our model, we focus on reducing the need of compensation for aborted
 % \end{definition}
 
 \begin{definition}
+\label{compatibility}
+(Compatibility) - a data item is locked in a non-compatible mode if:
+
+\begin{enumerate}
+  \item the data item is locked by write-lock, or
+  \item the data item requesting the lock is categorized with a lower priority
+\end{enumerate}
+\end{definition}
+
+\begin{definition}
 \label{legal_scheduler}
  (Legal Scheduler) - a prediction-based scheduler is legal if:
  
  \begin{enumerate}
-    \item \textbf{Grant:} a transaction is permitted to lock a data item if the data item is not already locked in a non-compatible mode by an other transaction\footnote{In the event that a lock is requested of a resource that has not issued any locks, then the lock will be automatically granted. There is no conflict and therefore the compatibility matrices do not apply.}.
-    \item \textbf{Decline:} a transaction $T_{i}$ is denied to lock a data item if the data item is already locked in a non-compatible mode by another transaction $T_{j}$ where $\tau(T_{i}) \le \tau(T_{j})$
-    \item \textbf{Elevate:} a transaction $T_{i}$ is permitted to lock a data item if all the non-compatible locks on the data item are being held by transactions $T_{1}, ... , T_{k}$ such that $\tau(T_{j}) < \tau(T_{i})$ for all $j = 1, ..., k$ in this case $T_{1}, ... , T_{k}$ must first release the locks on the data item before $T_{i}$ is permitted to lock the data item.
+    \item \textbf{Grant:} (denoted as the addition symbol, +) a transaction is permitted to lock a data item if the data item is not already locked in a non-compatible mode (see Definition \ref{compatibility}) by an other transaction\footnote{In the event that a lock is requested of a resource that has not issued any locks, then the lock will be automatically granted. There is no conflict and therefore the compatibility matrices do not apply.}.
+    \item \textbf{Decline:} (denoted as the subtraction symbol, -) a transaction $T_{i}$ is denied to lock a data item if the data item is already locked in a non-compatible mode (see Definition \ref{compatibility}) by another transaction $T_{j}$ where $\tau(T_{i}) \le \tau(T_{j})$
+    \item \textbf{Elevate:} (denoted as lowercase delta, $\delta$) a transaction $T_{i}$ is permitted to lock a data item if all the non-compatible locks (see Definition \ref{compatibility}) on the data item are being held by transactions $T_{1}, ... , T_{k}$ such that $\tau(T_{j}) < \tau(T_{i})$ for all $j = 1, ..., k$ in this case $T_{1}, ... , T_{k}$ must first release the locks on the data item before $T_{i}$ is permitted to lock the data item.
  \end{enumerate}
 
 % \begin{definition}
@@ -963,7 +981,7 @@ However, in our model, we focus on reducing the need of compensation for aborted
  
  \begin{example}
  \label{ex_grant_action}
-  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is also requesting a read-lock to data item $R$. This does not cause a conflict and therefore the grant action will be taken and the requested lock will be issued to $T_{2}$.
+  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is also requesting a read-lock on data item $R$. This does not cause a conflict and therefore the grant action will be taken and the requested lock will be issued to $T_{2}$.
  \end{example}
  
 % \end{definition}
@@ -1044,22 +1062,20 @@ After receiving the concurrent transactions (e.g., $T_{1}$, $T_{2}$, ... , $T_{N
 
 The architecture shown in Figure \ref{fig:ws_env} is a typical web service environment that exists currently. The existing web service environment treats all transactions equally. Every transaction submitted to the DBMS scheduler is compiled into a schedule and submitted to the database. The drawback of this type of architecture is the case of a cascading rollback. In the event of a cascading rollback, operations that have successfully completed must be reverted due to the failure of a dependant operation in a separate transaction. The prediction-based architecture used in this solution adds a new logical component (Transaction Metrics). This component is added at the scheduling level to analyze certain metadata about transactions submitted to the scheduler. Table \ref{tbl:trans_metrics} displays the type of data that will be calculated in order to make an accurate prediction on the likelihood that a transaction will either commit or abort. Once implemented, transactions will build a history, or a reputation, based on commit rate and efficiency rate. The Transaction Metrics logical unit will store this data within the database instance itself. Transactions executing from this component ($T_{Metrics}$) can use traditional locking techniques since it is known that no other web service transactions will be conflicting with these transactions. The relation used to store this metric data will be known only to the internal components of this database instance; not outside web services. Figure \ref{fig:ws_env_with_metrics} displays the addition to the existing architecture in the prediction-based solution.
 
-\subsection{Transaction Categorization}
-In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
+% \subsection{Transaction Categorization}
+% In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
 
-In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed. Transactions of this nature could potentially execute on the system for days or could be a long running BPEL transaction \cite{BPEL}.
+% In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed.
 
-The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
+% The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
 
-With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control. The next section will discuss the compatibility of the lock types among transactional categories.
+% With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control. The next section will discuss the compatibility of the lock types among transactional categories.
 
 \subsection{Lock Compatibility Among Transaction Categories}
-There are two main lock types when it comes to lock types in a DBMS: shared read-locks and exclusive write-locks. Shared read-locks allow read access to resource, \textit{R}, to be accessed by multiple parties. \textit{R} can be a relation, tuple, or even an individual cell in a database, depending on the lock granularity set by the system. Exclusive write-locks only allow write access to the particular resource for the transaction that holds the lock. This is considered a binary lock. At any point in time in the execution of multiple concurrent transactions, there is only one exclusive write-lock per resource and only the lock holder can manipulate the data.
+There are two main lock types when it comes to lock types in a DBMS: shared read-locks and exclusive write-locks. Shared read-locks allow read access to resource, \textit{R}, to be accessed by multiple parties. \textit{R} can be a relation, tuple, or even an individual cell in a database, depending on the lock granularity set by the system. Exclusive write-locks only allow write access to the particular resource for the transaction that holds the lock. At any point in time in the execution of multiple concurrent transactions, there is only one exclusive write-lock per resource and only the lock holder can manipulate the data.
 
 %Based on Fekete's pre-emptive priority scheduling
-To improve the performance of the system during the execution of concurrent transactions, we force lower priority transactional categories to release locks to higher priority categories. The system leverages the existing two-phase locking (2PL) protocol in order to obtain locks with the addition of prediction-based metrics. This allows transactions with a better reputation to execute more quickly while transactions with a poor reputation do not create a bottleneck for later transactions. This process increases throughput for transactional execution while preserving the consistency of the database through traditional locking. In order to successfully prioritize transactions, an objective priority was placed on each of the four transactional categories mentioned above. Definition \ref{cat_dominance} and Table \ref{tbl:priority} displays the transaction category dominance.
-
-There are two compatibility matrices that were created as a result of the four transactional categories and two lock types. These matrices explicitly define the actions that should be taken when transactional categories request locks to the resources that have already granted locks. The actions defined within the matrices are derived based on the category prioritization made in Definition \ref{cat_dominance} and Table \ref{tbl:priority}. Table \ref{tbl:read_lock_compatibility} displays the lock compatibility for all transactional categories where a read-lock has already been granted. Table \ref{tbl:write_lock_compatibility} displays the lock compatibility for all transactional categories where a write-lock has already been granted. There are three actions that can be taken in regards to the lock compatibility matrix: \textit{grant action}, \textit{decline action}, and \textit{elevate action} (see Definition \ref{legal_scheduler}). The combination of these actions within the DBMS ensure consistency for transactions but they also prevent transactions with bad reputations from holding up transactions with good reputations. The next section will address the issue of multiple locks that are granted for a single resource.
+To improve the performance of the system during the execution of concurrent transactions, we force lower priority transactional categories to release locks to higher priority categories. The system leverages the existing two-phase locking (2PL) protocol in order to obtain locks with the addition of prediction-based metrics. This allows transactions with a better reputation to execute more quickly while transactions with a poor reputation do not create a bottleneck for later transactions. In order to successfully prioritize transactions, an objective priority was placed on each of the four transactional categories mentioned above. Definition \ref{cat_dominance} and Table \ref{tbl:priority} displays the transaction category dominance.
 
 \begin{table}[h]
 \captionsetup{justification=centering}
@@ -1113,6 +1129,8 @@ There are two compatibility matrices that were created as a result of the four t
 \label{tbl:write_lock_compatibility} % label to refer figure in text
 
 \end{table}
+
+There are two compatibility matrices that were created as a result of the four transactional categories and two lock types. These matrices explicitly define the actions that should be taken when transactional categories request locks to the resources that have already granted locks. The actions defined within the matrices are derived based on the category prioritization made in Definition \ref{cat_dominance} and Table \ref{tbl:priority}. Table \ref{tbl:read_lock_compatibility} displays the lock compatibility for all transactional categories where a read-lock has already been granted. Table \ref{tbl:write_lock_compatibility} displays the lock compatibility for all transactional categories where a write-lock has already been granted. There are three actions that can be taken in regards to the lock compatibility matrix: \textit{grant action}, \textit{decline action}, and \textit{elevate action} (see Definition \ref{legal_scheduler}). The next section will address the issue of multiple locks that are granted for a single resource.
 
 \subsection{Resource Category Data Structure}
 \label{RCDS}
@@ -1209,6 +1227,21 @@ The Transaction Metrics logical unit will contain all processing logic to accura
 
 The categorization graph is a graphical representation of the transaction metrics. It is grouped into four sections where each section represents a category that a transaction can be placed. Categorization bounds (see Definition \ref{cat_bounds}) separate the graph into four sections and determine what category the transaction will receive once placed. Transactions are categorized based on the percentages of their previous execution metrics in comparison to the other transactions executing on the same system. This allows the system to flex accordingly with different environments. Depending on the metrics that each transaction possesses, the transactions will be categorized into the previous four categories listed above: $LCLE$, $HCLE$, $HCHE$, and $LCHE$. Transactions categorized as $LCLE$ must have an efficiency rate that is in the 50 percentile or lower where the commit rate is also in the 50 percentile or lower. Transactions categorized as $HCLE$ must have an efficiency rate that is also in the 50 percentile or lower however the commit rate must be in the 50 percentile or higher. $LCHE$ transactions must have an efficiency rate that is in the 50 percentile or higher where the commit rate is in the 50 percentile or lower. Transactions categorized as $HCHE$ must have an efficiency rate that is in the 50 percentile or higher where the commit rate is also in the 50 percentile or higher. Figure \ref{graph:cat_graph}, Table \ref{tbl:default_tmetrics}, and Definition \ref{transaction_categories} show the categorizations described above.
 
+\begin{table}[h]
+\captionsetup{justification=centering}
+\centering
+\begin{tabular}{l|c|c|}
+\cline{2-3}
+                                          & \multicolumn{1}{l|}{\textbf{Commit Rate ($C_{r}$)}} & \multicolumn{1}{l|}{\textbf{Efficiency Rate ($E_{r}$)}} \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCHE}}  & $>$ 50\%                          & $>$ 50\%                                \\ \hline
+\multicolumn{1}{|l|}{\textbf{HCLE}}  & $>$ 50\%                       & $\le$ 50\%                               \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCHE}} & $\le$ 50\%                          & $>$ 50\%                                  \\ \hline
+\multicolumn{1}{|l|}{\textbf{LCLE}} & $\le$ 50\%                       & $\le$ 50\%                                 \\ \hline
+%\multicolumn{1}{|l|}{\textbf{No Trnd.}} &    \multicolumn{2}{c|}{See equation below}                                    \\ \hline
+\end{tabular}
+\caption{Transaction Categorization Bounds} % title of the Figure
+\label{tbl:default_tmetrics} % label to refer figure in text
+\end{table}
 
 \begin{figure}[ht]
 \captionsetup{justification=centering}
@@ -1364,22 +1397,6 @@ The categorization graph is a graphical representation of the transaction metric
 \label{graph:cat_graph} % label to refer figure in text
 \end{figure}
 
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|c|}
-\cline{2-3}
-                                          & \multicolumn{1}{l|}{\textbf{Commit Rate ($C_{r}$)}} & \multicolumn{1}{l|}{\textbf{Efficiency Rate ($E_{r}$)}} \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCHE}}  & $>$ 50\%                          & $>$ 50\%                                \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCLE}}  & $>$ 50\%                       & $\le$ 50\%                               \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCHE}} & $\le$ 50\%                          & $>$ 50\%                                  \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCLE}} & $\le$ 50\%                       & $\le$ 50\%                                 \\ \hline
-%\multicolumn{1}{|l|}{\textbf{No Trnd.}} &    \multicolumn{2}{c|}{See equation below}                                    \\ \hline
-\end{tabular}
-\caption{Transaction Categorization Bounds} % title of the Figure
-\label{tbl:default_tmetrics} % label to refer figure in text
-\end{table}
-
 % \subsection{Transaction Concentration Ratio}
 % \label{sec:TCR}
 
@@ -1415,194 +1432,6 @@ The categorization graph is a graphical representation of the transaction metric
  
 % \subsection{Category Selection}
 % Concurrent transactions that are submitted to the scheduler are graphed on the Transaction Categorization Graph (see Figure \ref{graph:cat_graph}) which will therefore place the transaction into one of the four categories based on the metadata stored about the transaction. The set of transactions that are submitted to the scheduler will be composed within one or many serializable schedules depending on the transactions categories. Any transaction that is contained within a conflicting category (see Definition \ref{conflict_cat}) will be the sole transaction within a serializable schedule. This is a key component of the prediction-based solution that ensures consistency among known transactions. By allowing a misbehaving transaction to execute solely without the interleaving of other transactions, this prevents cascading rollbacks and inconsistent states within the database. Any transactions that are not contained within a conflicting category will be scheduled within a separate serializable schedule that contains other transactions of non-conflicting categories. This separation of conflicting and non-conflicting transactions allows for concurrent execution of transactions but with the reduction of cascading rollbacks and the increase in consistency. The next section outlines the formal analysis of the solution presented.
-
-\section{Analysis}
-\label{sec:analysis}
-In this section we analyze the benefits of adding the prediction-based solution to the industry accepted solution of two-phase locking (2PL, \cite[pp. 53-56]{Bernstein_1986:CCR:17299}). This analysis formally displays the correctness and feasibility of the prediction-based solution. This is accomplished by a step-by-step comparison of both solutions with the use case example outlined in Section \ref{sec:use_case_for_node_3}.
-
-From the use case example, let us say that $T_{GetOrderByUserID}$ is $T_{1}$ and $T_{DeleteOrderByUserID}$ is $T_{2}$. Figure \ref{fig:analysis_transactions} displays these transactions.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,40)
-    \put(-45.5,25){$T_{1}$ = $R_{1}(a)R_{1}(b)C_{1}$}
-    \put(-45,10){$T_{2}$ = $R_{2}(b)W_{2}(b)R_{2}(a)W_{2}(a)C_{2}$}
-\end{picture}
-
-\caption{Example Transactions $T_{1}$ and $T_{2}$} % title of the Figure
-\label{fig:analysis_transactions} % label to refer figure in text
-\end{figure}
-
-From transactions $T_{1}$ and $T_{2}$ a schedule is generated to execute the two transactions concurrently. The schedule generated is legal and abides by all scheduling rules but let's assume the schedule generated is non-serializable to analyze the difference of a 2PL scheduler versus a 2PL scheduler with prediction-based metrics. Figure \ref{fig:analysis_schedule} displays the generated schedule from the use case scenario outlined in Section \ref{sec:use_case_for_node_3}.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,25)
-    \put(-90,5){$T_{Schedule}$ = $R_{1}(a)R_{2}(b)W_{2}(b)R_{1}(b)R_{2}(a)W_{2}(a)C_{2}C_{1}$}
-\end{picture}
-
-\caption{Generated Non-Serializable Schedule} % title of the Figure
-\label{fig:analysis_schedule} % label to refer figure in text
-\end{figure}
-
-Below displays the sequence of actions if $T_{Schedule}$ executes only using 2PL. We will use this sequence as our base for comparison with our prediction-based solution. There are three cases that we will analyze; $T_{1}$ has a higher classification than $T_{2}$, $T_{1}$ has a lower classification than $T_{2}$, and $T_{1}$ has an equal classification $T_{2}$.
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ waits for $T_{2}$ to release exclusive write-lock on resource $b$
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ waits for $T_{1}$ to release shared read-lock on resource $a$
-  \item Deadlock!
-\end{enumerate}
-
-\subsection{$T_{1}$ with Higher Priority than $T_{2}$}
-\label{sec:t1_higher_than_t2}
-The first case we will analyze is the case of $T_{1}$ having a higher classification than $T_{2}$. Let's suppose that $T_{1}$ has a category classification of $HCHE$ and $T_{2}$ has a category classification of $LCLE$. As you can see from the sequence above, using only 2PL with the given schedule ends in deadlock. This is caused by $T_{1}$ waiting for a lock that $T_{2}$ holds on resource $b$ and $T_{2}$ waiting for a lock that $T_{1}$ holds on resource $a$. Neither can release their locks until they have obtained all the locks required for their transaction to complete. This therefore causes the schedule to halt in deadlock. However, if we were to add the prediction-based metrics to the existing 2PL protocol we would get the following procedure instead:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{1}$ contains the highest category therefore transactions with locks on resource $b$, $T_{2}$, will be dropped
-        \item $T_{1}$ obtains a shared read-lock to resource $b$
-    \end{itemize}
-  \item $T_{1}$ growing phase is complete
-  \item $T_{1}$ executes successfully
-  \item $T_{1}$ releases all locks
-  \item $T_{1}$ shrinking phase is complete
-  \item $T_{2}$ is sent to scheduler for rescheduling
-  \item Execution complete!
-\end{enumerate}
-
-The sequence of operations above prevents deadlock by removing the indefinite wait for resource $b$ by $T_{1}$. Instead of a circular wait between transactions $T_{1}$ and $T_{2}$, we can use the prediction-based metrics to give precedence to the transaction of higher category. This forces the transaction with a lower priority, $T_{2}$, to drop its locks and allow $T_{1}$ to finish successfully; therefore preventing deadlock.
-
-\subsection{$T_{1}$ with Lower Priority than $T_{2}$}
-\label{sec:t1_lower_than_t2}
-The second case we will analyze is the case of $T_{1}$ having a lower classification than $T_{2}$. Let's reverse the categories from the previous situation and suppose that $T_{1}$ has a category classification of $LCLE$ and $T_{2}$ has a category classification of $HCHE$. In this case we get the following sequence:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{2}$ contains the highest category therefore $T_{1}$ will wait until the lock is released
-    \end{itemize}
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
-        \item $T_{2}$ contains the highest category therefore transactions with locks on resource $a$, $T_{1}$, will be dropped
-        \item $T_{2}$ obtains a shared read-lock to resource $a$
-    \end{itemize}    
-  \item $T_{2}$ growing phase is complete
-  \item $T_{2}$ executes successfully
-  \item $T_{2}$ releases all locks
-  \item $T_{2}$ shrinking phase is complete
-  \item $T_{1}$ is sent to scheduler for rescheduling
-  \item Execution complete!
-\end{enumerate}
-
-In this case, the prediction-based solution prevents deadlock by elevating the lock precedence in $T_{2}$ and dropping the locks of $T_{1}$. This allows $T_{2}$ to execute successfully while $T_{1}$ is sent back to the scheduler to be rescheduled into another schedule.
-
-\subsection{$T_{1}$ with Equal Priority to $T_{2}$}
-\label{sec:t1_equal_to_t2}
-The last and final case that we will address is the case of $T_{1}$ having an equal classification of $T_{2}$. Although the classification holds no bearing in this case, we'll say that both $T_{1}$ and $T_{2}$ have a category of $HCHE$. The following sequence shows the actions taken in this case:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{2}$ contains an equal category therefore $T_{1}$ will wait until the lock is released
-    \end{itemize}
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
-        \item $T_{1}$ contains an equal category therefore $T_{2}$ will wait until the lock is released
-    \end{itemize}    
-  \item Deadlock!
-\end{enumerate}
-
-In this case we see that the prediction-based solution provides no added benefit that 2PL does not already address. However, the prediction-based solution performs exactly the same as 2PL would in this case.
-
-\subsection{Formal Proof}
-In this section we formally analyze the prediction-based solution and provide the associated theoretical contribution: assurance of consistency for all transactions while preserving an acceptable state of efficiency. The outline of the analysis is based very closely to the proof of correctness for two-phase locking (2PL) presented by Phil Bernstein \cite[pp. 53-56]{Bernstein_1986:CCR:17299}. 
-
-In order to prove the correctness of the prediction-based solution we prove that each history generated by the prediction-based solution is serializable. However, before we can do that we must characterize the actions involved within the analysis. We say that $T_{1} \rightarrow T_{2}$ ($T_{1} precedes T_{2}$) if there are conflicting operations between the two serializable histories contained in $C(H)$. $C(H)$ is the set of all conflicting operations in a serializable history $H$. A \textit{cycle} is present in the serializability graph $SG(H)$ if there exists a path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ within the schedule where $n > 1$. By showing that a cycle will never exist within $SG(H)$ we can show that the scheduler used within the prediction-based solution will always produce serializable histories with no cycles and therefore preserve consistency.
-
-The prediction-based solution consists of three actions: grant action (See Definition \ref{grant_action}), decline action (See Definition \ref{decline_action}), and the elevate action (See Definition \ref{elevate_action}). We will analyze the actions involved in the situations described in Sections \ref{sec:t1_higher_than_t2}, \ref{sec:t1_lower_than_t2}, and \ref{sec:t1_equal_to_t2}.
-
-\begin{proposition}
-\label{prop:grant}
-Let $H$ be a history produced by a prediction-based scheduler. If $o_{i}[x]$ requires a grant action (+) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then $o_{i}[x]$ $\nexists$ $C(H)$
-\end{proposition}
-
-The grant action for an operation $o_{i}[x]$, according to Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}, will only be required when the only locks granted and requested are read-locks. Therefore there is no conflict and no operations contained within $C(H)$.
-
-In the event that a decline action is required of an operation $p_{i}[x]$ then there exists one or many conflicting operations $q_{j}[x]$ that holds a lock to the required resource $x$. As mentioned in Algorithm \ref{alg:exec_sched}, the scheduler will wait for all unlock operations $qu_{j}[x]$ before granting a lock operation $pl_{i}[x]$.
-
-\begin{proposition}
-\label{prop:decline}
-Let $H$ be a history produced by  a prediction-based scheduler. If $p_{i}[x]$ requires a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists an operation $q_{j}[x]$ $(i \neq j)$ and $p_{i}[x]$ $\exists$ $C(H)$ and $q_{j}[x]$ $\exists$ $C(H)$. Therefore $qu_{j}[x] < pl_{i}[x] < p_{i}[x] < pu_{i}[x]$.
-\end{proposition}
-
-The final two actions that could potentially be required for database operations are the elevate action and the decline action. These actions behave very similar however the elevate action premptively drops the conflicting locks so that the new operation can obtain a lock to the resource while the decline action waits for all conflicting locks to drop before locking the resource. Therefore, before an operation $p_{1}[x]$ can issue a lock operation $pl_{1}[x]$ all operations within the set $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ must drop their locks. This causes all unlock operations $qu_{i}[x] < pl_{1}[x]$. Although these actions are different, in regards to serializability, they are identical and therefore they are combined into one proposition. 
-
-\begin{proposition}
-\label{prop:elevate_decline}
-Let $H$ be a history produced by a prediction-based scheduler. If $p_{1}[x]$ requires an eleveate action ($\delta$) or a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists one or many $q_{i}[x]$ where $q_{i}[x]$ $\subseteq$ $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ and $Q$ $\subseteq$ $C(H)$. Therefore $\forall$ $q_{i}[x]$ in $Q$ then $qu_{i}[x] < pl_{1}[x] < p_{i}[x] < pu_{i}[x]$.
-\end{proposition}
-
-Now that we have formal propositions for each operation within the scheduler, we can formally prove serializability of the prediction-based solution. This proof is done in three steps. First we show that if $T_{1} \rightarrow T_{2}$ is in $SG(H)$ then there exists a conflicting operation on a resource $x$ where $T_{1}$ must have released its lock on $x$ \textit{before} $T_{2}$ was able to obtain a lock on $x$. The second step shows that for any path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ in $SG(H)$ we can show by transitivity that every $T_{i}$ must release locks for conflicting operations before each $T_{i+1}$. The third and final step uses contradiction to assume that $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$. This contradiction shows that it is impossible for a cycle to occur because then $T_{1}$ would have performed an unlock operation before a lock operation. The following lemmas and theorem formalize these three steps.
-
-\begin{lemma}
-\label{lemma1}
-Let $H$ be a prediction-based history, and suppose $T_{1} \rightarrow T_{2}$ is in $SG(H)$. Then, for some resource $x$ and some conflicting operations $p_{1}[x]$ and $q_{2}[x]$ in $H$, $pu_{1}[x] < ql_{2}[x]$.
-\end{lemma}
-
-\textit{Proof:} By having $T_{1} \rightarrow T_{2}$, there must exist conflicting operations $p_{1}[x]$ and $q_{2}[x]$ contained in $C(H)$ where $p_{1}[x] < q_{2}[x]$. Proposition \ref{prop:grant} does not conflict in this case since there are conflicting operations. By looking at Proposition \ref{prop:elevate_decline} we see,
-
-\begin{enumerate}
-  \item $pl_{1}[x] < p_{1}[x] < pu_{1}[x]$
-  \item $ql_{2}[x] < q_{2}[x] < qu_{2}[x]$
-\end{enumerate}
-
-Since the lemma states that $T_{1} \rightarrow T_{2}$ we then have the operation sequence $pl_{1}[x] < p_{1}[x] < pu_{1}[x] < ql_{2}[x] < q_{2}[x] < qu_{2}[x]$ therefore proving that $pu_{1}[x] < ql_{2}[x]$.\qed
-
-\begin{lemma}
-\label{lemma2}
-Let $H$ be a prediction-based history, and let $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ be a path in $SG(H)$, where $n > 1$. Then, for some resources $x$ and $y$, and some operations $p_{1}[x]$ and $q_{n}[y]$ in $H$, $pu_{1}[x] < ql_{n}[y]$.
-\end{lemma}
-
-\textit{Proof:} Rather than the previous proof's proof by contradiction, this proof will be proof by induction. The base step, where $n = 2$, is proven in Lemma \ref{lemma1}. We begin by supposing the lemma will hold true for $n = k$ where $k \geq 2$ and $n = k + 1$. By induction we see the path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{k}$. Induction on the lemma shows that there exists resources $x$ and $z$ and operations $p_{1}[x]$ and $o_{k}[z]$ in $H$ where $pu_{1}[x] < ol_{k}[z]$. To prove for $k + 1$ we use Lemma \ref{lemma1} for $T_{k} \rightarrow T_{k+1}$. Therefore, $\exists$ resource $y$ and conflicting operations $o'_{k}[y]$ and $q_{k+1}[y]$ in $H$ where $o'u_{k}[y] < ql_{k+1}[y]$. Proposition \ref{prop:elevate_decline} shows that $ol_{k}[z] < o'u_{k}[y]$ and therefore via the transitive property of operation precedence, $pu_{1}[x] < ql_{k+1}[y]$\footnote{\label{note1}Once again Proposition \ref{prop:grant} does not apply in this situation since there are conflicting operations.}.\qed
-
-\begin{theorem}
-\label{theorem1}
-Every prediction-based history $H$ is serializable.
-\end{theorem}
-
-\textit{Proof:} In order to show this is true we use a proof by contradiction. We assume that, by contradiction, $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ where $n > 1$. The proof provided by the previous lemma (Lemma \ref{lemma2}) states that for some resources $x$ and $y$ and conflicting operations $p_{1}[x]$ and $q_{1}[y]$ in $H$, $pu_{1}[x] < ql_{1}[y]$. However, this contradicts with Proposition \ref{prop:elevate_decline} due to an unlock operation occurring on a resource before the lock operation\footnote{See footnote \ref{note1}.}. Therefore the contradiction fails and $ql_{1}[y] < pu_{1}[x]$. \qed
-
-%%%%%% END OF ANALYSIS SECTION %%%%%%%
 
 %%%%%% BEGINNING OF ALGORITHM SECTION %%%%%%%
 
@@ -1923,7 +1752,7 @@ In a web service environment the scheduler is the first stage of the system wher
 \subsubsection{Determine Action for Operation}
 The first algorithm needed for our solution (outlined in Algorithm \ref{alg:get_operation_action}) determines the action that our prediction-based solution is required to perform for a given operation. The algorithm is given as an argument the operation for which an action must be determined. From this operation we can determine the operation type (READ or WRITE), the resource the operation is executing on, and the transaction that is associated with the operation. From the transaction we can determine the categorization of the operation. All of this information is needed in order to determine the proper action needed.
 
-There are three different actions that the prediction-based solution leverages; \textit{grant action}, \textit{decline action}, and \textit{elevate action}. These actions are captured within Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and are defined in Definitions \ref{grant_action}, \ref{decline_action}, and \ref{elevate_action}.
+There are three different actions that the prediction-based solution leverages; \textit{grant action}, \textit{decline action}, and \textit{elevate action}. These actions are captured within Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and are defined in Definition \ref{legal_scheduler}.
 
 First we determine the category and the operation type of the operation passed in as an argument. This will be needed in order to determine which row to use within the compatibility matrix (ll. \ref{alg1:begin}-\ref{alg1:cat_req}). Next, we use the RCDS (outline in Section \ref{RCDS}) in order to determine the operation type and the highest category of operations operating on the given resource\footnote{If the RCDS contains no entries for the given resource, a \textit{grant action} will be returned since there is no possibility for conflict}. This information allows us to determine the proper column to reference within the matrix and which compatibility matrix to use (ll. \ref{alg1:cat_res}-\ref{alg1:op_ag}). Now we use the already granted operation to determine whether to use the Read-Lock or the Write-Lock Compatibility Matrix (l.\ref{alg1:if}). Once we know which matrix to use, we simply use the requesting operation and category along with the already granted operation and category in order to determine the matrix intersection. (ll. \ref{alg1:top_if}-\ref{alg1:bot_if} \& ll. \ref{alg1:top_else}-\ref{alg1:bot_else}). Finally, we get the action from the matrix intersection and return that action (ll. \ref{alg1:ret_if} \& \ref{alg1:ret_else}).
 
@@ -2005,6 +1834,198 @@ This algorithm is very simple and doesn't require any expensive processing to ac
 \label{alg_complexity:exec_sched}
 This algorithm uses the logic from Algorithm \ref{alg:get_operation_action} within its processing. From the previous complexity analysis, we see that Algorithm \ref{alg:get_operation_action} has a complexity of $O(1)$. This is constant time and therefore does not affect the complexity analysis of Algorithm \ref{alg:exec_sched}. This algorithm also contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing concurrently. The next and final section outlines the future research anticipated in regards to prediction-based categorization.
 
+\section{Analysis}
+\label{sec:analysis}
+In this section we analyze the benefits of adding the prediction-based solution to the industry accepted solution of two-phase locking (2PL, \cite[pp. 53-56]{Bernstein_1986:CCR:17299}). This analysis formally displays the correctness and feasibility of the prediction-based solution. This is accomplished by a step-by-step comparison of both solutions with the use case example outlined in Section \ref{sec:use_case_for_node_3}.
+
+From the use case example, let us say that $T_{GetOrderByUserID}$ is $T_{1}$ and $T_{DeleteOrderByUserID}$ is $T_{2}$. Figure \ref{fig:analysis_transactions} displays these transactions.
+
+\begin{figure}[h]
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{picture}(50,40)
+    \put(-45.5,25){$T_{1}$ = $R_{1}(a)R_{1}(b)C_{1}$}
+    \put(-45,10){$T_{2}$ = $R_{2}(b)W_{2}(b)R_{2}(a)W_{2}(a)C_{2}$}
+\end{picture}
+
+\caption{Example Transactions $T_{1}$ and $T_{2}$} % title of the Figure
+\label{fig:analysis_transactions} % label to refer figure in text
+\end{figure}
+
+From transactions $T_{1}$ and $T_{2}$ a schedule is generated to execute the two transactions concurrently. The schedule generated is legal and abides by all scheduling rules but let's assume the schedule generated is non-serializable to analyze the difference of a 2PL scheduler versus a 2PL scheduler with prediction-based metrics. Figure \ref{fig:analysis_schedule} displays the generated schedule from the use case scenario outlined in Section \ref{sec:use_case_for_node_3}.
+
+\begin{figure}[h]
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{picture}(50,25)
+    \put(-90,5){$T_{Schedule}$ = $R_{1}(a)R_{2}(b)W_{2}(b)R_{1}(b)R_{2}(a)W_{2}(a)C_{2}C_{1}$}
+\end{picture}
+
+\caption{Generated Non-Serializable Schedule} % title of the Figure
+\label{fig:analysis_schedule} % label to refer figure in text
+\end{figure}
+
+Below displays the sequence of actions if $T_{Schedule}$ executes only using 2PL. We will use this sequence as our base for comparison with our prediction-based solution. There are three cases that we will analyze; $T_{1}$ has a higher classification than $T_{2}$, $T_{1}$ has a lower classification than $T_{2}$, and $T_{1}$ has an equal classification $T_{2}$.
+
+\begin{enumerate}
+  \item $T_{1}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ obtains a shared read-lock to resource $b$
+  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
+  \item $T_{1}$ waits for $T_{2}$ to release exclusive write-lock on resource $b$
+  \item $T_{2}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ waits for $T_{1}$ to release shared read-lock on resource $a$
+  \item Deadlock!
+\end{enumerate}
+
+\subsection{$T_{1}$ with Higher Priority than $T_{2}$}
+\label{sec:t1_higher_than_t2}
+The first case we will analyze is the case of $T_{1}$ having a higher classification than $T_{2}$. Let's suppose that $T_{1}$ has a category classification of $HCHE$ and $T_{2}$ has a category classification of $LCLE$. As you can see from the sequence above, using only 2PL with the given schedule ends in deadlock. This is caused by $T_{1}$ waiting for a lock that $T_{2}$ holds on resource $b$ and $T_{2}$ waiting for a lock that $T_{1}$ holds on resource $a$. Neither can release their locks until they have obtained all the locks required for their transaction to complete. This therefore causes the schedule to halt in deadlock. However, if we were to add the prediction-based metrics to the existing 2PL protocol we would get the following procedure instead:
+
+\begin{enumerate}
+  \item $T_{1}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ obtains a shared read-lock to resource $b$
+  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
+  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
+    \begin{itemize}
+        \item The system gets the transaction with the highest category from the RCDS
+        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
+        \item $T_{1}$ contains the highest category therefore transactions with locks on resource $b$, $T_{2}$, will be dropped
+        \item $T_{1}$ obtains a shared read-lock to resource $b$
+    \end{itemize}
+  \item $T_{1}$ growing phase is complete
+  \item $T_{1}$ executes successfully
+  \item $T_{1}$ releases all locks
+  \item $T_{1}$ shrinking phase is complete
+  \item $T_{2}$ is sent to scheduler for rescheduling
+  \item Execution complete!
+\end{enumerate}
+
+The sequence of operations above prevents deadlock by removing the indefinite wait for resource $b$ by $T_{1}$. Instead of a circular wait between transactions $T_{1}$ and $T_{2}$, we can use the prediction-based metrics to give precedence to the transaction of higher category. This forces the transaction with a lower priority, $T_{2}$, to drop its locks and allow $T_{1}$ to finish successfully; therefore preventing deadlock.
+
+\subsection{$T_{1}$ with Lower Priority than $T_{2}$}
+\label{sec:t1_lower_than_t2}
+The second case we will analyze is the case of $T_{1}$ having a lower classification than $T_{2}$. Let's reverse the categories from the previous situation and suppose that $T_{1}$ has a category classification of $LCLE$ and $T_{2}$ has a category classification of $HCHE$. In this case we get the following sequence:
+
+\begin{enumerate}
+  \item $T_{1}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ obtains a shared read-lock to resource $b$
+  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
+  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
+    \begin{itemize}
+        \item The system gets the transaction with the highest category from the RCDS
+        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
+        \item $T_{2}$ contains the highest category therefore $T_{1}$ will wait until the lock is released
+    \end{itemize}
+  \item $T_{2}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
+    \begin{itemize}
+        \item The system gets the transaction with the highest category from the RCDS
+        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
+        \item $T_{2}$ contains the highest category therefore transactions with locks on resource $a$, $T_{1}$, will be dropped
+        \item $T_{2}$ obtains a shared read-lock to resource $a$
+    \end{itemize}    
+  \item $T_{2}$ growing phase is complete
+  \item $T_{2}$ executes successfully
+  \item $T_{2}$ releases all locks
+  \item $T_{2}$ shrinking phase is complete
+  \item $T_{1}$ is sent to scheduler for rescheduling
+  \item Execution complete!
+\end{enumerate}
+
+In this case, the prediction-based solution prevents deadlock by elevating the lock precedence in $T_{2}$ and dropping the locks of $T_{1}$. This allows $T_{2}$ to execute successfully while $T_{1}$ is sent back to the scheduler to be rescheduled into another schedule.
+
+\subsection{$T_{1}$ with Equal Priority to $T_{2}$}
+\label{sec:t1_equal_to_t2}
+The last and final case that we will address is the case of $T_{1}$ having an equal classification of $T_{2}$. Although the classification holds no bearing in this case, we'll say that both $T_{1}$ and $T_{2}$ have a category of $HCHE$. The following sequence shows the actions taken in this case:
+
+\begin{enumerate}
+  \item $T_{1}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ obtains a shared read-lock to resource $b$
+  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
+  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
+    \begin{itemize}
+        \item The system gets the transaction with the highest category from the RCDS
+        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
+        \item $T_{2}$ contains an equal category therefore $T_{1}$ will wait until the lock is released
+    \end{itemize}
+  \item $T_{2}$ obtains a shared read-lock to resource $a$
+  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
+    \begin{itemize}
+        \item The system gets the transaction with the highest category from the RCDS
+        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
+        \item $T_{1}$ contains an equal category therefore $T_{2}$ will wait until the lock is released
+    \end{itemize}    
+  \item Deadlock!
+\end{enumerate}
+
+In this case we see that the prediction-based solution provides no added benefit that 2PL does not already address. However, the prediction-based solution performs exactly the same as 2PL would in this case.
+
+\subsection{Theoretical Contribution}
+In this section we formally analyze the prediction-based solution and provide the associated theoretical contribution: assurance of consistency for all transactions while preserving an acceptable state of efficiency.
+% In this section we formally analyze the prediction-based solution and provide the associated theoretical contribution: assurance of consistency for all transactions while preserving an acceptable state of efficiency. The outline of the analysis is based very closely to the proof of correctness for two-phase locking (2PL) presented by Phil Bernstein \cite[pp. 53-56]{Bernstein_1986:CCR:17299}. 
+
+% In order to prove the correctness of the prediction-based solution we prove that each history generated by the prediction-based solution is serializable. However, before we can do that we must characterize the actions involved within the analysis. We say that $T_{1} \rightarrow T_{2}$ ($T_{1} precedes T_{2}$) if there are conflicting operations between the two serializable histories contained in $C(H)$. $C(H)$ is the set of all conflicting operations in a serializable history $H$. A \textit{cycle} is present in the serializability graph $SG(H)$ if there exists a path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ within the schedule where $n > 1$. By showing that a cycle will never exist within $SG(H)$ we can show that the scheduler used within the prediction-based solution will always produce serializable histories with no cycles and therefore preserve consistency.
+
+% The prediction-based solution consists of three actions: grant action, decline action, and the elevate action (See Definition \ref{legal_scheduler}). We will analyze the actions involved in the situations described in Sections \ref{sec:t1_higher_than_t2}, \ref{sec:t1_lower_than_t2}, and \ref{sec:t1_equal_to_t2}.
+
+% \begin{proposition}
+% \label{prop:grant}
+% Let $H$ be a history produced by a prediction-based scheduler. If $o_{i}[x]$ requires a grant action (+) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then $o_{i}[x]$ $\nexists$ $C(H)$
+% \end{proposition}
+
+% The grant action for an operation $o_{i}[x]$, according to Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}, will only be required when the only locks granted and requested are read-locks. Therefore there is no conflict and no operations contained within $C(H)$.
+
+% In the event that a decline action is required of an operation $p_{i}[x]$ then there exists one or many conflicting operations $q_{j}[x]$ that holds a lock to the required resource $x$. As mentioned in Algorithm \ref{alg:exec_sched}, the scheduler will wait for all unlock operations $qu_{j}[x]$ before granting a lock operation $pl_{i}[x]$.
+
+% \begin{proposition}
+% \label{prop:decline}
+% Let $H$ be a history produced by  a prediction-based scheduler. If $p_{i}[x]$ requires a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists an operation $q_{j}[x]$ $(i \neq j)$ and $p_{i}[x]$ $\exists$ $C(H)$ and $q_{j}[x]$ $\exists$ $C(H)$. Therefore $qu_{j}[x] < pl_{i}[x] < p_{i}[x] < pu_{i}[x]$.
+% \end{proposition}
+
+% The final two actions that could potentially be required for database operations are the elevate action and the decline action. These actions behave very similar however the elevate action premptively drops the conflicting locks so that the new operation can obtain a lock to the resource while the decline action waits for all conflicting locks to drop before locking the resource. Therefore, before an operation $p_{1}[x]$ can issue a lock operation $pl_{1}[x]$ all operations within the set $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ must drop their locks. This causes all unlock operations $qu_{i}[x] < pl_{1}[x]$. Although these actions are different, in regards to serializability, they are identical and therefore they are combined into one proposition. 
+
+% \begin{proposition}
+% \label{prop:elevate_decline}
+% Let $H$ be a history produced by a prediction-based scheduler. If $p_{1}[x]$ requires an eleveate action ($\delta$) or a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists one or many $q_{i}[x]$ where $q_{i}[x]$ $\subseteq$ $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ and $Q$ $\subseteq$ $C(H)$. Therefore $\forall$ $q_{i}[x]$ in $Q$ then $qu_{i}[x] < pl_{1}[x] < p_{i}[x] < pu_{i}[x]$.
+% \end{proposition}
+
+% Now that we have formal propositions for each operation within the scheduler, we can formally prove serializability of the prediction-based solution. This proof is done in three steps. First we show that if $T_{1} \rightarrow T_{2}$ is in $SG(H)$ then there exists a conflicting operation on a resource $x$ where $T_{1}$ must have released its lock on $x$ \textit{before} $T_{2}$ was able to obtain a lock on $x$. The second step shows that for any path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ in $SG(H)$ we can show by transitivity that every $T_{i}$ must release locks for conflicting operations before each $T_{i+1}$. The third and final step uses contradiction to assume that $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$. This contradiction shows that it is impossible for a cycle to occur because then $T_{1}$ would have performed an unlock operation before a lock operation. The following lemmas and theorem formalize these three steps.
+
+% \begin{lemma}
+% \label{lemma1}
+% Let $H$ be a prediction-based history, and suppose $T_{1} \rightarrow T_{2}$ is in $SG(H)$. Then, for some resource $x$ and some conflicting operations $p_{1}[x]$ and $q_{2}[x]$ in $H$, $pu_{1}[x] < ql_{2}[x]$.
+% \end{lemma}
+
+% \textit{Proof:} By having $T_{1} \rightarrow T_{2}$, there must exist conflicting operations $p_{1}[x]$ and $q_{2}[x]$ contained in $C(H)$ where $p_{1}[x] < q_{2}[x]$. Proposition \ref{prop:grant} does not conflict in this case since there are conflicting operations. By looking at Proposition \ref{prop:elevate_decline} we see,
+
+% \begin{enumerate}
+%   \item $pl_{1}[x] < p_{1}[x] < pu_{1}[x]$
+%   \item $ql_{2}[x] < q_{2}[x] < qu_{2}[x]$
+% \end{enumerate}
+
+% Since the lemma states that $T_{1} \rightarrow T_{2}$ we then have the operation sequence $pl_{1}[x] < p_{1}[x] < pu_{1}[x] < ql_{2}[x] < q_{2}[x] < qu_{2}[x]$ therefore proving that $pu_{1}[x] < ql_{2}[x]$.\qed
+
+% \begin{lemma}
+% \label{lemma2}
+% Let $H$ be a prediction-based history, and let $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ be a path in $SG(H)$, where $n > 1$. Then, for some resources $x$ and $y$, and some operations $p_{1}[x]$ and $q_{n}[y]$ in $H$, $pu_{1}[x] < ql_{n}[y]$.
+% \end{lemma}
+
+% \textit{Proof:} Rather than the previous proof's proof by contradiction, this proof will be proof by induction. The base step, where $n = 2$, is proven in Lemma \ref{lemma1}. We begin by supposing the lemma will hold true for $n = k$ where $k \geq 2$ and $n = k + 1$. By induction we see the path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{k}$. Induction on the lemma shows that there exists resources $x$ and $z$ and operations $p_{1}[x]$ and $o_{k}[z]$ in $H$ where $pu_{1}[x] < ol_{k}[z]$. To prove for $k + 1$ we use Lemma \ref{lemma1} for $T_{k} \rightarrow T_{k+1}$. Therefore, $\exists$ resource $y$ and conflicting operations $o'_{k}[y]$ and $q_{k+1}[y]$ in $H$ where $o'u_{k}[y] < ql_{k+1}[y]$. Proposition \ref{prop:elevate_decline} shows that $ol_{k}[z] < o'u_{k}[y]$ and therefore via the transitive property of operation precedence, $pu_{1}[x] < ql_{k+1}[y]$\footnote{\label{note1}Once again Proposition \ref{prop:grant} does not apply in this situation since there are conflicting operations.}.\qed
+
+\begin{theorem}
+\label{theorem1}
+Prediction-Based Legal (PBL) Schedulers guarantees serializable execution when used with 2-phase locking (2PL).
+\end{theorem}
+
+\textit{Proof:} PBL schedulers work exactly as traditional schedulers in regards to the \textit{grant} and \textit{decline} actions (see Definition \ref{legal_scheduler}). In order to prove the correctness of PBL schedulers, we need to show that PBL schedulers still guarantees serializable histories when the \textit{elevate} action is performed. We show that the schedule must still remain serializable by reducing the use to the \textit{grant} action.
+
+Let $T_{1},...,T_{k}$ be the transactions that used conflicting lock on data items such that $\tau(T_{j}) < \tau(T_{i})$ for all $j=1,...k$. But then, after all $T_{j}$'s dropped their lock on the data item the requirement for the \textit{grant} action is reached. That is, the data item is not locked by any transactions in a non-compatible mode (see Definition \ref{compatibility}). \qed
+% \textit{Proof:} In order to show this is true we use a proof by contradiction. We assume that, by contradiction, $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ where $n > 1$. The proof provided by the previous lemma (Lemma \ref{lemma2}) states that for some resources $x$ and $y$ and conflicting operations $p_{1}[x]$ and $q_{1}[y]$ in $H$, $pu_{1}[x] < ql_{1}[y]$. However, this contradicts with Proposition \ref{prop:elevate_decline} due to an unlock operation occurring on a resource before the lock operation\footnote{See footnote \ref{note1}.}. Therefore the contradiction fails and $ql_{1}[y] < pu_{1}[x]$. \qed
+
+%%%%%% END OF ANALYSIS SECTION %%%%%%%
+
 \section{Future Research}
 \label{sec:future_research}
 Based on these categorizations presented in the prediction-based solution, we see that certain steps can be taken to treat transactions differently. One area that this solution could be used is in the effort to prevent malicious transactions from corrupting the database. Malicious transactions carry certain attributes with them that can be leveraged using this solution so that they are handled differently to prevent the database from being completely useless after an execution. Liu and Jajodia implemented a multi-phase confinement system that provided a certain level of intrusion tolerance for database systems \cite{Liu_Intrusion}. We believe their model can be expanded using the Transaction Metrics in this solution. Just as the Transaction Metrics solution ensures consistency for web service transactions by prediction, we believe a molded version of the Transaction Metrics will be able to determine malicious transactions efficiently, handle them appropriately, and prevent any unwanted corruption to the database.
@@ -2022,11 +2043,7 @@ Based on these categorizations presented in the prediction-based solution, we se
 % \subsection or using \label (\appendices by itself
 % starts a section numbered zero.)
 %
-
-
 %\appendices
-%\section{Proof of the First Zonklar Equation}
-%\blindtext
 
 \section*{Conclusion}
 Transactional correctness and consistency in web service based database transactions are still an after-thought. With the compensation transactions solution, having transactions generate inconsistent states has become acceptable. We show that the prediction-based performance metric that is proposed here is a scalable and efficient solution to web service transactions. This would drastically minimize the amount of compensation transactions needed to ensure consistency in concurrent database transactions. We also show that the solution will ensure a consistent state for transactions that have built a reputation for being reliable under the calculated performance metric.

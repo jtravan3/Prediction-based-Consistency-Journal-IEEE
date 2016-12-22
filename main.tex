@@ -1834,7 +1834,11 @@ At a glance, Algorithm \ref{alg:determine_sched_action} looks to be complex but 
 
 \subsubsection{Algorithm \ref{alg:exec_sched}: DBMS Execute Schedule Algorithm}
 \label{alg_complexity:exec_sched}
-Algorithm \ref{alg:exec_sched} uses the logic from Algorithm \ref{alg:determine_sched_action} within its processing and from the previous complexity analysis, we see that Algorithm \ref{alg:determine_sched_action} has a complexity of $O(1)$. This does not affect the complexity analysis of Algorithm \ref{alg:exec_sched}. Algorithm \ref{alg:exec_sched} also contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing concurrently. The next and final section outlines the future research anticipated in regards to prediction-based categorization.
+Algorithm \ref{alg:exec_sched} uses the logic from Algorithm \ref{alg:determine_sched_action} within its processing and from the previous complexity analysis, we see that Algorithm \ref{alg:determine_sched_action} has a complexity of $O(1)$. This does not affect the complexity analysis of Algorithm \ref{alg:exec_sched}. Algorithm \ref{alg:exec_sched} also contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing concurrently. 
+
+\subsubsection{Primary Contributor to Performance}
+\label{alg_complexity:primary_contributor}
+After analyzing the algorithms used within the prediction-based solution we see that the overhead associated with the new solution is minimal. This is worth noting that the largest contributor to the overhead of the solution is not the added algorithmic complexity, but the waiting associated with restrictive concurrency control that this solution provides. As stated throughout the presented solution, locking ensures consistency but can drastically degrade performance. In the next section we analyze the formal correctness of the algorithms used within the prediction-based solution. This analysis shows that the added overhead of the algorithms and locking techniques are justified in situations when consistency is upheld.
 
 \section{Analysis}
 \label{sec:analysis}
@@ -2030,6 +2034,7 @@ Let $T_{1},...,T_{k}$ be the transactions that used conflicting lock on data ite
 
 \section{Experimental Simulation Results}
 \label{sec:experimentation}
+THIS IS JUST A PLACEHOLDER UNTIL THE SIMULATION IS COMPLETE. The next section outlines the future research anticipated in regards to prediction-based categorization.
 
 \section{Future Research}
 \label{sec:future_research}
@@ -2051,7 +2056,9 @@ Based on these categorizations presented in the prediction-based solution, we se
 %\appendices
 
 \section*{Conclusion}
-Transactional correctness and consistency in web service based database transactions are still an after-thought. With the compensation transactions solution, having transactions generate inconsistent states has become acceptable. We show that the prediction-based performance metric that is proposed here is a scalable and efficient solution to web service transactions. This would drastically minimize the amount of compensation transactions needed to ensure consistency in concurrent database transactions. We also show that the solution will ensure a consistent state for transactions that have built a reputation for being reliable under the calculated performance metric.
+Transactions within a web service context have always been given a higher priority to efficiency over consistency, and for good reason. When web services are collaborated together by business process languages, the time it takes to complete can be a duration hours and performance cannot be sacrificed. However, allowing the underlying database to reach an inconsistent state frequently is not acceptable. With the prediction-based solution we ensure consistency without the performance hit of traditional locking. The three scheduler actions (\textit{grant, decline,} and \textit{elevate}) combined with the four transactional categories ($HCHE$ $HCLE$ $LCHE$ and $LCLE$) associated with a performance metric based on efficiency rate and commit rate, develop a solution that can be easily extended to a distributed web service context in order to improve the current concurrency control mechanisms that are available today.
+
+% Transactional correctness and consistency in web service based database transactions are still an after-thought. With the compensation transactions solution, having transactions generate inconsistent states has become acceptable. We show that the prediction-based performance metric that is proposed here is a scalable and efficient solution to web service transactions. This would drastically minimize the amount of compensation transactions needed to ensure consistency in concurrent database transactions. We also show that the solution will ensure a consistent state for transactions that have built a reputation for being reliable under the calculated performance metric.
 
 % use section* for acknowledgement
 % \section*{Acknowledgment}

@@ -1,0 +1,28 @@
+\begin{algorithm}
+\caption{Priority Ordering Algorithm}
+\label{alg:priority_algorithm}
+\begin{algorithmic}[1]
+
+  \Function{order\_schedules}{SerialSched[] ss}
+    \State // Create collection to hold the relationship
+    \State // between a serializable schedule and its
+    \State // priority averaged across all transactions
+    \State // that compose that schedule
+    \State Map[SerialSched, Integer] ssAvg; \label{l:mapstart}
+    \\
+    \ForAll{s in ss}\label{l:forstart}
+      \State Transaction[] t = s.\Call{getTransactions}{}; \label{l:gettrans}
+      \State int i = \Call{AVG}{t}; \label{l:avgt}
+      \State ssAvg.\Call{add}{s,i}; \label{l:mapadd}
+    \EndFor
+    \\
+    \State // Sort the temporary map by the priority
+    \State // average
+    \State \Call{sort}{ssAvg.valueSet};
+    \\
+    \State \Return ssAvg.keySet; \label{l:returnkeys}
+    \\
+  \EndFunction
+
+\end{algorithmic}
+\end{algorithm}

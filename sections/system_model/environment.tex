@@ -1,0 +1,53 @@
+\subsection{Environment}
+In a web services environment, multiple web services can submit transactions to a database to be executed. As mentioned before, if only one transaction can be executed at any given time, then other concurrent transactions from other web services must wait. This causes a significant performance degradation; therefore, concurrent transactions from multiple web services must be handled. This is where the Database Management System's (DBMS) scheduler plays an important role in ensuring concurrent transactions preserve consistency within the database. The scheduler receives transactions that are submitted from web services and generates a serializable schedule based on the conflicting operations contained within the transactions. 
+
+After receiving the concurrent transactions (e.g., $T_{1}$, $T_{2}$, ... , $T_{N}$) the scheduler is responsible for analyzing the conflicting operations within the transactions and generating a serializable schedule that will then be executed on the database itself (e.g., $T_{Sched}$). This serializable execution is guaranteed to leave the database in a consistent state after a successful execution due to the analysis performed by the scheduler and the ordering of the operations within the transaction. Figure \ref{fig:Tsched} displays the generation of $T_{Sched}$ from multiple web service transactions. Figure \ref{fig:ws_env} displays a diagram of the database scheduler in a web service context.
+
+\begin{figure}[h]
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{picture}(55,100)
+    \put(-93,80){$T_{1}$ = \{ $W_{1}(r_{1})R_{1}(r_{1})W_{1}(r_{2})R_{1}(r_{2})$ ... $W_{1}(r_{n})R_{1}(r_{n})C_{1}$ \}}
+    \put(-93,65){$T_{2}$ = \{ $W_{2}(r_{1})R_{2}(r_{1})W_{2}(r_{2})R_{2}(r_{2})$ ... $W_{2}(r_{n})R_{2}(r_{n})C_{2}$ \}}
+    \put(-58,50){.}
+    \put(-58,45){.}
+    \put(-58,40){.}
+    \put(-100,23){$T_{N}$ = \{ $W_{n}(r_{1})R_{n}(r_{1})W_{n}(r_{2})R_{n}(r_{2})$ ... $W_{n}(r_{n})R_{n}(r_{n})C_{N}$ \}}
+    \put(-100,18){\makebox[\linewidth]{\rule{8.5cm}{0.4pt}}}
+    \put(-90,5){$T_{Sched}$ = \{ $T_{1}T_{2}$ ... $T_{N}$ \}}
+\end{picture}
+
+\caption{Generation of $T_{Sched}$ from Concurrent Web Service Transactions} % title of the Figure
+\label{fig:Tsched} % label to refer figure in text
+
+\end{figure}
+
+\begin{figure}[h]
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{tikzpicture}
+    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
+      minimum height=30, minimum width=50] (data) {DB};
+    \node [block, above=2cm of data.south,anchor=south] (sched) {Scheduler};
+    \node [webservice, above=2cm of sched] (ws1) {$WS_{1}$};
+    \node [webservice, right=of ws1] (ws2) {$WS_{2}$};
+    \node [webservice, right=of ws2] (wsN) {$WS_{N}$};
+    \path [line] (sched) -- (data);
+    \path [line] (data) -- (sched);
+    \path [line] (ws1) -- (sched);
+    \path [line] (ws2) -- (sched);
+    \path [line] (wsN) -- (sched);
+    \put(5,105){$T_{1}$}
+    \put(50,105){$T_{2}$}
+    \put(95,105){$T_{N}$}
+    \put(5,30){$T_{Sched}$}
+\end{tikzpicture}
+
+\caption{Web Service Environment with Scheduler} % title of the Figure
+\label{fig:ws_env} % label to refer figure in text
+
+\end{figure}
+
+The architecture shown in Figure \ref{fig:ws_env} is a typical web service environment that currently exists. The existing web service environment treats all transactions equally. Every transaction submitted to the DBMS scheduler is compiled into a schedule and submitted to the database. The drawback of this type of architecture is the case of a cascading rollback. In the event of a cascading rollback, operations that have successfully completed must be reverted, due to the failure of a dependant operation in a separate transaction. The prediction-based architecture used in the presented solution adds a new logical component (transaction metrics). This component is added at the scheduling level to analyze certain metadata about transactions submitted to the scheduler. Table \ref{tbl:trans_metrics} displays the type of data that will be calculated in order to make an accurate prediction on the likelihood that a transaction will either commit or abort. Once implemented, transactions will build a history, or a reputation, based on commit rate and efficiency rate. Figure \ref{fig:ws_env_with_metrics} displays the addition to the existing architecture in the prediction-based solution.

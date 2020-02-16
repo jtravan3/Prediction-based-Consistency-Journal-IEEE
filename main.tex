@@ -63,12 +63,13 @@
 % should be used if it is desired that the figures are to be displayed in
 % draft mode.
 %
-\documentclass[conference]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 \usepackage{blindtext, graphicx, hyperref, color, caption}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{tikz}
 \usepackage{mathtools}
 \usepackage{pgfplots}
+\usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -84,15 +85,16 @@
 
 \newtheorem{definition}{Definition}
 \newtheorem{example}{Example}[definition]
-\newtheorem{theorem}{Theorem}
-\newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}[theorem]{Lemma}
+
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
 \newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
 
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
 
 \tikzset{
 block/.style={
@@ -113,15 +115,16 @@ webservice/.style={
   inner ysep =.5em}
 }
 
+\definecolor{bblue}{HTML}{4F81BD}
+\definecolor{rred}{HTML}{C0504D}
+\definecolor{ggreen}{HTML}{9BBB59}
+\definecolor{ppurple}{HTML}{9F4C7C}
+
 % Add the compsoc option for Computer Society conferences.
 %
 % If IEEEtran.cls has not been installed into the LaTeX system files,
 % manually specify the path to it like:
 % \documentclass[conference]{../sty/IEEEtran}
-
-
-
-
 
 % Some very useful LaTeX packages include:
 % (uncomment the ones you want to load)
@@ -146,10 +149,6 @@ webservice/.style={
 % have to be run twice to clear warning/error messages.
 
 
-
-
-
-
 % *** CITATION PACKAGES ***
 %
 %\usepackage{cite}
@@ -167,10 +166,6 @@ webservice/.style={
 % The latest version can be obtained at:
 % http://www.ctan.org/tex-archive/macros/latex/contrib/cite/
 % The documentation is contained in the cite.sty file itself.
-
-
-
-
 
 
 % *** GRAPHICS RELATED PACKAGES ***
@@ -214,9 +209,6 @@ webservice/.style={
 % http://www.tug.org/applications/pdftex
 
 
-
-
-
 % *** MATH PACKAGES ***
 %
 %\usepackage[cmex10]{amsmath}
@@ -237,9 +229,6 @@ webservice/.style={
 % http://www.ctan.org/tex-archive/macros/latex/required/amslatex/math/
 
 
-
-
-
 % *** SPECIALIZED LIST PACKAGES ***
 %
 %\usepackage{algorithmic}
@@ -258,8 +247,6 @@ webservice/.style={
 % Also of interest may be the (relatively newer and more customizable)
 % algorithmicx.sty package by Szasz Janos:
 % http://www.ctan.org/tex-archive/macros/latex/contrib/algorithmicx/
-
-
 
 
 % *** ALIGNMENT PACKAGES ***
@@ -297,9 +284,6 @@ webservice/.style={
 % http://www.ctan.org/tex-archive/macros/latex/contrib/eqparbox/
 
 
-
-
-
 % *** SUBFIGURE PACKAGES ***
 %\usepackage[tight,footnotesize]{subfigure}
 % subfigure.sty was written by Steven Douglas Cochran. This package makes it
@@ -310,7 +294,6 @@ webservice/.style={
 % be obtained at:
 % http://www.ctan.org/tex-archive/obsolete/macros/latex/contrib/subfigure/
 % subfigure.sty has been superceeded by subfig.sty.
-
 
 
 %\usepackage[caption=false]{caption}
@@ -330,8 +313,6 @@ webservice/.style={
 % http://www.ctan.org/tex-archive/macros/latex/contrib/subfig/
 % The latest version and documentation of caption.sty can be obtained at:
 % http://www.ctan.org/tex-archive/macros/latex/contrib/caption/
-
-
 
 
 % *** FLOAT PACKAGES ***
@@ -367,9 +348,6 @@ webservice/.style={
 % that authors should try to avoid such use. Do not be tempted to use the
 % cuted.sty or midfloat.sty packages (also by Sigitas Tolusis) as IEEE does
 % not format its papers in such ways.
-
-
-
 
 
 % *** PDF, URL AND HYPERLINK PACKAGES ***
@@ -412,29 +390,29 @@ webservice/.style={
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
-\author{
+% \author{
 
-\IEEEauthorblockN{John T. Ravan III}
-\IEEEauthorblockA{Department of Computer Science\\ and Engineering\\
-University of South Carolina\\
-Columbia, South Carolina 29208\\
-Email: \href{mailto:jravan@email.sc.edu}{\color{blue} jravan@email.sc.edu}}
+% \IEEEauthorblockN{John T. Ravan III}
+% \IEEEauthorblockA{Department of Computer Science\\ and Engineering\\
+% University of South Carolina\\
+% Columbia, South Carolina 29208\\
+% Email: \href{mailto:jravan@email.sc.edu}{\color{blue} jravan@email.sc.edu}}
 
-\and
+% \and
 
-\IEEEauthorblockN{Shankar M. Banik, Ph.D}
-\IEEEauthorblockA{Department of Math and\\Computer Science\\
-The Citadel, The Military College of South Carolina\\
-Charleston, South Carolina 29409\\
-Email: \href{mailto:shankar.banik@citadel.edu}{\color{blue} shankar.banik@citadel.edu}}
+% \IEEEauthorblockN{Shankar M. Banik}
+% \IEEEauthorblockA{Department of Math and\\Computer Science\\
+% The Citadel, The Military College of South Carolina\\
+% Charleston, South Carolina 29409\\
+% Email: \href{mailto:shankar.banik@citadel.edu}{\color{blue} shankar.banik@citadel.edu}}
 
-\and
+% \and
 
-\IEEEauthorblockN{Csilla Farkas, Ph.D}
-\IEEEauthorblockA{Department of Computer Science\\ and Engineering\\
-University of South Carolina\\
-Columbia, South Carolina 29208\\
-Email: \href{mailto:farkas@cse.sc.edu}{\color{blue} farkas@cse.sc.edu}}}
+% \IEEEauthorblockN{Csilla Farkas}
+% \IEEEauthorblockA{Department of Computer Science\\ and Engineering\\
+% University of South Carolina\\
+% Columbia, South Carolina 29208\\
+% Email: \href{mailto:farkas@cse.sc.edu}{\color{blue} farkas@cse.sc.edu}}}
 
 
 
@@ -446,36 +424,16 @@ Email: \href{mailto:farkas@cse.sc.edu}{\color{blue} farkas@cse.sc.edu}}}
 % for over three affiliations, or if they all won't fit within the width
 % of the page, use this alternative format:
 % 
-% \author{\IEEEauthorblockN{Michael Shell\IEEEauthorrefmark{1},
-% Homer Simpson\IEEEauthorrefmark{2},
-% James Kirk\IEEEauthorrefmark{3}, 
-% Montgomery Scott\IEEEauthorrefmark{3} and
-% Eldon Tyrell\IEEEauthorrefmark{4}}
-% \IEEEauthorblockA{\IEEEauthorrefmark{1}School of Electrical and Computer Engineering\\
-% Georgia Institute of Technology,
-% Atlanta, Georgia 30332--0250\\ Email: see http://www.michaelshell.org/contact.html}
-% \IEEEauthorblockA{\IEEEauthorrefmark{2}Twentieth Century Fox, Springfield, USA\\
-% Email: homer@thesimpsons.com}
-% \IEEEauthorblockA{\IEEEauthorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
-% Telephone: (800) 555--1212, Fax: (888) 555--1212}
-% \IEEEauthorblockA{\IEEEauthorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
-
-
-
+\input{sections/authors}
 
 % use for special paper notices
 %\IEEEspecialpapernotice{(Invited Paper)}
-
-
-
 
 % make the title area
 \maketitle
 
 
-\begin{abstract}
-In this paper we propose transaction scheduling for web service database transactions where our solution would ensure consistency while preserving efficiency. We propose a prediction-based metric that promotes transactions with reliable reputations based on the transaction's performance metric. This performance metric is based on the transaction's likelihood to commit and its efficiency within the system. We can then predict the outcome of the transaction based on the metric and apply customized lock behaviors to address consistency issues in current web service environments. We formally prove that the solution will increase consistency among web service transactions without a huge performance degradation. Since the solution is independent of the execution environment, this would allow it to adapt to any environment and therefore increase the practicality.
-\end{abstract}
+\input{sections/abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
 % This preserves the distinction between vectors and scalars. However,
 % if the journal you are submitting to favors bold math in the abstract,
@@ -485,7 +443,7 @@ In this paper we propose transaction scheduling for web service database transac
 
 % Note that keywords are not normally used for peerreview papers.
 \begin{IEEEkeywords}
-Web Service, Transaction, ACID, database, concurrency control, cascading rollback, shared lock, exclusive lock, serializable schedule, consistency, isolation.
+web service, transaction, ACID, database, concurrency control, cascading rollback, shared lock, exclusive lock, serializable schedule, consistency, isolation.
 \end{IEEEkeywords}
 
 
@@ -586,1459 +544,42 @@ Web Service, Transaction, ACID, database, concurrency control, cascading rollbac
 % floats. This can be corrected via the \fnbelowfloat command of the
 % stfloats package.
 
-\section{Introduction}
-Consistency among multiple interleaved transactions in a web service context has always been an issue for researchers and database administrators. Isolation and atomicity are two of the four ACID\footnote{The four traditional database properties are Atomicity, Consistency, Isolation, and Durability} properties that are often relaxed in order to prevent a performance bottleneck. However, when these properties are relaxed, the database can reach an inconsistent state when concurrent transactions interleave incorrectly. This causes data to become corrupted, expensive compensation transactions to be executed, and cascading rollbacks on multiple nodes to be completed before processing can continue. By looking at a practical use case we can more clearly see the issue and the need for a solution that ensures consistency. In Figure \ref{fig:bp_env}, we see five web services executing on three different database instances. The first four web services  create a common business process created by the Business Process Execution Language (BPEL) \cite{BPEL}. The web services are: $WS_{1}$ (decrement inventory by product ID), $WS_{2}$ (process payment), $WS_{3}$ (add order by user ID), and $WS_{4}$ (delete user payment info). The goal of the process is to allow a customer to purchase a product from an e-Commerce site. $WS_{5}$ (delete user payment info) and $WS_{3}$ execute within the same database instance. With the relaxed properties in the web service context, concurrent executions of $WS_{5}$ and $WS_{3}$ could cause an inconsistent state on $Node_{3}$. This would then cause a cascading rollback to execute and revert the committed operations of $WS_{1}$ and $WS_{2}$. Existing research shows that many solutions have been presented in the past to address this issue (e.g., \cite{Fekete_SnapshotIso}, \cite{Alrifai_Distributed_Managment}, \cite{Fekete_RAMP}, \cite{Fekete_IsolationSupport}, \cite{Jacobi_Locking}, and \cite{Fekete_Promises}). 
-
-The most influential research that inspired the prediction-based solution was the Promises Model. The Promises model presented by Alan Fekete et al (e.g., \cite{Fekete_IsolationSupport} and \cite{Fekete_Promises}) is an elegant solution that "promises" a particular transaction that the requested resource will be available while allowing concurrent transactions to still execute on that resource. The Promises solution is robust in that it allows the "strengthening" or "weakening" of promises after they have already been made. This allows existing promises on resources to be modified without breaking the existing promise entirely. However, the solution introduces backwards compatibility issues along with a potential bottleneck at the occurrence of registering a promise for a particular transaction. 
-
-Our Prediction-based solution presented in this paper allows transactions to build a reputation based on the efficiency rate and the commit rate of their executions. By these two transactional properties the transactions are categorized into one of four categories. The priorities associated with the category impact the transaction's scheduling in order to prevent cascading rollbacks. The lock behaviors associated with the categories enable preemptive scheduling in order to increase efficiency. The contributions in the Prediction-based solution address the two issues of efficiency and consistency where existing research solutions fall short. The rest of the paper is organized as follows. Section \ref{sec:problem_def} outlines the problem along with a use case scenario. Section \ref{sec:existing_research} discusses the existing research already taken place in regards to the problem. Section \ref{sec:system_model} outlines the system model for the solution. Section \ref{sec:algorithms} discusses the algorithms needed for solution and their psuedocode. Section \ref{sec:analysis} provides the formal proofs for the given solution. Section \ref{sec:experimentation} outlines the comparison results from the implemented simulation of the prediction-based solution versus a traditional scheduler. We conclude in Section \ref{sec:future_research} by mapping out the future research in regards to the Prediction-based solution.
-
-\section{Problem Definition}
-\label{sec:problem_def}
-Transactions in traditional database systems satisfy the four ACID  properties: Atomicity, Consistency, Isolation, and Durability. ACID Transactions guarantee to leave the database in a consistent state. However, in a web service environment ACID properties and transactional concurrency cannot be fulfilled due to performance issues. Common occurrences in web service environments involve the collaboration of multiple web services together to fulfill a particular task without coupling all the needed operations in one service. Languages, such as BPEL (Business Process Execution Language) \cite{BPEL}, allow a large majority of these business processes to execute web services that must access the underlying database management systems (DBMS). These transactions may be required to relax the isolation property of the database in order to accommodate concurrent transactions.
-
-In the event that a transaction fails (abort) and there are transactions depending on the successful execution of the failed transaction a cascading rollback must occur due to the inconsistency of the database. This will cause any transaction that has committed operations that are dependant on the failed operation to be reverted. This occurs very often in the web service environment due to the relaxed atomicity and isolation properties. The relaxation of the atomicity property allows operations within a transaction to commit any changes performed by the operation permanently before the entire transaction has completed. The relaxation of the isolation property allows the interleaved execution of operations on a particular resource from concurrent transactions. This improves performance tremendously however in the event that an operation fails, causing an abort to be issued, every transaction depending upon the failed operation must be aborted as well in order to restore consistency. These compensation transactions have become a standard practice in web service environments but sacrifice the consistency of the system. The next section will discuss a use-case scenario where this problem exists.
-
-\subsection{Use-Case Scenario}
-The next section demonstrates the potential database problem if concurrency control is not supported. Assume that, an e-commerce web site allows users to purchase products through an online interface. For the purpose of this use case we assume that the user has already authenticated themselves, selected the products they wish to purchase, and provided their payment information. With these assumptions in place, a ticket is generated (see Figure \ref{fig:e_com_ticket}) containing the $userID$ (provided by the authenticated session), the $productID$ of the products they wish to purchase, and their payment information. This generated ticket from the site is then handed off to a business process (starting at $WS_{1}$ in Figure \ref{fig:bp_env}) containing multiple web services, on multiple databases in a distributed context. Figure \ref{fig:bp_env} displays the architecture of the back-end business process in sequence.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-  \draw (0,0) -- (0,2.02) -- (1.6,2.02) -- (1.6,1.7) -- (1.9,1.7) -- (1.9,0) -- cycle;
-  \draw (1.6,2.02) -- (1.9,1.7);
-  \node[text width=1.5cm] at (.85,1.25) {$userID$};
-  \node[text width=1.5cm] at (.85,.75) {$productID$};
-  \node[text width=1.5cm] at (.85,.3) {$cardID$};
-  \draw[thick,->] (1.35,1.25) -- (2.15,1.25);
-  \draw[thick,->] (1.8,.75) -- (2.15,.75);
-  \draw[thick,->] (1.35,.3) -- (2.15,.3);
-  \node[text width=3.5cm] at (4,1.25) {"jravan"};
-  \node[text width=3.5cm] at (4,.75) {"20lb-coffee"};
-  \node[text width=3.5cm] at (4,.3) {"5258-9663-4625-1489"};
-\end{tikzpicture}
-
-\caption{e-Commerce Web Site Ticket Example} % title of the Figure
-\label{fig:e_com_ticket} %% label to refer figure in text
-
-\end{figure}
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-    \node [webservice, anchor=north] (ws4) {$WS_{4}$};
-    \node [webservice, above=2cm of ws4.north, anchor=north] (ws3) {$WS_{3}$};
-    \node [webservice, above=2cm of ws3.north, anchor=north] (ws2) {$WS_{2}$};
-    \node [webservice, above=2cm of ws2.north, anchor=north] (ws1) {$WS_{1}$};
-    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
-      minimum height=30, minimum width=30, anchor=north, left=.5cm of ws3] (data3) {DB};
-    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
-      minimum height=30, minimum width=30, above=2cm of data3.north, anchor=north] (data2) {DB};
-    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
-      minimum height=30, minimum width=30, above=2cm of data2.north, anchor=north] (data1) {DB};
-    \node [webservice, left=4cm of ws3.north, anchor=north] (ws5) {$WS_{5}$};
-    \path [line] (ws1) -- (data1);
-    \path [line] (ws2) -- (data2);
-    \path [line] (ws3) -- (data3);
-    \path [line] (ws1) -- (ws2);
-    \path [line] (ws2) -- (ws3);
-    \path [line] (ws3) -- (ws4);
-    \path [line] (ws5) -- (data3);
-    \draw[dotted,blue] (-5,.35) rectangle (3,-1.35);
-    \draw[dotted,red] (-5,2.35) rectangle (3,.65);
-    \draw[dotted,black] (-5,4.35) rectangle (3,2.65);
-    \draw[dotted,purple] (-5,6.35) rectangle (3,4.65);
-    \node[text width=1cm] at (2,6) {$Node_{1}$};
-    \node[text width=1cm] at (2,4) {$Node_{2}$};
-    \node[text width=1cm] at (2,2) {$Node_{3}$};
-    \node[text width=1cm] at (2,0) {$Node_{4}$};
-    \node[text width=7cm] at (-.5,-2) {$WS_{1} = Decrement Inventory By Product ID$};
-    \node[text width=7cm] at (-.5,-2.5) {$WS_{2} = Process Payment$};
-    \node[text width=7cm] at (-.5,-3) {$WS_{3} = Get Order By User ID$};
-    \node[text width=7cm] at (-.5,-3.5) {$WS_{4} = Generate Receipt$};
-    \node[text width=7cm] at (-.5,-4) {$WS_{5} = Delete Order By User ID$};
-\end{tikzpicture}
-
-\caption{Business Process for e-Commerce Web Site} % title of the Figure
-\label{fig:bp_env} % label to refer figure in text
-
-\end{figure}
-
-Each dotted rectangle within Figure \ref{fig:bp_env} represents a distributed node containing a public web service executing transactions on an underlying database. In order for a successful purchase to take place within the e-commerce environment, the business process containing the web service sequence $WS_{1}, WS_{2}, WS_{3},$ and $WS_{4}$ must execute successfully. $WS_{1}$ ($DecrementInventoryByProductID$) uses the $productID$ provided from the current ticket in order to query the database regarding the requested product. This web service is responsible for searching the product and decrementing the number of items available for purchase. Once this task has been completed the ticket is passed off to $WS_{2}$. $WS_{2}$ ($ProcessPayment$) uses the payment information provided in the ticket to charge the user. If the payment is processed successfully, the ticket is forwarded to $WS_{3}$. $WS_{3}$ ($GetOrderByUserID$) is a service that takes the given $userID$, $product ID$, and returns a record of purchase for the user. Once this has been processed successfully, it is handed off to $WS_{4}$ which is the final step in this purchase business process. $WS_{4}$ ($GenerateReceipt$) simply generates a receipt from the ticket information and is returned to the user's interface. This web service does not require a database for its processing needs. Once $WS_{4}$ has completed processing, and only when it is finished, a purchase is considered successful.
-
-The issue that arises in this situation is that web services can be executed by multiple hosts where the hosts are unaware of each others presence. This can cause issues for a node such as $Node_{3}$ where there are two different web services executing transactions on a single database instance. $WS_{3}$ and $WS_{5}$ provide two completely different services to users, however the changes are reflected within the same database. $WS_{3}$ is a crucial part of the purchase business process in the provided use case but that does not mean that $WS_{3}$ is solely used within that business process. In the event that both $WS_{3}$ and $WS_{5}$ are executed simultaneously, some type of concurrency control will need to be applied to retain consistency within the shared database. The next section will discuss the details of the two conflicting transactions. The next section will also outline how these transactions could potentially cause an inconsistent state along with cascading rollbacks throughout $Node_{1}$ and $Node_{2}$.
-
-\subsection{Use Case Transactions for $Node_{3}$}
-\label{sec:use_case_for_node_3}
-In Figure \ref{fig:webform} we see the contents of the two transactions executing on $Node_{3}$. $T_{DeleteOrderByUserID}$ is a transaction generated by $W_{5}$. The responsibility of this web service is to determine if the user exists and if they do exist, then to delete the user's order information from the database by the provided \textit{userID}. $T_{GetOrderByUserID}$ is a transaction generated by $WS_{3}$ (mentioned above from Figure \ref{fig:bp_env}) that is responsible for getting an order from a user account. $T_{GetOrderByUserID}$ executes under the pretext that the \textit{userID} given exists in the database or the web service would not have been able to be executed. If $T_{GetOrderByUserID}$ fails within the business process outlined in Figure \ref{fig:bp_env} then an abort must be issued and all the previous operations committed from $WS_{1}$ and $WS_{2}$ must be rolled back. This includes operations that were executed from subsequent transactions that depended on the results of $WS_{1}$ and $WS_{2}$.
-
-The two transactions executed from $WS_{3}$ and $WS_{5}$ are $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$. $T_{DeleteOrderByUserID}$ contains four operations: $R_{2}(b)$, $W_{2}(b)$, $R_{2}(a)$, and $W_{2}(a)$. The transaction will first READ from the database to ensure the user exists and then WRITE out the order infromation if the order does exist\footnote{In this instance the WRITE operation executed would write a $NULL$ or empty record to the database in order to "delete" the record.}. The other transaction, $T_{GetOrderByUserID}$, contains a single $R_{1}(a)$ and $R_{1}(b)$. Each transaction contains a $C_{i}$ operation that represents the COMMIT operation that the database executes after all operations have completed. Figure \ref{fig:webform} shows the two transactions along with the operations contained within.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,40)
-    \put(-70.5,25){$T_{GetOrderByUserID}$ = $R_{1}(a)R_{1}(b)C_{1}$}
-    \put(-87,10){$T_{DeleteOrderByUserID}$ = $R_{2}(b)W_{2}(b)R_{2}(a)W_{2}(a)C_{2}$}
-\end{picture}
-
-\caption{e-Commerce Web Service Transaction Sequences} % title of the Figure
-\label{fig:webform} % label to refer figure in text
-
-\end{figure}
-
-\subsection{Use Case Transaction Metrics}
-
-For the transactions listed above, we know certain attributes regarding their executions including commit rate, number of transactions executed, and the average execution time. Commit rate is the percentage of successful commits over the total amount of attempted executions of that particular transaction (Definition \ref{cmt_rate}). Number of transactions simply represents the total number of executions attempted (commits and aborts combined) for that particular transaction. Efficiency rate represents the average efficiency of the particular transaction to reach a completion state; whether it is a failure or success (Definition \ref{eff_rate}). A transaction with a very long execution time will have an efficiency rate that is much lower than a transaction that executes and completes very quickly. The attribute data listed above is consolidated into Table \ref{tbl:trans_metrics} below. 
-\\
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\multicolumn{4}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{Transaction Metrics}}                                                   \\ \hline
-\textbf{Transactions} & \textbf{Commit Rate} & \textbf{\# of Transactions} & {\color[HTML]{000000} \textbf{Eff. Rate}} \\ \hline
-$T_{DeleteOrderByUserID}$         & 98\%                  & 200                         & 98\%                                          \\ \hline
-$T_{GetOrderByUserID}$          & 97\%                     & 520                           & 99\%                                              \\ \hline
-\end{tabular}
-
-\caption{Transaction Metrics} % title of the Figure
-\label{tbl:trans_metrics} % label to refer figure in text
-
-\end{table}
-
-In the scenario when the two transactions above are executed simultaneously, some form of concurrency control must be used to ensure that the database is left in a consistent state. In a web service context, without the prediction-based solution, the isolation property will be relaxed and a serializable execution will be created. This serializable execution will be based on the conflicting operations of the two transactions. Figure \ref{fig:combined_history} displays an example of a generated serializable execution from $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,25)
-    \put(-90,5){$T_{Schedule}$ = $R_{1}(a)R_{2}(b)W_{2}(b)R_{1}(b)R_{2}(a)W_{2}(a)$}
-\end{picture}
-
-\caption{Generated Schedule} % title of the Figure
-\label{fig:combined_history} % label to refer figure in text
-
-\end{figure}
-
-$T_{Schedule}$ is a well-formed schedule that does not violate any rules regarding conflicting operations. Between each operation within the schedule, a commit operation $C_{i}$ is executed. This shows how the Atomcity property of a database is relaxed during the execution of a schedule. Therefore, if $R_{2}(a)$ fails, a cascading rollback will be issued causing the operations of $T_{GetOrderByUserID}$ to be rolled back regardless of their successful execution. The operations of $T_{GetOrderByUserID}$ must be rolled back since they are a part of $T_{Schedule}$ and a COMMIT operation has been executed already. If $T_{GetOrderByUserID}$ was executed as a part of the business process outlined in the use case then the operations of the previous web services ($WS_{1}$ and $WS_{2}$) must be rolled back also.
-
-Conversely, if the data in Table \ref{tbl:trans_metrics} were taken into consideration before generating the serializable execution, $T_{GetOrderByUserID}$ could be given a more restrictive concurrency control mechanism, such as locking. Table \ref{tbl:trans_metrics} contains data that proves instances of $T_{GetOrderByUserID}$ have a high rate of commit with a high percentage of efficiency throughout the system. Table \ref{tbl:trans_metrics} also displays that instances of $T_{DeleteOrderByUserID}$ could use locking techniques due to its history. Therefore $T_{GetOrderByUserID}$ and $T_{DeleteOrderByUserID}$ could execute within the same schedule using traditional locking techniques, commit changes quickly and successfully, and prevent a cascading rollback from reverting the effects of $WS_{1}$ and $WS_{2}$ by using the reputation provided by the separate transactions. In the proposed solution, we aim to provide concurrency control that is based on the metadata of the transactions themselves. Our hypothesis is that if transactions could be treated differently based on their history, stronger concurrency control techniques could be leveraged, such as locking, which ensures the consistency property for web service transactions. Section \ref{sec:analysis} walks through this exact use-case scenario with two-phase locking and the proposed prediction-based solution. The next section will discuss the existing research that has taken place to remediate this problem without the current knowledge of transaction metrics.
-
-\section{Existing Research}
-\label{sec:existing_research}
-Ensuring successful concurrency control in web service transactions has been studied in depth for some time (e.g., \cite{Fekete_Promises}, \cite{Fekete_IsolationSupport}, and \cite{Alrifai_Distributed_Managment}). The Promises model presented by Alan Fekete et al (e.g., \cite{Fekete_Promises} and \cite{Fekete_IsolationSupport}) is an elegant solution that "promises" a particular transaction that the requested resource will be available while allowing concurrent transactions to still execute on that resource. The Promises solution is robust in that it allows the "strengthening" or "weakening" of promises after they have already been made. This allows existing promises on resources to be modified without breaking the existing promise entirely. Alomari et al present a solution involving an External Lock Manager (ELM) that resides outside of the DBMS \cite{Fekete_SnapshotIso}. This allows a layer of separation between the application and the DBMS in order to schedule transactions using special business logic according to the environment. This is very similar to the approach taken with the Transaction Metrics logical unit within the solution presented in this paper. In the solution presented by Alrifai et al \cite{Alrifai_Distributed_Managment} an edge chasing solution using dependency graphs are incorporated in order to detect dependencies between globally scheduled transactions. The solution was tested parallel to the well known 2-Phase Locking Protocol (2PL) and provided promising results regarding efficiency. However, the Alrifai et al solution becomes less efficient when the number of dependency cycles are detected. The model of the different lock types comes from Christian Jacobi et al with their research in concurrent locking with parallel database systems \cite{Jacobi_Locking}. The researchers extended the use of the native lock types in the existing database structure in order to speed up thread processing on multi-processor machines. Prediction-based concurrency control has been proposed by Eunhee Lee et al with the entity-radius solution \cite{Eunhee_PredictionBasedCC}. This solution uses the concept of multiple entity radii that attempts to predict the next user based on their location. The prediction is generated from the location within a radius of the replicated site and their navigation speed. The solution provided is elegant with excellent experimental results but no formal proof or analysis of the algorithm is provided. The solution is also based solely on virtual game environments rather than BPEL business processes. Other solutions to prevent business process cancellation or rollback when participants of the process do not behave correctly involve global views of the process \cite{Riegen_RuleBased}, \cite{Fekete_RAMP}. Support for these types of solutions are based on the well-known Oasis specifications of WS-Coordination, WS-AtomicTransaction, and WS-BusinessActivity \cite{WSCO}, \cite{WSAT}, \cite{WSBA}. These solutions are well-designed however they require the presence of a global coordinator throughout the entire process of a business process. A local solution that is independent of coordination is much more extensible and flexible for an continuously growing web service environment. Now that we have seen the existing research that has been performed in regards to concurrency control we will discuss the prediction-based solution's system model generated from the current available work in the research community.
-
-\section{System Model}
-\label{sec:system_model}
-This section outlines the system model on which the solution is built. Definitions for new concepts are introduced first considering they will be used to describe the different components that consist of the system model. Later subsections explain in detail the different components and processes required for the prediction-based solution. We assume that all the transactions are well-formed and the scheduler is legal.
-
-\subsection{Definitions}
-\label{definitions}
-
-\begin{definition}
-\label{cmt_rate}
- (Commit Rate) - the commit rate of a transaction $T_{i}$, denoted as  $C_{r}(T_{i})$, is calculated by the given formula:
- 
- \[\textrm{$\abs{c_{i}}$} = \textrm{\# of executions of $T_{i}$ ending with a COMMIT result}\]
- \[\textrm{$\abs{a_{i}}$} = \textrm{\# of executions of $T_{i}$ ending with a ABORT result}\]
- \[\textrm{$C_{r}(T_{i})$} =\frac{\textrm{$\abs{c_{i}}$}}{\textrm{$\abs{c_{i} + a_{i}}$}}\]
- 
- Once this ratio is calculated it is compared to the overall ratio of commit to abort executions for all transactions.
- 
-\end{definition}
-
-\begin{definition}
-\label{eff_rate}
- (Efficiency Rate) - the efficiency rate of a transaction $T_{i}$, denoted as  $E_{r}(T_{i})$, is based on how its execution time compares to all transactions executed within the execution environment. The efficiency rate is calculated based on the given formula:
- 
-\[\textrm{$E_{r}(T_{i})$} =\frac{\textrm{$AVG(AVG(T_{1}),...,AVG(T_{n}))$}}{\textrm{$AVG(T_{i})$}}\]
- 
-\end{definition}
-
-\begin{definition}
-\label{cat_bounds}
- (Categorization Thresholds) - categorization thresholds are upper and lower limits of both commit rate and efficiency rate that are used when categorizing transactions\footnote{The categorization bounds are static values that do not change throughout the system execution. Both the efficiency rate and the commit rate bounds are currently at 50\% creating full coverage of all transactions.}.
-\end{definition}
-
-% \begin{definition}
-% \label{cat_threshold}
-%  (Categorization Thresholds) - categorization thresholds are calculated within the categorization bounds (see Definition \ref{cat_bounds}) by using the Transaction Concentration Ratio (see Section \ref{sec:TCR}). The threshold values are dynamic and change depending on the execution environment but will not exceed the categorization bounds placed on that particular category. Categorization thresholds enforce the most accurate thresholds for the execution environment while allowing flexibility.
-% \end{definition}
-
-\begin{definition}
-\label{transaction_categories}
-(Transaction Categories) - Let $T$ = \{$T_{1}$, ... , $T_{n}$\} be a set of transactions and $C$ = \{$HCHE$, $HCLE$, $LCHE$, $LCLE$\} a set of category names. The mapping $\tau$ associates a category name with each transaction as follows:
-
-\[ 
-\tau : \textrm{$T_{i}$}\rightarrow
-\left \{
-  \begin{tabular}{cc}
-  HCHE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) > 1$ \\
-  HCLE & if $C_{r}(T_{i}) > 0.5$ and $E_{r}(T_{i}) \le 0.5$ \\
-  LCHE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) > 1$ \\
-  LCLE & if $C_{r}(T_{i}) \le 0.5$ and $E_{r}(T_{i}) \le 0.5$
-  \end{tabular}
-\right \}
-\]
-
-In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
-
-In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed.
-
-The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
-
-With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control.
-
-\end{definition}
-
-\begin{definition}
-\label{cat_dominance}
-(Transaction Category Dominance) - The Transaction Category Dominance is a pair, denoted as $C_{D} = (C,L)$, where $C$ is the set of transaction categories, and $L$ is a partial order of the categories such that:
- 
-\[\textrm{$HCHE > HCLE > LCLE$}\]
-\[\textrm{$HCHE > LCHE > LCLE$} \]
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-    % [list/.style={rectangle split, rectangle split parts=3,
-    % draw, rectangle split horizontal}, >=stealth, start chain]
-  \node[text width=1.5cm] at (3.8,5) {$HCHE$};
-  \node[text width=1.5cm] at (2.8,4) {$HCLE$};
-  \node[text width=1.5cm] at (4.8,4) {$LCHE$};
-  \node[text width=1.5cm] at (3.8,3) {$LCLE$};
-  \draw (3.55,4.8) -- (2.7,4.2);
-  \draw (3.75,4.8) -- (4.7,4.2);
-  \draw (3.55,3.2) -- (2.7,3.8);
-  \draw (3.75,3.2) -- (4.7,3.8);
-  
-\end{tikzpicture}
-
-% \caption{Web Service Environment with Scheduler} % title of the Figure
-\label{fig:category_lattice} % label to refer figure in text
-
-\end{figure}
-
-Note, that the categories $HCLE$ and $LCHE$ are not comparable. That is, we cannot establish a dominance relation between transactions in $HCLE$ and $LCHE$ categories.
-
-However, in our model, we focus on reducing the need of compensation for aborted transactions. Therefore, we prioritize the commit property over the efficiency property. We introduce the dominance relation below. Table \ref{tbl:priority} displays the defined dominance.
-
-\[\textrm{$HCLE > LCHE$} \]
- 
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|}
-\cline{2-2}
-                                          & \multicolumn{1}{l|}{\textbf{Priority}} \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCHE}}  & I                                      \\ \hline
-\multicolumn{1}{|l|}{\textbf{HCLE}}  & II                                     \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCHE}} & III                                     \\ \hline
-\multicolumn{1}{|l|}{\textbf{LCLE}} & IV                                      \\ \hline
-\end{tabular}
-
-\caption{Category Priorities} % title of the Figure
-\label{tbl:priority} % label to refer figure in text
-
-\end{table} 
-
-\end{definition}
-
-% \begin{definition}
-% \label{min_commit}
-% (HCHE) - HCHE, acronym for High Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the upper 50\% and higher as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-% \end{definition}
-
-% \begin{definition}
-% \label{min_abrt}
-% (LCHE) - LCHE, acronym for Low Commit High Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the upper 50\% and higher (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-% \end{definition}
-
-% \begin{definition}
-% \label{ext_commit}
-% (HCLE) - HCLE, acronym for High Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and higher and a efficiency rate in the bottom 50\% and lower (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-% \end{definition}
-
-% \begin{definition}
-% \label{ext_abrt}
-% (LCLE) - LCLE, acronym for Low Commit Low Efficiency, is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that involve a commit rate of 50\% and lower and a efficiency rate in the bottom 50\% and lower as well (see Definitions \ref{cmt_rate} and \ref{eff_rate}). Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-% \end{definition}
-
-%\begin{definition}
-%\label{no_trend}
-%(NO\_TREND) - NO\_TREND is a transaction categorization with categorization bounds (see Definition \ref{cat_bounds}) that include all %the outlining space that the previous four categories do not include. If the efficiency rate is less than or equal to 25\% then the %commit rate must be between 25\% and 75\% (see Definitions \ref{cmt_rate} and \ref{eff_rate}). If the efficiency rate is between 25\% %and 75\% then the commit rate includes all values ranging from 0\% to 100\%. Finally, if the efficiency rate is greater than or equal %to 75\% then the commit rate must be between 25\% and 75\%. Table \ref{tbl:default_tmetrics} outlines all transaction categories.
-%\end{definition}
-
-%\[
-%\left \{
-%  \begin{tabular}{ll}
-%  
-%  $E_{r}\le25\%$, & $25\%<C_{r}<75\%$ \\
-%  $25\%<E_{r}<75\%$, & $0\%\le C_{r}\le100\%$ \\
-%  $E_{r}\ge75\%$, & $25\%<C_{r}<75\%$
-%  
-%  \end{tabular}
-%\right \}
-%\]
-
-\begin{definition}
-\label{conflict_ops}
- (Conflicting Operations) - two operations are conflicting if they,
-
- \begin{enumerate}
-   \item are contained within two different transactions,
-   \item both operations are operating on the same data item, and
-   \item at least one of the operations is a WRITE
- \end{enumerate}
-
- \begin{example}
- \label{ex_conflict_ops}
-  Let $o_{1}$ be a READ operation on data item $User ID$ in transaction $T_{1}$ and let $o_{2}$ be a WRITE operation on $User ID$ in $T_{2}$. These two operations are conflicting.
- \end{example}
-\end{definition}
-
-% \begin{definition}
-% \label{conflict_trans}
-%  (Conflicting Transactions) - two transactions are considered conflicting if they contain all of the following attributes:
- 
-%  \begin{enumerate}
-%  \item both transactions contain conflicting operations (see Definition \ref{conflict_ops})
-%  \item both transactions are contained within the same serializable schedule
-%  \item and at least one of the transactions is categorized to abort
-%  \end{enumerate}
- 
-%  \begin{example}
-%  \label{ex_conflict_trans}
-%   Using the transactions mentioned in Example \ref{ex_conflict_ops} let's say the serializable schedule $S_{1}$ contains   an interleaved execution of $T_{1}$ and $T_{2}$. These transactions are now considered conflicting.
-%  \end{example}
-% \end{definition}
-
-% \begin{definition}
-% \label{conflict_cat}
-%   (Conflicting Categories) - conflicting categories are very much related to conflicting transactions (see Definition \ref{conflict_trans}) however this definition is concerned with the categories the transactions have been placed in rather than the transactions themselves. Two categories are said to be conflicting if they contain all of the following attributes:
-  
-%   \begin{enumerate}
-%   \item both are contained within the same serializable schedule
-%   \item and at least one of the categories is predicted to abort
-%   \end{enumerate}
-  
-% Transactions of conflicting categories are not allowed within the same schedule within this solution.  
-  
-%   \begin{example}
-%   For example, let's say we have transaction $T_{1}$ that has been placed in the category HCHE and transaction $T_{2}$ that has been placed in the category LCLE. These two categories are considered conflicting even if $T_{1}$ and $T_{2}$ are not considered to be conflicting transactions themselves.
-%   \end{example}
-  
-% \end{definition}
-
-% \begin{definition}
-% \label{serial_sched}
-%  (Serializable Schedule) - a serializable schedule is a non-serial schedule that can be converted to a serial schedule by interchanging non-conflicting operations (see Definition \ref{conflict_ops})
-
-% \end{definition}
-
-% \begin{definition}
-% \label{casc_rollback}
-%  (Cascading Rollback) - a cascading rollback occurs when two conflicting transactions (see Definition                     \ref{conflict_trans}) are interleaved within the same serializable schedule. The abort is cascading in the sense that an  abort must be issued for each transaction within the schedule that was dependant upon the transaction that issued the abort. This is needed to ensure a consistent state within the database.
- 
-%  \begin{example}
-%  \label{ex_casc_rollback}
-%   Using the serializable schedule generated in Example \ref{ex_conflict_trans}, if transaction $T_{2}$ issues an abort then  transaction $T_{1}$ must also be aborted since $T_{1}$ is dependant upon $T_{2}$.
-%  \end{example}
- 
-% \end{definition}
-
-\begin{definition}
-\label{compatibility}
-(Compatibility) - a data item is locked in a non-compatible mode if:
-
-\begin{enumerate}
-  \item the data item is locked by write-lock, or
-  \item the data item requesting the lock is categorized with a lower priority
-\end{enumerate}
-\end{definition}
-
-\begin{definition}
-\label{legal_scheduler}
- (Legal Scheduler) - a prediction-based scheduler is legal if:
- 
- \begin{enumerate}
-    \item \textbf{Grant:} (denoted as the addition symbol, +) a transaction is permitted to lock a data item if the data item is not already locked in a non-compatible mode (see Definition \ref{compatibility}) by an other transaction\footnote{In the event that a lock is requested of a resource that has not issued any locks, then the lock will be automatically granted. There is no conflict and therefore the compatibility matrices do not apply.}.
-    \item \textbf{Decline:} (denoted as the subtraction symbol, -) a transaction $T_{i}$ is denied to lock a data item if the data item is already locked in a non-compatible mode (see Definition \ref{compatibility}) by another transaction $T_{j}$ where $\tau(T_{i}) \le \tau(T_{j})$
-    \item \textbf{Elevate:} (denoted as lowercase delta, $\delta$) a transaction $T_{i}$ is permitted to lock a data item if all the non-compatible locks (see Definition \ref{compatibility}) on the data item are being held by transactions $T_{1}, ... , T_{k}$ such that $\tau(T_{j}) < \tau(T_{i})$ for all $j = 1, ..., k$ in this case $T_{1}, ... , T_{k}$ must first release the locks on the data item before $T_{i}$ is permitted to lock the data item.
- \end{enumerate}
-
-% \begin{definition}
-% \label{grant_action}
-%  (Grant Action) - the grant action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the plus sign (+) which signifies that there is not a conflict between the granted and requesting transactions and the lock can be granted to the transaction that is requesting access to the resource.
- 
- \begin{example}
- \label{ex_grant_action}
-  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is also requesting a read-lock on data item $R$. This does not cause a conflict and therefore the grant action will be taken and the requested lock will be issued to $T_{2}$.
- \end{example}
- 
-% \end{definition}
-
-% \begin{definition}
-% \label{decline_action}
-%  (Decline Action) - the decline action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the minus sign (-) which signifies that there is a conflict between the granted and requesting transactions and the lock can not be granted to the transaction that is requesting access to the resource.
- 
- \begin{example}
- \label{ex_decline_action}
-  A write-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $HCHE$ transactional category. Transaction $T_{2}$ within the $HCLE$ is requesting a write-lock to data item $R$. This causes a conflict and therefore the decline action will be taken and the requested lock will not be issued to $T_{2}$.
- \end{example}
- 
-% \end{definition}
-
-% \begin{definition}
-% \label{elevate_action}
-%  (Elevate Action) - the elevate action is one of the three possible actions that can take place within the two lock compatibility matrices (Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}). This action is represented by the delta symbol ($\delta$) which signifies that the transaction requesting access to the resource is in a category that contains a higher prioritization (see Table \ref{tbl:priority}) than the transactions that currently hold locks to the resource. In this situation all locks held by transactions of lower priority will be preemptively dropped so the transaction with the higher priority can obtain the needed lock.
- 
- \begin{example}
- \label{ex_elevate_action}
-  A read-lock for a data item $R$ has been granted to transaction $T_{1}$ within the $LCLE$ transactional category. Transaction $T_{2}$ within the $HCHE$ is requesting a write-lock to data item $R$. This causes a conflict however since $T_{2}$ contains a higher priority than $T_{1}$ the elevate action will be taken and the requested lock will be issued to $T_{2}$.
- \end{example}
- 
-\end{definition}
-
-\subsection{Environment}
-In a web services environment multiple web services can submit transactions to a database to be executed. As mentioned before, if only one transaction can be executed at any given time then other concurrent transactions from other web services must wait. This causes a huge performance degradation, therefore concurrent transactions from multiple web services must be handled. This is where the Database Management System's (DBMS) scheduler plays an important role in ensuring concurrent transactions preserve consistency within the database. The scheduler receives transactions that are submitted from web services and generates a serializable schedule based on the conflicting operations contained within the transactions. 
-
-After receiving the concurrent transactions (e.g., $T_{1}$, $T_{2}$, ... , $T_{N}$) the scheduler is responsible for analyzing the conflicting operations within the transactions and generating a serializable schedule that will then be executed on the database itself (e.g., $T_{Sched}$). This serializable execution is guaranteed to leave the database in a consistent state after a successful execution due to the analysis performed by the scheduler and the ordering of the operations within the transaction. Figure \ref{fig:Tsched} displays the generation of $T_{Sched}$ from multiple web service transactions. Figure \ref{fig:ws_env} displays a diagram of the database scheduler in a web service context.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(55,100)
-    \put(-93,80){$T_{1}$ = \{ $W_{1}(r_{1})R_{1}(r_{1})W_{1}(r_{2})R_{1}(r_{2})$ ... $W_{1}(r_{n})R_{1}(r_{n})C_{1}$ \}}
-    \put(-93,65){$T_{2}$ = \{ $W_{2}(r_{1})R_{2}(r_{1})W_{2}(r_{2})R_{2}(r_{2})$ ... $W_{2}(r_{n})R_{2}(r_{n})C_{2}$ \}}
-    \put(-58,50){.}
-    \put(-58,45){.}
-    \put(-58,40){.}
-    \put(-100,23){$T_{N}$ = \{ $W_{n}(r_{1})R_{n}(r_{1})W_{n}(r_{2})R_{n}(r_{2})$ ... $W_{n}(r_{n})R_{n}(r_{n})C_{N}$ \}}
-    \put(-100,18){\makebox[\linewidth]{\rule{8.5cm}{0.4pt}}}
-    \put(-90,5){$T_{Sched}$ = \{ $T_{1}T_{2}$ ... $T_{N}$ \}}
-\end{picture}
-
-\caption{Generation of $T_{Sched}$ from Concurrent Web Service Transactions} % title of the Figure
-\label{fig:Tsched} % label to refer figure in text
-
-\end{figure}
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
-      minimum height=30, minimum width=50] (data) {DB};
-    \node [block, above=2cm of data.south,anchor=south] (sched) {Scheduler};
-    \node [webservice, above=2cm of sched] (ws1) {$WS_{1}$};
-    \node [webservice, right=of ws1] (ws2) {$WS_{2}$};
-    \node [webservice, right=of ws2] (wsN) {$WS_{N}$};
-    \path [line] (sched) -- (data);
-    \path [line] (data) -- (sched);
-    \path [line] (ws1) -- (sched);
-    \path [line] (ws2) -- (sched);
-    \path [line] (wsN) -- (sched);
-    \put(5,105){$T_{1}$}
-    \put(50,105){$T_{2}$}
-    \put(95,105){$T_{N}$}
-    \put(5,30){$T_{Sched}$}
-\end{tikzpicture}
-
-\caption{Web Service Environment with Scheduler} % title of the Figure
-\label{fig:ws_env} % label to refer figure in text
-
-\end{figure}
-
-The architecture shown in Figure \ref{fig:ws_env} is a typical web service environment that exists currently. The existing web service environment treats all transactions equally. Every transaction submitted to the DBMS scheduler is compiled into a schedule and submitted to the database. The drawback of this type of architecture is the case of a cascading rollback. In the event of a cascading rollback, operations that have successfully completed must be reverted due to the failure of a dependant operation in a separate transaction. The prediction-based architecture used in this solution adds a new logical component (Transaction Metrics). This component is added at the scheduling level to analyze certain metadata about transactions submitted to the scheduler. Table \ref{tbl:trans_metrics} displays the type of data that will be calculated in order to make an accurate prediction on the likelihood that a transaction will either commit or abort. Once implemented, transactions will build a history, or a reputation, based on commit rate and efficiency rate. Figure \ref{fig:ws_env_with_metrics} displays the addition to the existing architecture in the prediction-based solution.
-
-\subsection{Transaction Metrics}
-The Transaction Metrics logical unit will contain all processing logic to accurately categorize the transactions submitted to the database. When a transaction is submitted to the scheduler to be added to a serializable schedule, the scheduler will look to the transaction metrics to determine the locking action that should be used for that particular transaction. All transaction metrics will be computed within the component before the scheduler issues a query so that the max time required for a response will be of complexity \textit{O(1)}. These metrics are updated as the execution environment matures and the Transaction Categorization Graph (see Section \ref{section_cat_graph}) becomes more densely populated. 
-
-\begin{figure}[ht]  
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
-      minimum height=30, minimum width=50] (data) {DB};
-    \node [block, above=2cm of data.south,anchor=south] (sched) {Scheduler};
-    \node [block, right=3cm of sched.south,anchor=south] (trans_met) {Transaction Metrics};
-    \node [webservice, above=2cm of sched] (ws1) {$WS_{1}$};
-    \node [webservice, right=of ws1] (ws2) {$WS_{2}$};
-    \node [webservice, right=of ws2] (wsN) {$WS_{N}$};
-    \path [line] (sched) -- (data);
-    \path [line] (data) -- (sched);
-    \path [line] (ws1) -- (sched);
-    \path [line] (ws2) -- (sched);
-    \path [line] (wsN) -- (sched);
-    \path [line] (trans_met) -- (sched);
-    \path [line] (sched) -- (trans_met);
-    \path [line] (trans_met) -- (data);
-    \put(5,105){$T_{1}$}
-    \put(50,105){$T_{2}$}
-    \put(95,105){$T_{N}$}
-    \put(5,30){$T_{Sched}$}
-    \put(55,30){$T_{Metrics}$}
-\end{tikzpicture}
-
-\caption{Web Service Environment with Transaction Metrics at Scheduling Level} % title of the Figure
-\label{fig:ws_env_with_metrics} % label to refer figure in text
-
-\end{figure}
-
-% \subsection{Transaction Categorization}
-% In order to ensure that correct lock techniques are selected, transactions cannot be simply characterized as good or bad based on their metrics. For example, a transaction $T_{1}$ may have a 100\% commit rate but it has a long execution time. A transaction with these characteristics should not be penalized when in fact it is a well behaving transaction. On the other hand, a transaction $T_{2}$ that has a 100\% commit rate and has an extremely short execution time should not be treated with the same priority as $T_{1}$. This is where certain of levels must be established to ensure the most appropriate selection is made.
-
-% In order to establish levels, there were different categorizations where the transactions were placed in. The first categorization is based solely on the efficiency of the transaction. In this categorization, there are two attributes: \textit{high efficiency (HE)} and \textit{low efficiency (LE)}. A transaction that has been labeled as \textit{HE} is considered to execute with an efficiency in the upper 50\% of all transactions executed within the system\footnote{See Section \ref{section_cat_graph} and Section \ref{definitions} for more clarification}. The second attribute, \textit{LE}, is any transaction where its efficiency rate is in the lower 50\% of all transactions executed.
-
-% The second categorization that the levels are built on is based solely on the outcome of the transaction. These attributes are \textit{high commit (HC)} and \textit{low commit (LC)} which are much more simple to define. A transaction with a \textit{HC} attribute has committed successfully over 50\% of executions (upper 50\% of all transactions). A transaction with an \textit{LC} attribute has failed over 50\% of its executions (lower 50\% of all transactions). This categorization correlates directly with the commit rate defined (see Definition \ref{cmt_rate}).
-
-% With these two categorizations and two attributes a four-level system was devised in order to select appropriate lock types. The four categories devised are \textit{high commit-high efficiency (HCHE)}, \textit{high commit-low efficiency (HCLE)}, \textit{low commit-high efficiency (LCHE)}, and \textit{low commit-low efficiency (LCLE)}. Depending on the level in which the transaction has been placed, different lock types will be granted in order to perform concurrency control. The next section will discuss the compatibility of the lock types among transactional categories.
-
-\subsection{Lock Compatibility Among Transaction Categories}
-There are two main lock types when it comes to lock types in a DBMS: shared read-locks and exclusive write-locks. Shared read-locks allow read access to resource, \textit{R}, to be accessed by multiple parties. \textit{R} can be a relation, tuple, or even an individual cell in a database, depending on the lock granularity set by the system. Exclusive write-locks only allow write access to the particular resource for the transaction that holds the lock. At any point in time in the execution of multiple concurrent transactions, there is only one exclusive write-lock per resource and only the lock holder can manipulate the data.
-
-%Based on Fekete's pre-emptive priority scheduling
-To improve the performance of the system during the execution of concurrent transactions, we force lower priority transactional categories to release locks to higher priority categories. The system leverages the existing two-phase locking (2PL) protocol in order to obtain locks with the addition of prediction-based metrics. This allows transactions with a better reputation to execute more quickly while transactions with a poor reputation do not create a bottleneck for later transactions. In order to successfully prioritize transactions, an objective priority was placed on each of the four transactional categories mentioned above. Definition \ref{cat_dominance} and Table \ref{tbl:priority} displays the transaction category dominance.
-
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|c|c|c|c|c|}
-
-\cline{2-5} & 
-\multicolumn{4}{c|}{\textbf{already granted lock}} \\
-
-\cline{2-5} \hline
-
-\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}c@{}}\textbf{requested}\\\textbf{lock}\end{tabular}} &\textbf{$HCHE_{r}$}    & \textbf{$HCLE_{r}$}    & \textbf{$LCHE_{r}$}     & \textbf{$LCLE_{r}$}    \\ \hhline{=#====}
-\multicolumn{1}{|l||}{\textbf{$HCHE_{r}$}} &\textbf{+}    & \textbf{+}    & \textbf{+}     & \textbf{+}    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCLE_{r}$}} &\textbf{+}    & \textbf{+}    & \textbf{+}     & \textbf{+}    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCHE_{r}$}} &\textbf{+}    & \textbf{+}    & \textbf{+}     & \textbf{+}    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCLE_{r}$}} &\textbf{+}    & \textbf{+}    & \textbf{+}     & \textbf{+}    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCHE_{w}$}} &\textbf{-}    & $\delta$      & $\delta$       & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCLE_{w}$}} &\textbf{-}    & \textbf{-}    & $\delta$       & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCHE_{w}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCLE_{w}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & \textbf{-}    \\ \hline           
-\end{tabular}
-
-\caption{Read-Lock Compatibility} % title of the Figure
-\label{tbl:read_lock_compatibility} % label to refer figure in text
-
-\end{table}
-
-
-\begin{table}[h]
-\captionsetup{justification=centering}
-\centering
-\begin{tabular}{l|c|c|c|c|c|c|}
-
-\cline{2-5} & 
-\multicolumn{4}{c|}{\textbf{already granted lock}} \\
-
-\cline{2-5} \hline
-
-\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}c@{}}\textbf{requested}\\\textbf{lock}\end{tabular}} &\textbf{$HCHE_{w}$}    & \textbf{$HCLE_{w}$}    & \textbf{$LCHE_{w}$}     & \textbf{$LCLE_{w}$}    \\ \hhline{=#====}
-\multicolumn{1}{|l||}{\textbf{$HCHE_{r}$}} &\textbf{-}    & $\delta$    & $\delta$     & $\delta$    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCLE_{r}$}} &\textbf{-}    & \textbf{-}    & $\delta$    & $\delta$    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCHE_{r}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & $\delta$    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCLE_{r}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & \textbf{-}    \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCHE_{w}$}} &\textbf{-}    & $\delta$      & $\delta$       & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$HCLE_{w}$}} &\textbf{-}    & \textbf{-}    & $\delta$       & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCHE_{w}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & $\delta$        \\ \hline
-\multicolumn{1}{|l||}{\textbf{$LCLE_{w}$}} &\textbf{-}    & \textbf{-}    & \textbf{-}     & \textbf{-}    \\ \hline           
-\end{tabular}
-
-\caption{Write-Lock Compatibility} % title of the Figure
-\label{tbl:write_lock_compatibility} % label to refer figure in text
-
-\end{table}
-
-There are two compatibility matrices that were created as a result of the four transactional categories and two lock types. These matrices explicitly define the actions that should be taken when transactional categories request locks to the resources that have already granted locks. The actions defined within the matrices are derived based on the category prioritization made in Definition \ref{cat_dominance} and Table \ref{tbl:priority}. Table \ref{tbl:read_lock_compatibility} displays the lock compatibility for all transactional categories where a read-lock has already been granted. Table \ref{tbl:write_lock_compatibility} displays the lock compatibility for all transactional categories where a write-lock has already been granted. There are three actions that can be taken in regards to the lock compatibility matrix: \textit{grant action}, \textit{decline action}, and \textit{elevate action} (see Definition \ref{legal_scheduler}). The next section will address the issue of multiple locks that are granted for a single resource.
-
-\subsection{Resource Category Data Structure}
-\label{RCDS}
-
-In Table \ref{tbl:read_lock_compatibility} there are multiple \textit{grant actions} (see Definition \ref{legal_scheduler}) which could potentially cause multiple read-locks to be granted for a single resource. It is appropriate for a resource to grant multiple read-locks however in order to properly handle the \textit{elevate actions} the comparison must be made with the granted lock of the highest priority. For example, a resource $R_{a}$ has granted two read-locks to transactions $T_{1}$ and $T_{2}$ with categories $HCLE_{r}$ and $LCLE_{r}$ respectively, while these two locks are still granted a transaction $T_{3}$ categorized as $HCLE$ requests a write-lock $HCLE_{w}$ to $R_{a}$. If the evaluation based on Table \ref{tbl:read_lock_compatibility} is completed by using the read-lock granted to $T_{2}$ then an \textit{elevate action} would be issued since the requesting lock contains a higher priority than the granted lock. However, if the evaluation is completed by using the read-lock granted to $T_{1}$ then a \textit{decline action} would be issued since the requesting lock contains a priority of equal standing with the granted lock.
-
-When situations such as this arise in the system, the evaluation completed in the compatibility matrix should be completed against the granted lock with the highest priority. By evaluating against the granted lock whose transaction has been categorized with the highest priority, this prevents starvation of transactions with categorizations of lower priority. Using the example illustrated above, if the comparison was completed with transaction $T_{2}$ instead, then an \textit{elevate action} would be issued and the locks of transaction $T_{2}$ would be preemptively dropped and therefore cause $T_{2}$ to compete for the lock again. If transactions are continually submitted to the system that are categorized with a higher priority than $T_{2}$ then locks obtained by $T_{2}$ will continually be dropped and will never successfully complete.
-
-In order to ensure that Table \ref{tbl:read_lock_compatibility} is used with the transaction categorized with the highest priority, a new data structure is introduced. This data structure is used in order to maintain knowledge of all granted locks for a particular resource. It also allows efficient access to the lock with the highest priority for comparisons. The data structure is a combination of two established data structures used throughout computer science: linked list and min-heap (min-priority queue). The first part of the data structure, the linked list, contains all resources in the system that have a read-lock granted. It is a linear singly-linked list to allow processing in one direction. Each node in the linked list has a single reference to the root node of a min-heap. The min-heap contains all granted locks for the resource that has a reference to the min-heap root node. The min-heap property is calculated by the category priority of the locks that are granted. Since the highest priority, as shown in Table \ref{tbl:priority}, is represented by the lowest integer value, then the lock with the highest priority will make its way to the root node of the min-heap by nature of min-heap properties \cite[p.162]{Cormen_Algorithms}. This accommodates efficient processing for accessing the highest priority of all locks granted to a particular resource. More details of how the Resource Category Data Structure is used are outlined in Section \ref{sec:algorithms}. Figure \ref{fig:resource_cat_structure} displays a graphical representation of the Resource Category Data Structure.
-
-\begin{figure}[ht]  
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{tikzpicture}
-    [list/.style={rectangle split, rectangle split parts=3,
-    draw, rectangle split horizontal}, >=stealth, start chain]
-
-  \node[list,on chain] (A) {$a$};
-  \node[list,on chain] (B) {$b$};
-  \node[list,on chain] (C) {$c$};
-  \node[rectangle, draw, below=.5cm of A] (HCHE1){$HCHE$};
-  \node[rectangle, draw, below=.7cm of HCHE1.west] (HCHE2){$HCHE$};
-  \node[rectangle, draw, below=.7cm of HCHE1.east] (LCLE1){$LCLE$};
-  \node[rectangle, draw, below=.7cm of HCHE2.west] (LCHE1){$LCHE$};
-  \node[rectangle, draw, below=.5cm of B] (LCHE2){$LCHE$};
-  \node[rectangle, draw, below=.5cm of C] (LCLE2){$LCLE$};
-  \node[rectangle, draw, below=.7cm of LCLE2.west] (LCLE3){$LCLE$};
-  \node[on chain,draw,inner sep=6pt] (D) {};
-  \draw (D.north east) -- (D.south west);
-  \draw (D.north west) -- (D.south east);
-  \draw[*->] let \p1 = (A.two), \p2 = (A.center) in (\x1 + 2,\y2 + 2) -- (HCHE1);
-  \draw[*->] let \p1 = (B.two), \p2 = (B.center) in (\x1 + 2,\y2 + 2) -- (LCHE2);
-  \draw[*->] let \p1 = (C.two), \p2 = (C.center) in (\x1 + 2,\y2 + 2) -- (LCLE2);
-  \draw[*->] let \p1 = (A.three), \p2 = (A.center) in (\x1,\y2) -- (B);
-  \draw[*->] let \p1 = (B.three), \p2 = (B.center) in (\x1,\y2) -- (C);
-  \draw[*->] let \p1 = (C.three), \p2 = (C.center) in (\x1,\y2) -- (D);
-  \path [line] (HCHE1) -- (HCHE2);
-  \path [line] (HCHE1) -- (LCLE1);
-  \path [line] (HCHE2) -- (LCHE1);
-  \path [line] (LCLE2) -- (LCLE3);
-  
-\end{tikzpicture}
-
-\caption{Resource Category Data Structure} % title of the Figure
-\label{fig:resource_cat_structure} % label to refer figure in text
-
-\end{figure}
-
-% \subsection{Transaction Conflict Resolution}
-% Although the transactions will receive a level of categorization when submitted to the scheduler there has to be some mechanism in place in order to handle the conflicting categorizations (see Section \ref{conflict_cat}).  When two transactions are submitted to execute concurrently with this property they must be executed serially rather than concurrently to  maintain the consistency of the database. If two conflicting transactions were executed concurrently then one aborted operation in either of the two transactions would cause an inconsistent state. A cascading rollback would have to occur in order to re-establish consistency within the database.
-
-% In order to choose which transaction is executed first in the serial execution of two conflicting categories, a priority system was needed. For this priority system, the categorization priorities outlined in Table \ref{tbl:priority} were used just as they were used in the lock compatibility matrices. For example, if two transactions are submitted to the scheduler to execute concurrently but neither are predicted to abort then no conflict is detected. The two transactions will execute concurrently, commit successfully, and consistency is preserved in the database. However, if one of the transactions is predicted to abort, then this transaction could potentially affect the outcome of the successful transaction. In this situation we want to preserve consistency and therefore the transaction that is predicted to commit will execute first, preserving all of its changes without a cascading rollback, and then the other transaction will execute. If the second transaction either commits or aborts, the consistency property is still preserved since no other transaction is dependant on that transaction's operations.
-
-\subsection{Categorization Graph}
-\label{section_cat_graph}
-
-% The objective bounds that the system can be measured against must be set for commit and abort rate percentages and also for the upper and lower bounds for rate of efficiency. A static value could be used for these bounds but then the solution would not be flexible for different environments. Another considered solution could store the category bounds in a relation within the local database but then this approach places the responsibility on the database administrator to ensure the bounds are appropriate for the execution environment. In order to allow the categorization bounds to flex within the execution environment while also allowing the flexibility without the aid of an administrator, we created the categorization graph.
-
-The categorization graph is a graphical representation of the transaction metrics. It is grouped into four sections where each section represents a category that a transaction can be placed. Categorization bounds (see Definition \ref{cat_bounds}) separate the graph into four sections and determine what category the transaction will receive once placed. Transactions are categorized based on the percentages of their previous execution metrics in comparison to the other transactions executing on the same system. This allows the system to flex accordingly with different environments. Depending on the metrics that each transaction possesses, the transactions will be categorized into the previous four categories listed above: $LCLE$, $HCLE$, $HCHE$, and $LCHE$. Transactions categorized as $LCLE$ must have an efficiency rate that is in the 50 percentile or lower where the commit rate is also in the 50 percentile or lower. Transactions categorized as $HCLE$ must have an efficiency rate that is also in the 50 percentile or lower however the commit rate must be in the 50 percentile or higher. $LCHE$ transactions must have an efficiency rate that is in the 50 percentile or higher where the commit rate is in the 50 percentile or lower. Transactions categorized as $HCHE$ must have an efficiency rate that is in the 50 percentile or higher where the commit rate is also in the 50 percentile or higher. Figure \ref{graph:cat_graph} and Definition \ref{transaction_categories} show the categorizations described above. The next section outlines the required algorithms for the prediction-based solution.
-
-% \begin{table}[h]
-% \captionsetup{justification=centering}
-% \centering
-% \begin{tabular}{l|c|c|}
-% \cline{2-3}
-%                                           & \multicolumn{1}{l|}{\textbf{Commit Rate ($C_{r}$)}} & \multicolumn{1}{l|}{\textbf{Efficiency Rate ($E_{r}$)}} \\ \hline
-% \multicolumn{1}{|l|}{\textbf{HCHE}}  & $>$ 50\%                          & $>$ 50\%                                \\ \hline
-% \multicolumn{1}{|l|}{\textbf{HCLE}}  & $>$ 50\%                       & $\le$ 50\%                               \\ \hline
-% \multicolumn{1}{|l|}{\textbf{LCHE}} & $\le$ 50\%                          & $>$ 50\%                                  \\ \hline
-% \multicolumn{1}{|l|}{\textbf{LCLE}} & $\le$ 50\%                       & $\le$ 50\%                                 \\ \hline
-% %\multicolumn{1}{|l|}{\textbf{No Trnd.}} &    \multicolumn{2}{c|}{See equation below}                                    \\ \hline
-% \end{tabular}
-% \caption{Transaction Categorization Bounds} % title of the Figure
-% \label{tbl:default_tmetrics} % label to refer figure in text
-% \end{table}
-
-\begin{figure}[ht]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-\begin{tikzpicture}
-\begin{axis}[
-    title={Transaction Categorization Bounds},
-    xlabel={Efficiency Rate (by percentage)},
-    ylabel={Commit Rate (by percentage)},
-    xmin=0, xmax=100,
-    ymin=0, ymax=100,
-    xtick={0,25,50,75,100},
-    ytick={0,25,50,75,100},
-    legend style={at={(0.03,0.5)},anchor=west},
-    ymajorgrids=true,
-    grid style=dashed,
-]
-
-% \addplot[
-%     color=blue,
-%     mark=diamond,
-%     ]
-%     coordinates {
-%     (0,49)(49,49)(49,0)};
-% \addplot[
-%     color=red,
-%     mark=o,
-%     ]
-%     coordinates {
-%     (0,50)(50,50)(50,100)};
-% \addplot[
-%     color=black,
-%     mark=triangle,
-%     ]
-%     coordinates {
-%     (50,0)(50,50)(100,50)};
-\draw[-] (0,50) -- (100,50);
-\draw[-] (50,0) -- (50,100);
-% \addplot[
-%     color=purple,
-%     mark=square,
-%     ]
-%     coordinates {
-%     (51,100)(51,51)(100,51)};
-\addplot[
-    only marks,
-    color=red,
-    mark=o,
-    ]
-    table {
-    10  52
-    2   60
-    8   58
-    5   55
-    24  72
-    30  81
-    15  62
-    10  79
-    18  88
-    28  90
-    23  62
-    12  77
-    37  62
-    48  66
-    36  52
-    8   99
-    27  62
-    2   73
-    };
-\addplot[
-    only marks,
-    color=blue,
-    mark=diamond,
-    ] 
-    table {
-    10  2
-    2   10
-    8   8
-    5   5
-    24  22
-    30  31
-    15  12
-    10  29
-    38  38 
-    23  12
-    12  27
-    40  12
-    36  2
-    8   49
-    27  12
-    2   23
-    };
-\addplot[
-    only marks,
-    color=black,
-    mark=triangle,
-    ] 
-    table {
-    60  2
-    52  10
-    78  8
-    60  5
-    74  22
-    80  31
-    65  12
-    60  29
-    88  38 
-    73  12
-    62  27
-    95  12
-    86  2
-    78  39
-    87  12
-    59  23
-    80  25
-    81  28
-    84  25
-    90  29
-    };
-\addplot[
-    only marks,
-    color=purple,
-    mark=square,
-    ] 
-    table {
-    80  52
-    72  60
-    78  58
-    69  55
-    74  72
-    80  81
-    65  62
-    60  79
-    88  88 
-    73  62
-    62  77
-    95  52
-    86  52
-    78  89
-    87  62
-    89  93
-    90  75
-    71  78
-    84  75
-    90  89
-    };
-
-\legend{HCLE, LCLE, LCHE, HCHE}
- 
-\end{axis}
-\end{tikzpicture}
-\caption{Categorization Graph} % title of the Figure
-\label{graph:cat_graph} % label to refer figure in text
-\end{figure}
-
-% \subsection{Transaction Concentration Ratio}
-% \label{sec:TCR}
-
-% As mentioned above, the categorization thresholds will flex depending on the execution environment that the transactions are a part of. This ensures that the thresholds that the categorization selection algorithm depends upon will be as accurate as possible. In order to obtain the most accurate thresholds within a changing environment we calculate the transaction concentration ratio. The transaction concentration ratio is a ratio between the sum of all transactions within a certain range on the categorization graph over the area of that range. The ratio is calculated using the formula below
-
-% \[\textrm{$T_{Ratio}$} =\frac{\textrm{$T_{xy}{Count}$}}{x * y}\]
-
-% In this ratio equation the $x$ represents the base length (x-axis) of the range that is taken into consideration where $y$ represents the height of the range (y-axis) that is taken into consideration. $T_{xy}{Count}$ is the sum of all transactions within the $x$ and $y$ range provided. Example \ref{ex_transaction_ratio} outlines the use of this equation.
-
-%  \begin{example}
-%  \label{ex_transaction_ratio}
-%   We are calculating the concentration of transactions within the HCHE categorization zone. The base (x-axis) of the concentration zone is 20 and the height (y-axis) of the concentration zone is 15. The number of transactions that fall within this concentration range is 120. With these metrics we can form the following equation:
-  
-%   \[\textrm{$T_{Ratio}$} =\frac{\textrm{120}}{20 * 15}\]
-%   \[\textrm{$T_{Ratio}$} =\frac{\textrm{2}}{5}\]
-  
-%   With these figures we can calculate that the ratio of transactions to the area of the range that the transactions were graphed is \( \frac{2}{5} \).
-  
-%  \end{example}
- 
-% Once a ratio has been calculated for each range within a categorization zone the $x$ and $y$ values of the highest ratio calculated for that zone will be used as the thresholds. In the event that there are multiple ratios calculated for a particular zone of the same value, the concentration ratio with the largest denominator in the equation will be used. By using the largest acceptable threshold we increase the number of transactions that are categorized into the categorization zone and also decrease the number of transactions that are categorized into the default NO\_TREND category\footnote{Algorithm \ref{alg:cat_for_trans} makes use of these thresholds for the selection of categories for each transaction}. This increases the number of transactions that will be executed with more appropriate locking and scheduling techniques. Example \ref{ex_transaction_ratio_2} elaborates on this situation.
-
-%  \begin{example}
-%  \label{ex_transaction_ratio_2}
-%  Building from Example \ref{ex_transaction_ratio} we build a situation where the base (x-axis) is 10 and the height (y-axis) is 15. The number of transactions within this range is 60. With these metrics we form the following equation:
- 
-%   \[\textrm{$T_{Ratio}$} =\frac{\textrm{60}}{10 * 15}\]
-%   \[\textrm{$T_{Ratio}$} =\frac{\textrm{2}}{5}\]
-  
-%   As shown in Example \ref{ex_transaction_ratio} we can see that the ratios are the same however this example contains half as many transactions as the previous example. By using the $x$ and $y$ thresholds in this example versus the $x$ and $y$ thresholds in Example \ref{ex_transaction_ratio}, we decrease the number of categorized transactions by 50\%.
- 
-%  \end{example}
- 
-% \subsection{Category Selection}
-% Concurrent transactions that are submitted to the scheduler are graphed on the Transaction Categorization Graph (see Figure \ref{graph:cat_graph}) which will therefore place the transaction into one of the four categories based on the metadata stored about the transaction. The set of transactions that are submitted to the scheduler will be composed within one or many serializable schedules depending on the transactions categories. Any transaction that is contained within a conflicting category (see Definition \ref{conflict_cat}) will be the sole transaction within a serializable schedule. This is a key component of the prediction-based solution that ensures consistency among known transactions. By allowing a misbehaving transaction to execute solely without the interleaving of other transactions, this prevents cascading rollbacks and inconsistent states within the database. Any transactions that are not contained within a conflicting category will be scheduled within a separate serializable schedule that contains other transactions of non-conflicting categories. This separation of conflicting and non-conflicting transactions allows for concurrent execution of transactions but with the reduction of cascading rollbacks and the increase in consistency. The next section outlines the formal analysis of the solution presented.
+\input{sections/introduction}
+\input{sections/problem_definition}
+\input{sections/existing_research}
+
+%%%%%% BEGINNING OF SYSTEM MODEL SECTION %%%%%%%
+\input{sections/system_model/definitions}
+\input{sections/system_model/environment}
+\input{sections/system_model/transaction_metrics}
+%\input{sections/system_model/transaction_categorization}
+\input{sections/system_model/lock_compatibility}
+\input{sections/system_model/rcds}
+%\input{sections/system_model/transaction_conflict_resolution}
+\input{sections/system_model/categorization_graph}
+%\input{sections/system_model/transaction_concentration_ratio}
+%\input{sections/system_model/category_selection}
 
 %%%%%% BEGINNING OF ALGORITHM SECTION %%%%%%%
-
-% \begin{algorithm}
-% \caption{Top Level Scheduler Algorithm}
-% \label{alg:top_level}
-% \begin{algorithmic}[1]
-
-% \Procedure{manage\_transactions}{}
-%   \State // This method is the top level procedure call
-%   \State // that will be called as long as transactions
-%   \State // are available and need to be scheduled
-%   \State // for execution
-%   \\
-%   \While{true}
-%     \State // Clears the list from last execution
-%     \State trans.\Call{clear}{}
-%     \\
-%     \State // This method gets the available transactions that
-%     \State // are submitted to the scheduler for processing.
-%     \State // This includes preemptively aborted transactions
-%     \State // from previous executions
-%     \State Transaction[] aborted = \Call{getAbortedTrans}{}
-%     \State Transaction[] schedTrans = \Call{getSchedTrans}{};
-%     \\
-%     \State // Adds the available transactions from the
-%     \State // scheduler to the overall collection of
-%     \State // transactions that need to be scheduled. 
-%     \State // These are added behind any transactions that
-%     \State // were aborted from the previous execution
-%     \State trans.\Call{add}{aborted};
-%     \State trans.\Call{add}{schedTrans};
-%     \\
-%     \State // Generates serializable schedules from the 
-%     \State // available transactions
-%     \State SerialSched[] ss = \Call{generate\_schedules}{trans};
-%     \\
-%     \State // Orders the generated schedules according to their
-%     \State // priorities
-%     \State ss = \Call{order\_schedules}{ss};
-%     \\
-%     \State // Executes each generated schedule. Transactions
-%     \State // that are aborted preemptively will be scheduled
-%     \State // in the next execution
-%     \ForAll{s in ss}
-%       \State \Call{exec\_sched}{s};
-%     \EndFor
-%   \EndWhile
-% \EndProcedure
-
-% \end{algorithmic}
-% \end{algorithm}
-
-\section{Algorithms}
-\label{sec:algorithms}
-In a web service environment the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the submitted transactions and executed on the database for processing. Here is where locking techniques that the prediction-based solution provides are leveraged to prevent any inconsistent database state. There are two algorithms needed in order to accomplish the goals of the prediction-based solution. The first algorithm determines the proper action required for a given operation. This is outlined in Algorithm \ref{alg:determine_sched_action}. The second algorithm uses the functionality of the first algorithm in order to perform this action and execute the operations accordingly. This is outlined in Algorithm \ref{alg:exec_sched}. The next section explains the functionality of the algorithms and their complexity.
-
-% \begin{algorithm}
-% \caption{DBMS Scheduler Generation Algorithm}
-% \label{alg:generate_sched}
-% \begin{algorithmic}[1]
-
-%  \Function{generate\_schedules}{Transaction[] trans} 
-%   \\
-%   \State // Create map of transaction and category
-%   \State // relationships
-%   \State Map[Transaction, Category] transCats;
-%   \ForAll{t in trans}
-%       \State // Transaction Metrics Algorithm Function Call
-%       \State // Function call will take a max of O(1) time
-%       \State // to complete.
-%       \State Category c = \Call{getCatForTrans}{t}; \label{l:getcatfortrans}
-%       \\
-%       \State // Assign lock behavior to the transaction from
-%       \State // the compatibility matrices provided. The 
-%       \State // lock behaviors are associated directly with
-%       \State // a category
-%       \State LockBehavior[] lb = c.\Call{getLockBehaviors}{}; 
-%       \State t.\Call{setLockBehaviors}{lb}; \label{l:setlockbehaviors}
-%       \\
-%       \State transCats.\Call{add}{t,c}; \label{l:tcadd}
-%   \EndFor
-%   \\
-%   \State // Create collection of serializable schedules to
-%   \State // be returned
-%   \State SerialSched[] schedules;
-%   \State // Create temporary collection of non-conflicting
-%   \State // transactions
-%   \State Transaction[] nonConflictingTrans;
-%   \ForAll{entry in transCats}
-%       \State // Method call to determine if the category 
-%       \State // passed in will conflict with other transactions
-%       \State // based on the definition of conflicting transactions
-%       \State bool isConflict = \Call{isCatConflict}{entry.cat};
-%       \If{isConflict}
-%         \State // Generate serializable schedule with only one
-%         \State // transaction using the existing scheduler 
-%         \State // mechanism
-%         \State SerialSched s = \Call{genSchedule}{entry.trans};\label{l:gencsched}
-%         \State schedules.\Call{add}{s};
-%       \Else
-%         \State // Add transaction to a temporary collection
-%         \State // to generate schedule
-%         \State nonConflictingTrans.\Call{add}{entry.trans}; \label{l:tempds}
-%       \EndIf
-%   \EndFor
-%   \\
-%   \State // Generate a bulk schedule composed of 
-%   \State // non-conflicting transactions that can execute
-%   \State // concurrently without consequence
-%   \State SerialSched s = \Call{genSchedule}{nonConflictingTrans};\label{l:bulksched}
-%   \State schedules.\Call{add}{s};
-%   \\
-%   \State \Return schedules; \label{l:rtnsched}
-%  \EndFunction
- 
-% \end{algorithmic}
-% \end{algorithm}
-
-% \subsection{Generate Schedules}
-% The process of generating schedules from incoming transactions will use the existing logic in the scheduler however this functionality is overloaded. The overloaded logic of generating schedules includes two additional actions: 1.) assigning the correct lock behaviors provided by Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility} and 2.) generating separate schedules based on conflicting and non-conflicting transactions derived from the definition of conflicting transactions (see Definition \ref{conflict_trans}). The first part of the algorithm steps through each transaction passed in as an argument and obtains the category for that particular transaction by the execution of Algorithm \ref{alg:cat_for_trans} (line.\ref{l:getcatfortrans}); which will be discussed in a later section. After the categorization of the transaction has been obtained, the correct lock behaviors that are allowed by categorization (referenced in Tables \ref{tbl:read_lock_compatibility} \& \ref{tbl:write_lock_compatibility}) are enforced on the particular transaction (line.\ref{l:setlockbehaviors}) and both the transaction and the category are placed in a temporary data structure in order to store the relationships (line.\ref{l:tcadd}). The second part of the algorithm generates the schedules based on conflicting and non-conflicting transactions. By generating dedicated schedules for transactions that are predicted to conflict with others, this prevents conflicting transactions from causing a cascading rollback on a serializable schedule with transactions that are sure to execute successfully. In this part of the algorithm a dedicated serializable schedule is created for any transaction that is considered conflicting (line.\ref{l:gencsched}) while transactions that are not considered conflicting are stored in a temporary data structure (line.\ref{l:tempds}). Once all transactions have been analyzed, all transactions that are not considered conflicting in the temporary data structure are composed into a single interleaved serializable schedule for the database to execute (line.\ref{l:bulksched}). Since we know the transactions will commit the outcome to the database we can allow these transactions to execute concurrently with confidence that a cascading rollback will not be required. After all serializable schedules have been generated the algorithm returns the collection of schedules (line.\ref{l:rtnsched}).
-
-% \begin{algorithm}
-% \caption{T.M. Category Determination Algorithm}
-% \label{alg:cat_for_trans}
-% \begin{algorithmic}[1]
-
-%  \Function{getcatfortrans}{Transaction t}
-%     \\
-%     \State // Category enum to be returned
-%     \State Category c;
-%     \\
-%     \State // Obtain ID from transaction
-%     \State String id = t.id; \label{l:tid}
-%     \\
-%     \State // Execute query to obtain transaction information
-%     \State // This transaction does not have to worry about
-%     \State // concurrency control issues since it is only
-%     \State // known to this logical unit
-%     \State MetricsData data = \Call{getMetricsData}{id};\label{l:metdata}
-%     \\
-%     \State // Categorization Graph data is also stored 
-%     \State // in the database so that the categorization 
-%     \State // bounds can be used easily. This data must 
-%     \State // be returned before evaluation
-%     \State TransBounds bounds = \Call{getTransBounds}{};\label{l:boundsdata}
-%     \\
-%     \State // Evaluate the data returned and return the category
-%     \If{data.ER\_rate $>=$ bounds.ER\_rate} \label{l:start_eval}
-%         \If{data.exec\_t $>=$ bounds.exec\_t}
-%           \State c = HCLE;
-%          \Else
-%           \State c = HCHE;
-%          \EndIf
-%     \Else
-%          \If{data.exec\_t $>=$ bounds.exec\_t}
-%           \State c = LCLE;
-%          \Else
-%           \State c = LCHE;
-%          \EndIf
-%     \EndIf \label{l:end_eval}
-%     \\
-%     \State \Return c;
-%  \EndFunction
-
-% \end{algorithmic}
-% \end{algorithm}
-
-% \subsection{Get Category For Transaction}
-% As a part of the \textit{generate schedule} algorithm mentioned above, a helper function was required in order to obtain the category based on a particular transaction. This helper function is outlined in Algorithm \ref{alg:cat_for_trans}. The first part of the algorithm obtains the unique identifier used to identify a transaction among other transactions submitted for processing (line.\ref{l:tid}). Once an identifier is obtained, the Transaction Metrics data is obtained by the identifier provided (line.\ref{l:metdata}) and the categorization thresholds set by the Categorization Graph for commit rate and efficiency rate (line.\ref{l:boundsdata})\footnote{This data is pulled by a SQL query from the database that can use traditional locking techniques since the relations storing this data are only known to the scheduler and Transaction Metrics units}. Once this data is available the appropriate evaluations are made to ensure that the correct category is chosen for the transaction provided (lines.\ref{l:start_eval}-\ref{l:end_eval}). The evaluations made are based on the data presented in Table \ref{tbl:default_tmetrics}. After a category has been evaluated, an enumeration is set with the correct category and returned.
-
-% \begin{algorithm}
-% \caption{Calculate Categorization Threshold}
-% \label{alg:calc_threshold}
-% \begin{algorithmic}[1]
-
-%  \Procedure{calcCategoryThresholds}{}
-%   \ForAll{c in CATEGORIES} \label{l:each_cat}
-%     \State real $ratio$ = 0.0;
-%     \State int $p_x$, $p_y$, $s_x$, $s_y$, $e_x$, $e_y$;
-%     \State $s_x$ = \Call{getstartval}{x,c}; \label{l:getstart}
-%     \State $s_y$ = \Call{getstartval}{y,c};
-%     \State $e_x$ = \Call{getendval}{x,c};
-%     \State $e_y$ = \Call{getendval}{y,c}; \label{l:getend}
-%     \\
-%     \ForAll{x between $s_x$ and $e_x$} \label{l:forx}
-%       \ForAll{y between $s_y$ and $e_y$} \label{l:fory}
-%         \State real $tmpRatio$;
-%         \State int $c_x$, $c_y$, $t_{count}$;
-%         \State $c_x$ = $|x$ - $s_x|$; \label{l:absx}
-%         \State $c_y$ = $|y$ - $s_y|$; \label{l:absy}
-%         \State $t_{count}$ = \Call{getNumOfTrans}{$c_x$,$c_y$}; \label{l:numtcount}
-%         \\
-%         \State $tmpRatio$ = $\dfrac{t_{count}}{c_x * c_y}$ \label{l:tmpratio}
-%         \\
-%         \If{$ratio > tmpRatio$} \label{l:comparestart}
-%         \State // Already have a larger ratio.
-%         \State // Do nothing
-%         \ElsIf{$ratio < tmpRatio$}
-%         \State // New ratio is larger than previous so
-%         \State // we update our current values
-%         \State $ratio = tmpRatio$; \label{l:ratiohigher_start}
-%         \State $p_x = c_x$;
-%         \State $p_y = c_y$;\label{l:ratiohigher_end}
-%         \Else \label{l:equalstart}
-%         \State // The ratio is equal so we must
-%         \State // determine the greatest denominator
-%         \State // and choose that one
-%         \If{$(p_x * p_y) \ge (c_x * c_y)$}
-%         \State // Values already set so we can just
-%         \State // do nothing
-%         \Else
-%         \State $p_x = c_x$;
-%         \State $p_y = c_y$;
-%         \EndIf
-%         \EndIf \label{l:compareend}
-%       \EndFor
-%     \EndFor
-%     \\
-%     \State // Once the largest threshold values are 
-%     \State // obtained we can write them to disk
-%     \State // for the categorization selection 
-%     \State // algorithm to use
-%     \State \Call{writetodb}{$p_x, p_y, c$}; \label{l:writetodb}
-%     \State $p_x, p_y, ratio = 0$; \label{l:reset}
-%   \EndFor
-%  \EndProcedure
-
-% \end{algorithmic}
-% \end{algorithm}
-
-% \subsection{Calculate Categorization Thresholds}
-% Calculating the categorization thresholds for each category is a key algorithm to the solution in that it ensures the most accurate thresholds for which transactions will be categorized. This algorithm is executed after each transaction is submitted to the database. Due to the complexity of this algorithm a multi-threaded approach was taken to ensure that the selection of categories for each transaction would not contain the overhead of wait time.
-
-% The first step of this algorithm is to step through each category available (line.\ref{l:each_cat}). This does not include the NO\_TREND category since this is the default category that transactions are placed if a categorization cannot be made. For each category that needs calculated thresholds we obtain the start and end values for both the x and y axis (lines.\ref{l:getstart}-\ref{l:getend}). This is a key section of the algorithm to ensure the correct calculations are made. For example, if the LCLE category was processed the start values for both axes would be 0 and the end values would be 25. However for a HCHE transaction the start values for both axes would be 100 and the end values would be 75. Once the start and end values are obtained we step through each possible x-value and y-value within each range (lines.\ref{l:forx} and \ref{l:fory}). For every x and y-value within the ranges, we calculate the absolute value of the current value subtracted from the start value (lines.\ref{l:absx} and \ref{l:absy}). In some cases the current value will always be greater than the start value (e.g. LCLE) but in other cases it will not (e.g. HCHE). By using the absolute value we are always guaranteed to have the positive x and y-values from which we are going to calculate the ratio. Next we count the number of transactions within the particular range (line.\ref{l:numtcount}). Once the transaction count is obtained we calculate a ratio of the number of transactions divided by the area of the particular range (line.\ref{l:tmpratio}). Once that ratio is calculated we compare it to highest ratio that was calculated for this particular category. At this point it becomes a simple comparison between which is higher and lower (lines.\ref{l:comparestart}-\ref{l:compareend}). If the new ratio is higher, it is cached and the new thresholds are also cached (lines.\ref{l:ratiohigher_start}-\ref{l:ratiohigher_end}). If the new ratio is lower, the algorithm continues processing (line.\ref{l:comparestart}). In the event that the new ratio is equal to the highest ratio for that category, the largest denominator will be stored (lines.\ref{l:equalstart}-\ref{l:compareend}). Once the thresholds have been calculated for each comparison for that particular category, the thresholds will be sent to the local relation through an SQL query (line. \ref{l:writetodb}). This will ensure that when Algorithm \ref{alg:cat_for_trans} executes a read on the local database to obtain the most recent thresholds that they will always be up to date. This also prevents Algorithm \ref{alg:cat_for_trans} from causing a bottleneck in the performance of the system. Before processing the next category, the variables used to store the ratio and the category thresholds are reset before the next category in the collection is calculated (line.\ref{l:reset}).
-
-
-% \begin{algorithm}
-% \caption{Priority Ordering Algorithm}
-% \label{alg:priority_algorithm}
-% \begin{algorithmic}[1]
-
-%   \Function{order\_schedules}{SerialSched[] ss}
-%     \State // Create collection to hold the relationship
-%     \State // between a serializable schedule and its
-%     \State // priority averaged across all transactions
-%     \State // that compose that schedule
-%     \State Map[SerialSched, Integer] ssAvg; \label{l:mapstart}
-%     \\
-%     \ForAll{s in ss}\label{l:forstart}
-%       \State Transaction[] t = s.\Call{getTransactions}{}; \label{l:gettrans}
-%       \State int i = \Call{AVG}{t}; \label{l:avgt}
-%       \State ssAvg.\Call{add}{s,i}; \label{l:mapadd}
-%     \EndFor
-%     \\
-%     \State // Sort the temporary map by the priority
-%     \State // average
-%     \State \Call{sort}{ssAvg.valueSet};
-%     \\
-%     \State \Return ssAvg.keySet; \label{l:returnkeys}
-%     \\
-%   \EndFunction
-
-% \end{algorithmic}
-% \end{algorithm}
-
-% \subsection{Order Schedules}
-% Once the schedules have been generated they must be ordered by their respective priority (placed on them in Table \ref{tbl:priority}). Algorithm \ref{alg:priority_algorithm} is the function call responsible for the prioritization. In this function a data structure of serializable schedules are passed in and an ordered collection of the same schedules is returned. Before starting the ordering process, a temporary data structure is created in order to store the relationship of a serializable schedule to its priority value (line.\ref{l:mapstart}). Once the data structure is established, the algorithm steps through each serializable schedule passed in as an argument (line.\ref{l:forstart}). Within the loop, all the transactions for a particular serializable schedule are obtained and averaged (lines.\ref{l:gettrans} and \ref{l:avgt}). The average is derived from the priorities of each transaction in the serializable schedule. These priorities are related to the particular category that a transaction is categorized (see Table \ref{tbl:priority}). Once the average has been computed, the serializable schedule and the priority average associated with that schedule is placed in the temporary data structure to store the relationship (line.\ref{l:mapadd}). After all averages have been calculated for each serializable schedule that was passed in as an argument, the temporary data structure is sorted based on the value set of each relationship. The value set of the data structure is the averaged priority. Once the data structure is sorted, the key set is returned (line.\ref{l:returnkeys}). At this point the key set will be a collection of the same serializable schedules but sorted in the correct order for execution. This ensures that the collection returned is a sorted data structure with the non-conflicting serializable schedules available for execution first and the conflicting schedules last.
-
-\subsubsection{Determine Scheduler's Action for each Operation}
-The first algorithm needed for our solution (outlined in Algorithm \ref{alg:determine_sched_action}) determines the action that our prediction-based solution is required to perform for a given operation. The algorithm's input parameters are the transaction being executed ($T_{i}$), two instances of the proposed RCDS (outlined in Section \ref{RCDS}) for both READ and WRITE operations, and the requesting lock for the given operation \textit{o} and the data item \textit{d} that is is operating on ($l_{req} = (o,d)$). The algorithm's output after successful execution will be the matrix intersection of either the Read-Compatibility Matrix or the Write-Compatibility Matrix (outlined in Table \ref{tbl:read_lock_compatibility} and Table \ref{tbl:write_lock_compatibility}) depending on the operation type. This intersection will be an action. There are three different actions that the prediction-based solution leverages; \textit{grant action}, \textit{decline action}, and \textit{elevate action}. These actions are defined in Definition \ref{legal_scheduler}.
-
-The logic for determining the proper action for a particular operation begins by determining the type of operation that is requesting a lock on a particular data item (l. \ref{l1}). From there we determine if the the RCDS for WRITE operations has a lock granted for the particular data item that the operation is requesting a lock for (l. \ref{l2}). From this point, the logic depends on whether or not a READ or WRITE operation is requesting a lock. For sake of covering the most complex branch of logic, we will discuss if the operation is a WRITE operation. After checking the RCDS for WRITE operations we then check the RCDS for READ operations (l. \ref{l3}). If both are empty, we update the RCDS and return a grant action to be taken (l. \ref{l4}). When we update the RCDS we make an entry in the the RCDS of the operation type with the data item that the lock is granted for and the category of $T_{i}$. This continual update ensures that the granted lock with the highest category is always referenced when making comparisons. Continuing in the logic of the algorithm, if the RCDS for read operations is not empty then we compare the top category of the transaction that the operation is in (l. \ref{l5}). If the operation's transaction has a category with a higher priority than the highest category of the granted lock then we update the RCDS as mentioned above and then return an elevate action (l. \ref{l6}). Otherwise we return a decline action (l. \ref{l7}). Throughout, the logic of the algorithm more comparisons much like the ones outlined above are executed in order to make sure the correct action is returned for processing. After successful execution of Algorithm \ref{alg:determine_sched_action} one of the three given actions will be returned for the scheduler to perform. The next algorithm outlines how that action is performed in the prediction-based scheduler.
-
-
-\begin{algorithm}
-\caption{Determine Scheduler's Action}
-\label{alg:determine_sched_action}
-\begin{algorithmic}[1]
-\Require $T_{i}, RCDS_{read}, RCDS_{write}, l_{req} = (o,d)$
-\Ensure $RM(x,y)$ or $WM(x,y)$
-\Function{determine\_scheduler\_action}{}
-    \\
-    \If{\textit{o is a WRITE}}\label{l1}
-        \If{\textit{$RCDS_{write}(d)$ is empty}}\label{l2}
-            \If{\textit{$RCDS_{read}(d)$ is empty}}\label{l3}
-                \State \textit{Update $RCDS_{write}$ and return grant action (+)}\label{l4}
-            \ElsIf{$RCDS_{read}(top) < T_{i}$}\label{l5}
-                \State \textit{Update $RCDS_{write}$ and return elevate action ($\delta$)}\label{l6}
-            \Else
-                \State \textit{return decline action (-)}\label{l7}
-            \EndIf
-        \Else
-            \If{$RCDS_{write}(top) \geq T_{i}$}
-                \State \textit{return decline action (-)}
-            \Else
-                \If{\textit{$RCDS_{read}(d)$ is empty}}
-                    \State \textit{Update $RCDS_{write}$ and return elevate action ($\delta$)}
-                \ElsIf{$RCDS_{read}(top) < T_{i}$}
-                    \State \textit{Update $RCDS_{write}$ and return elevate action ($\delta$)}
-                \Else
-                    \State \textit{return decline action (-)}
-                \EndIf
-            \EndIf
-        \EndIf
-    \Else 
-        \If{\textit{$RCDS_{write}(d)$ is empty}}
-            \State \textit{Update $RCDS_{read}$ and return grant action (+)}
-        \Else 
-            \If{$RCDS_{write}(top) \geq T_{i}$}
-                \State \textit{return decline action (-)}
-            \Else
-                \State \textit{Update $RCDS_{read}$ and return elevate action ($\delta$)}
-            \EndIf
-        \EndIf
-    \EndIf
-    \\
-\EndFunction
-
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-\caption{Execute Schedule}
-\label{alg:exec_sched}
-\begin{algorithmic}[1]
-\Require $Schedule S$
-\Ensure N/A
-\Procedure{execute\_schedule}{}
-    \\
-    \ForAll{\textit{operations in S}}
-        \State \textit{Get the required action based on}
-        \State \textit{the operation (Algorithm \ref{alg:determine_sched_action})} \label{alg2:get_action}
-        \\
-        \If{\textit{action is a DECLINE action}} \label{alg2:decline_action}
-            \State \textit{Wait until all locks are released.}
-            \State \textit{Then execute operation.}
-        \ElsIf{\textit{action is an ELEVATE action}}\label{alg2:elev_action}
-            \State \textit{Drop locks of lower priority }
-            \State \textit{transactions and execute operation}
-        \Else{ \textit{action is GRANT action}}\label{alg2:grant_action}
-            \State \textit{Execute operation}
-        \EndIf
-        \\
-        \State \textit{Release operation's locks and update RCDS}
-    \EndFor
-    \\
-    \State \textit{Update Transaction Metrics}\label{alg2:update_metrics}
-    \\
-    \State \textit{Send aborted transactions back to}
-    \State \textit{scheduler to be rescheduled}\label{alg2:abort}
-\EndProcedure
-
-\end{algorithmic}
-\end{algorithm}
-
-\subsection{Execute Schedules}
-% Each execution of this procedure will be concurrent with other executions. This is what designates the need for the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). Although there may be single scheduler organizing and submitting transactions, there can be multiple concurrent executions going on with varying execution times. The RCDS keeps track of the multiple read-locks that are granted for a resource so the correct comparison can be made between executions.
-
-The next algorithm (outlined in Algorithm \ref{alg:exec_sched}) will use the existing DBMS logic for executing an operation on the database but, before the operation can be performed there are numerous conditions that have to be taken into consideration. This procedure begins by iterating through each operation contained within a serializable schedule. Before any processing can take place, the action must be obtained. The is accomplished from the previous algorithm outlined in Algorithm \ref{alg:determine_sched_action} (l. \ref{alg2:get_action}).
-
-If the action obtained is a \textit{decline action} (l. \ref{alg2:decline_action}) then, by definition, the operation would wait until the all locks were released and then it would perform the operation. If the action obtained is an \textit{elevate action} (l. \ref{alg2:elev_action}) then all current locks granted for the operations resource would be dropped and then the operation would be submitted for processing. In this case only transactions with preemptively dropped locks are obtained and automatically re-executed. The final action, \textit{grant action} (l. \ref{alg2:grant_action}) is simply submitted to the DBMS for processing. 
-
-% In each of the three action cases, if the operation requesting a lock is a read operation then an entry in the RCDS is added. This ensures that other executions that are occurring concurrently obtain the most accurate information for comparisons within the compatibility matrices. After the operation has completed processing from the DBMS, the entry in the RCDS is removed.
-
-Before each execution of any operation, an entry will be inserted into the RCDS with associated resource and the category of the transaction executing. After each execution, the corresponding entry will be removed from the RCDS. This ensures that the most appropriate action is always performed.
-
-After all operations have completed processing, the transactional metadata for all operation executions is retained from the DBMS. This information is then used to populate the Transactional Metrics (l. \ref{alg2:update_metrics}). 
-
-% This step ensures that the data pulled for Algorithm \ref{alg:cat_for_trans} is always up to date and the correct categorization is always used.
-
-The final step in the execution process is to reschedule any transactions that were preemptively aborted due to the \textit{elevate action}. These transactions are entered back into the scheduler for rescheduling. This prevents any starvation that could potentially occur from preemptive transactional aborts (l. \ref{alg2:abort}).
-
-\subsection{Complexity Analysis}
-Analyzing the algorithms used within the prediction-based solution ensures that the solution is feasible with the added overhead. The complexity analysis presented uses Big O notation for an upper bound of the algorithm's worst case scenario.
-
-% \subsubsection{Algorithm \ref{alg:top_level}: Top Level Scheduler Algorithm}
-% This algorithm is used to emulate the database scheduler which will continuously obtain transactions needed for scheduling. It contains a \verb|while true| that does not provide a way for any user input to exit the infinite loop. Since there is no way to exit the execution of the scheduler, then the complexity is $O(\infty)$. However, we can analyze the inner functionality contained within the \verb|while true|.
-
-% The more important analysis for this algorithm is the time complexity before more transactions are scheduled and executed. If we analyze the complexity of the operations within the infinite loop we see a total of six operations however only three contribute to the time complexity\footnote{The fourth operation within the loop is executed within a dedicated thread to prevent any unneeded blocking.}. The first two function calls, \verb|GETABORTEDTRANS| and \verb|GETSCHEDTRANS|, are simple lookup operations responsible for getting the current transactions needed for scheduling. This executes in constant time (e.g. $O(1)$) and does not affect the total complexity. The second function call, \verb|GENERATE_SCHEDULES|, (see Section \ref{alg_complex:gen_sched}) executes with a complexity of $O(n)$. The third function call, \verb|ORDER_SCHEDULES|, (see Section \ref{alg_complexity:order_alg}) executes with a complexity of $O(n\log n)$. The final operation that impacts the overall complexity within the loop is a nested \verb|for| loop. This loop iterates over $n$ elements where $n$ is equal to the number of serializable schedules generated. The operation within this loop, the procedure call \verb|EXECUTE_SCHED| (see Section\ref{alg_complexity:exec_sched}), executes within a dedicated thread for each execution to allow concurrency of transactions. Therefore if there are $n$ schedules needing execution and each execution executes with a complexity of $O(1)$, the total complexity of the final \verb|for| is $O(n)$. With all components analyzed we see that out of the three major contributing functions that $O(n\log n)$ consumes the other two complexities and we can conclude that the total complexity within the infinite execution is an asymptotic upper bound of $O(n\log n)$.
-
-% \subsubsection{Algorithm \ref{alg:generate_sched}: DBMS Scheduler Generation Algorithm}
-% \label{alg_complex:gen_sched}
-% The \verb|GENERATE_SCHEDULES| algorithm uses the existing logic of the scheduler along with categorization data from the prediction-based solution to generate serializable schedules. There are two non-nested iterations of $n$ items where the operations in each iteration are constant. This brings the total complexity analysis of the entire algorithm to $O(2n)$ which inherently translates to an asymptotic upper bound of $O(n)$.
-
-% \subsubsection{Algorithm \ref{alg:cat_for_trans}: T.M. Category Determination Algorithm}
-% In this algorithm lies the responsibility of determining the category in which a transaction is placed depending on its metrics. This algorithm is designed to specifically execute in constant time so that a bottleneck is not created. A bottleneck would cause a huge performance degradation in the prediction-based solution. There are only \verb|if| comparisons within the processing logic and no \verb|for| or \verb|while| loops causing $n$ number of comparisons. Therefore, the overall complexity for the entire function is an an asymptotic upper bound of $O(1)$. 
-
-% \subsubsection{Algorithm \ref{alg:calc_threshold}: Calculate Categorization Threshold}
-% Out of all the algorithms presented in this solution, this algorithm contains most computational expensive operations. The entire algorithm is contained within a \verb|for| loop iterating through each category available. Nested within this loop is another \verb|for| loop iterating through every x-value that could be possible for that particular category (see Figure \ref{graph:cat_graph}). Within this nested loop is yet another \verb|for| loop iterating through every possible y-value for that category. At this point, every operation within the last nested loop executes in constant time and is not a factor. At this point with the three nested loops we have a complexity of $O(n^{3})$. Even though this algorithm will execute within its own dedicated thread to prevent any blocking of calling functions, this not ideal. Taking the analysis a step further we see that the first \verb|for| loop iterates through all possible categories. This is a finite number with a max of 4\footnote{There is no need to calculate thresholds for the NO\_TREND category since it will be the default case; therefore only 4 out of the 5 total categories need thresholds calculated}. The second and third \verb|for| loops are also constrained to finite number of 25 due to the categorization bounds placed on categories (see Definition \ref{cat_bounds}). With these finite bounds taken into consideration we see that the complexity is much more efficient with an upper bound of $O(4*25*25) = O(2500)$. This translates to an asymptotic upper bound of $O(1)$ or $\Theta(1)$ since we know this is a tight bound.
-
-% \subsubsection{Algorithm \ref{alg:priority_algorithm}: Priority Ordering Algorithm}
-% \label{alg_complexity:order_alg}
-% The \verb|ORDER_SCHEDULES| function orders a collection argument of serializable schedules by averaging the priorities across all transactions within that schedule. Once an average priority has been obtained for each schedule, the schedules are sorted by their average priority in ascending order. Within this algorithm, there is a single \verb|for| loop that iterates over $n$ elements. After this iteration, a collection of $n$ elements is sorted using the language's built-in sorting function. If we assume this is an optimized language we can assume the sorting will have an asymptotic tight bound of $\Theta(n\log n)$. By adding the two complex operations of the function we have a time complexity of $O(2n\log n)$ which translates to an asymptotic upper bound of $O(n\log n)$.
-
-\subsubsection{Algorithm \ref{alg:determine_sched_action}: Determine Action for Operation}
-\label{alg_complexity:get_action}
-At a glance, Algorithm \ref{alg:determine_sched_action} looks to be complex but in reality it is quite simple and efficient. All operations within this algorithm execute in constant time, $O(1)$, and therefore the overall complexity analysis of the entire algorithm will equate to $O(1)$.
-
-\subsubsection{Algorithm \ref{alg:exec_sched}: DBMS Execute Schedule Algorithm}
-\label{alg_complexity:exec_sched}
-Algorithm \ref{alg:exec_sched} uses the logic from Algorithm \ref{alg:determine_sched_action} within its processing and from the previous complexity analysis, we see that Algorithm \ref{alg:determine_sched_action} has a complexity of $O(1)$. This does not affect the complexity analysis of Algorithm \ref{alg:exec_sched}. Algorithm \ref{alg:exec_sched} also contains an overarching \verb|for| that steps through each operation within the schedule provided to execute. There are no nested iterations within the overarching \verb|for| which equates to $O(n)$ complexity in operations. Outside of the \verb|for| there is an additional iteration for each data item recorded from the previous executions. These data items do not equate to the $n$ operations mention above so the complexity of the final iteration is $O(m)$. With these two complexities combined the final complexity analysis is $O(m+n)$ which translates to an asymptotic upper bound of $O(n)$. Although the complexity is linear, any calling components will see the execution behave in constant time. This is due to each execution of \verb|EXECUTE_SCHED| executing concurrently. 
-
-\subsubsection{Primary Contributor to Performance}
-\label{alg_complexity:primary_contributor}
-After analyzing the algorithms used within the prediction-based solution we see that the overhead associated with the new solution is minimal. This is worth noting that the largest contributor to the overhead of the solution is not the added algorithmic complexity, but the waiting associated with restrictive concurrency control that this solution provides. As stated throughout the presented solution, locking ensures consistency but can drastically degrade performance. In the next section we analyze the formal correctness of the algorithms used within the prediction-based solution. This analysis shows that the added overhead of the algorithms and locking techniques are justified in situations when consistency is upheld.
-
-\section{Analysis}
-\label{sec:analysis}
-In this section we analyze the benefits of adding the prediction-based solution to the industry accepted solution of two-phase locking (2PL, \cite[pp. 53-56]{Bernstein_1986:CCR:17299}). This analysis formally displays the correctness and feasibility of the prediction-based solution. This is accomplished by a step-by-step comparison of both solutions with the use case example outlined in Section \ref{sec:use_case_for_node_3}.
-
-From the use case example, let us say that $T_{GetOrderByUserID}$ is $T_{1}$ and $T_{DeleteOrderByUserID}$ is $T_{2}$. Figure \ref{fig:analysis_transactions} displays these transactions.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,40)
-    \put(-45.5,25){$T_{1}$ = $R_{1}(a)R_{1}(b)C_{1}$}
-    \put(-45,10){$T_{2}$ = $R_{2}(b)W_{2}(b)R_{2}(a)W_{2}(a)C_{2}$}
-\end{picture}
-
-\caption{Example Transactions $T_{1}$ and $T_{2}$} % title of the Figure
-\label{fig:analysis_transactions} % label to refer figure in text
-\end{figure}
-
-From transactions $T_{1}$ and $T_{2}$ a schedule is generated to execute the two transactions concurrently. The schedule generated is legal and abides by all scheduling rules but let's assume the schedule generated is non-serializable to analyze the difference of a 2PL scheduler versus a 2PL scheduler with prediction-based metrics. Figure \ref{fig:analysis_schedule} displays the generated schedule from the use case scenario outlined in Section \ref{sec:use_case_for_node_3}.
-
-\begin{figure}[h]
-\captionsetup{justification=centering}
-\centering % used for centering Figure
-
-\begin{picture}(50,25)
-    \put(-90,5){$T_{Schedule}$ = $R_{1}(a)R_{2}(b)W_{2}(b)R_{1}(b)R_{2}(a)W_{2}(a)C_{2}C_{1}$}
-\end{picture}
-
-\caption{Generated Non-Serializable Schedule} % title of the Figure
-\label{fig:analysis_schedule} % label to refer figure in text
-\end{figure}
-
-Below displays the sequence of actions if $T_{Schedule}$ executes only using 2PL. We will use this sequence as our base for comparison with our prediction-based solution. There are three cases that we will analyze; $T_{1}$ has a higher classification than $T_{2}$, $T_{1}$ has a lower classification than $T_{2}$, and $T_{1}$ has an equal classification $T_{2}$.
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ waits for $T_{2}$ to release exclusive write-lock on resource $b$
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ waits for $T_{1}$ to release shared read-lock on resource $a$
-  \item Deadlock!
-\end{enumerate}
-
-\subsection{$T_{1}$ with Higher Priority than $T_{2}$}
-\label{sec:t1_higher_than_t2}
-The first case we will analyze is the case of $T_{1}$ having a higher classification than $T_{2}$. Let's suppose that $T_{1}$ has a category classification of $HCHE$ and $T_{2}$ has a category classification of $LCLE$. As you can see from the sequence above, using only 2PL with the given schedule ends in deadlock. This is caused by $T_{1}$ waiting for a lock that $T_{2}$ holds on resource $b$ and $T_{2}$ waiting for a lock that $T_{1}$ holds on resource $a$. Neither can release their locks until they have obtained all the locks required for their transaction to complete. This therefore causes the schedule to halt in deadlock. However, if we were to add the prediction-based metrics to the existing 2PL protocol we would get the following procedure instead:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{1}$ contains the highest category therefore transactions with locks on resource $b$, $T_{2}$, will be dropped
-        \item $T_{1}$ obtains a shared read-lock to resource $b$
-    \end{itemize}
-  \item $T_{1}$ growing phase is complete
-  \item $T_{1}$ executes successfully
-  \item $T_{1}$ releases all locks
-  \item $T_{1}$ shrinking phase is complete
-  \item $T_{2}$ is sent to scheduler for rescheduling
-  \item Execution complete!
-\end{enumerate}
-
-The sequence of operations above prevents deadlock by removing the indefinite wait for resource $b$ by $T_{1}$. Instead of a circular wait between transactions $T_{1}$ and $T_{2}$, we can use the prediction-based metrics to give precedence to the transaction of higher category. This forces the transaction with a lower priority, $T_{2}$, to drop its locks and allow $T_{1}$ to finish successfully; therefore preventing deadlock.
-
-\subsection{$T_{1}$ with Lower Priority than $T_{2}$}
-\label{sec:t1_lower_than_t2}
-The second case we will analyze is the case of $T_{1}$ having a lower classification than $T_{2}$. Let's reverse the categories from the previous situation and suppose that $T_{1}$ has a category classification of $LCLE$ and $T_{2}$ has a category classification of $HCHE$. In this case we get the following sequence:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{2}$ contains the highest category therefore $T_{1}$ will wait until the lock is released
-    \end{itemize}
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
-        \item $T_{2}$ contains the highest category therefore transactions with locks on resource $a$, $T_{1}$, will be dropped
-        \item $T_{2}$ obtains a shared read-lock to resource $a$
-    \end{itemize}    
-  \item $T_{2}$ growing phase is complete
-  \item $T_{2}$ executes successfully
-  \item $T_{2}$ releases all locks
-  \item $T_{2}$ shrinking phase is complete
-  \item $T_{1}$ is sent to scheduler for rescheduling
-  \item Execution complete!
-\end{enumerate}
-
-In this case, the prediction-based solution prevents deadlock by elevating the lock precedence in $T_{2}$ and dropping the locks of $T_{1}$. This allows $T_{2}$ to execute successfully while $T_{1}$ is sent back to the scheduler to be rescheduled into another schedule.
-
-\subsection{$T_{1}$ with Equal Priority to $T_{2}$}
-\label{sec:t1_equal_to_t2}
-The last and final case that we will address is the case of $T_{1}$ having an equal classification of $T_{2}$. Although the classification holds no bearing in this case, we'll say that both $T_{1}$ and $T_{2}$ have a category of $HCHE$. The following sequence shows the actions taken in this case:
-
-\begin{enumerate}
-  \item $T_{1}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ obtains a shared read-lock to resource $b$
-  \item $T_{2}$ obtains an exclusive write-lock on resource $b$
-  \item $T_{1}$ attempts to obtain shared read-lock on resource $b$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{1}$, with the category from the RCDS, $T_{2}$
-        \item $T_{2}$ contains an equal category therefore $T_{1}$ will wait until the lock is released
-    \end{itemize}
-  \item $T_{2}$ obtains a shared read-lock to resource $a$
-  \item $T_{2}$ attempts to obtain an exclusive write-lock on resource $a$:
-    \begin{itemize}
-        \item The system gets the transaction with the highest category from the RCDS
-        \item The system compares the category of the requesting transaction, $T_{2}$, with the category from the RCDS, $T_{1}$
-        \item $T_{1}$ contains an equal category therefore $T_{2}$ will wait until the lock is released
-    \end{itemize}    
-  \item Deadlock!
-\end{enumerate}
-
-In this case we see that the prediction-based solution provides no added benefit that 2PL does not already address. However, the prediction-based solution performs exactly the same as 2PL would in this case.
-
-\subsection{Theoretical Contribution}
-In this section we formally analyze the prediction-based solution and provide the associated theoretical contribution: assurance of consistency for all transactions while preserving an acceptable state of efficiency.
-% In this section we formally analyze the prediction-based solution and provide the associated theoretical contribution: assurance of consistency for all transactions while preserving an acceptable state of efficiency. The outline of the analysis is based very closely to the proof of correctness for two-phase locking (2PL) presented by Phil Bernstein \cite[pp. 53-56]{Bernstein_1986:CCR:17299}. 
-
-% In order to prove the correctness of the prediction-based solution we prove that each history generated by the prediction-based solution is serializable. However, before we can do that we must characterize the actions involved within the analysis. We say that $T_{1} \rightarrow T_{2}$ ($T_{1} precedes T_{2}$) if there are conflicting operations between the two serializable histories contained in $C(H)$. $C(H)$ is the set of all conflicting operations in a serializable history $H$. A \textit{cycle} is present in the serializability graph $SG(H)$ if there exists a path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ within the schedule where $n > 1$. By showing that a cycle will never exist within $SG(H)$ we can show that the scheduler used within the prediction-based solution will always produce serializable histories with no cycles and therefore preserve consistency.
-
-% The prediction-based solution consists of three actions: grant action, decline action, and the elevate action (See Definition \ref{legal_scheduler}). We will analyze the actions involved in the situations described in Sections \ref{sec:t1_higher_than_t2}, \ref{sec:t1_lower_than_t2}, and \ref{sec:t1_equal_to_t2}.
-
-% \begin{proposition}
-% \label{prop:grant}
-% Let $H$ be a history produced by a prediction-based scheduler. If $o_{i}[x]$ requires a grant action (+) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then $o_{i}[x]$ $\nexists$ $C(H)$
-% \end{proposition}
-
-% The grant action for an operation $o_{i}[x]$, according to Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}, will only be required when the only locks granted and requested are read-locks. Therefore there is no conflict and no operations contained within $C(H)$.
-
-% In the event that a decline action is required of an operation $p_{i}[x]$ then there exists one or many conflicting operations $q_{j}[x]$ that holds a lock to the required resource $x$. As mentioned in Algorithm \ref{alg:exec_sched}, the scheduler will wait for all unlock operations $qu_{j}[x]$ before granting a lock operation $pl_{i}[x]$.
-
-% \begin{proposition}
-% \label{prop:decline}
-% Let $H$ be a history produced by  a prediction-based scheduler. If $p_{i}[x]$ requires a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists an operation $q_{j}[x]$ $(i \neq j)$ and $p_{i}[x]$ $\exists$ $C(H)$ and $q_{j}[x]$ $\exists$ $C(H)$. Therefore $qu_{j}[x] < pl_{i}[x] < p_{i}[x] < pu_{i}[x]$.
-% \end{proposition}
-
-% The final two actions that could potentially be required for database operations are the elevate action and the decline action. These actions behave very similar however the elevate action premptively drops the conflicting locks so that the new operation can obtain a lock to the resource while the decline action waits for all conflicting locks to drop before locking the resource. Therefore, before an operation $p_{1}[x]$ can issue a lock operation $pl_{1}[x]$ all operations within the set $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ must drop their locks. This causes all unlock operations $qu_{i}[x] < pl_{1}[x]$. Although these actions are different, in regards to serializability, they are identical and therefore they are combined into one proposition. 
-
-% \begin{proposition}
-% \label{prop:elevate_decline}
-% Let $H$ be a history produced by a prediction-based scheduler. If $p_{1}[x]$ requires an eleveate action ($\delta$) or a decline action (-) (outlined in Table \ref{tbl:read_lock_compatibility} \& Table \ref{tbl:write_lock_compatibility}) then there exists one or many $q_{i}[x]$ where $q_{i}[x]$ $\subseteq$ $\{Q:q_{1}[x],q_{2}[x],..,q_{n}[x]\}$ and $Q$ $\subseteq$ $C(H)$. Therefore $\forall$ $q_{i}[x]$ in $Q$ then $qu_{i}[x] < pl_{1}[x] < p_{i}[x] < pu_{i}[x]$.
-% \end{proposition}
-
-% Now that we have formal propositions for each operation within the scheduler, we can formally prove serializability of the prediction-based solution. This proof is done in three steps. First we show that if $T_{1} \rightarrow T_{2}$ is in $SG(H)$ then there exists a conflicting operation on a resource $x$ where $T_{1}$ must have released its lock on $x$ \textit{before} $T_{2}$ was able to obtain a lock on $x$. The second step shows that for any path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ in $SG(H)$ we can show by transitivity that every $T_{i}$ must release locks for conflicting operations before each $T_{i+1}$. The third and final step uses contradiction to assume that $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$. This contradiction shows that it is impossible for a cycle to occur because then $T_{1}$ would have performed an unlock operation before a lock operation. The following lemmas and theorem formalize these three steps.
-
-% \begin{lemma}
-% \label{lemma1}
-% Let $H$ be a prediction-based history, and suppose $T_{1} \rightarrow T_{2}$ is in $SG(H)$. Then, for some resource $x$ and some conflicting operations $p_{1}[x]$ and $q_{2}[x]$ in $H$, $pu_{1}[x] < ql_{2}[x]$.
-% \end{lemma}
-
-% \textit{Proof:} By having $T_{1} \rightarrow T_{2}$, there must exist conflicting operations $p_{1}[x]$ and $q_{2}[x]$ contained in $C(H)$ where $p_{1}[x] < q_{2}[x]$. Proposition \ref{prop:grant} does not conflict in this case since there are conflicting operations. By looking at Proposition \ref{prop:elevate_decline} we see,
-
-% \begin{enumerate}
-%   \item $pl_{1}[x] < p_{1}[x] < pu_{1}[x]$
-%   \item $ql_{2}[x] < q_{2}[x] < qu_{2}[x]$
-% \end{enumerate}
-
-% Since the lemma states that $T_{1} \rightarrow T_{2}$ we then have the operation sequence $pl_{1}[x] < p_{1}[x] < pu_{1}[x] < ql_{2}[x] < q_{2}[x] < qu_{2}[x]$ therefore proving that $pu_{1}[x] < ql_{2}[x]$.\qed
-
-% \begin{lemma}
-% \label{lemma2}
-% Let $H$ be a prediction-based history, and let $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n}$ be a path in $SG(H)$, where $n > 1$. Then, for some resources $x$ and $y$, and some operations $p_{1}[x]$ and $q_{n}[y]$ in $H$, $pu_{1}[x] < ql_{n}[y]$.
-% \end{lemma}
-
-% \textit{Proof:} Rather than the previous proof's proof by contradiction, this proof will be proof by induction. The base step, where $n = 2$, is proven in Lemma \ref{lemma1}. We begin by supposing the lemma will hold true for $n = k$ where $k \geq 2$ and $n = k + 1$. By induction we see the path $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{k}$. Induction on the lemma shows that there exists resources $x$ and $z$ and operations $p_{1}[x]$ and $o_{k}[z]$ in $H$ where $pu_{1}[x] < ol_{k}[z]$. To prove for $k + 1$ we use Lemma \ref{lemma1} for $T_{k} \rightarrow T_{k+1}$. Therefore, $\exists$ resource $y$ and conflicting operations $o'_{k}[y]$ and $q_{k+1}[y]$ in $H$ where $o'u_{k}[y] < ql_{k+1}[y]$. Proposition \ref{prop:elevate_decline} shows that $ol_{k}[z] < o'u_{k}[y]$ and therefore via the transitive property of operation precedence, $pu_{1}[x] < ql_{k+1}[y]$\footnote{\label{note1}Once again Proposition \ref{prop:grant} does not apply in this situation since there are conflicting operations.}.\qed
-
-\begin{theorem}
-\label{theorem1}
-Prediction-Based Legal (PBL) Schedulers guarantees serializable execution when used with 2-phase locking (2PL).
-\end{theorem}
-
-\textit{Proof:} PBL schedulers work exactly as traditional schedulers in regards to the \textit{grant} and \textit{decline} actions (see Definition \ref{legal_scheduler}). In order to prove the correctness of PBL schedulers, we need to show that PBL schedulers still guarantees serializable histories when the \textit{elevate} action is performed. We show that the schedule must still remain serializable by reducing the use to the \textit{grant} action.
-
-Let $T_{1},...,T_{k}$ be the transactions that used conflicting lock on data items such that $\tau(T_{j}) < \tau(T_{i})$ for all $j=1,...k$. But then, after all $T_{j}$'s dropped their lock on the data item the requirement for the \textit{grant} action is reached. That is, the data item is not locked by any transactions in a non-compatible mode (see Definition \ref{compatibility}). \qed
-% \textit{Proof:} In order to show this is true we use a proof by contradiction. We assume that, by contradiction, $SG(H)$ contains a cycle $T_{1} \rightarrow T_{2} \rightarrow ... \rightarrow T_{n} \rightarrow T_{1}$ where $n > 1$. The proof provided by the previous lemma (Lemma \ref{lemma2}) states that for some resources $x$ and $y$ and conflicting operations $p_{1}[x]$ and $q_{1}[y]$ in $H$, $pu_{1}[x] < ql_{1}[y]$. However, this contradicts with Proposition \ref{prop:elevate_decline} due to an unlock operation occurring on a resource before the lock operation\footnote{See footnote \ref{note1}.}. Therefore the contradiction fails and $ql_{1}[y] < pu_{1}[x]$. \qed
-
-%%%%%% END OF ANALYSIS SECTION %%%%%%%
-
-\section{Experimental Simulation Results}
-\label{sec:experimentation}
-THIS IS JUST A PLACEHOLDER UNTIL THE SIMULATION IS COMPLETE. The next section outlines the future research anticipated in regards to prediction-based categorization.
-
-\section{Future Research}
-\label{sec:future_research}
-Based on these categorizations presented in the prediction-based solution, we see that certain steps can be taken to treat transactions differently. One area that this solution could be used is in the effort to prevent malicious transactions from corrupting databases in a web service environment. Malicious transactions carry certain attributes with them that can be leveraged using this solution so that they are handled differently to prevent the database from being completely useless after an execution. Liu and Jajodia implemented a multi-phase confinement system that provided a certain level of intrusion tolerance for database systems \cite{Liu_Intrusion}. We believe their model can be expanded using the Transaction Metrics in this solution. Just as the Transaction Metrics solution ensures consistency for web service transactions by prediction, we believe a molded version of the Transaction Metrics will be able to determine malicious transactions efficiently, handle them appropriately, and prevent any unwanted corruption to the database.
+\input{sections/algorithms/overview}
+%\input{sections/algorithms/top_level_scheduler}
+%\input{sections/algorithms/scheduler_generation_algorithm}
+%\input{sections/algorithms/generate_schedules}
+%\input{sections/algorithms/category_determination_algorithm}
+%\input{sections/algorithms/get_category_for_transaction}
+%\input{sections/algorithms/calculate_categorization_threshold}
+%\input{sections/algorithms/priority_ordering_algorithm}
+%\input{sections/algorithms/order_schedules}
+\input{sections/algorithms/determine_schedulers_action}
+\input{sections/algorithms/execute_schedule}
+\input{sections/algorithms/complexity_analysis}
+
+%%%%%% BEGINNING OF ANALYSIS SECTION %%%%%%%
+\input{sections/analysis/algorithm_analysis}
+\input{sections/analysis/theoretical_contribution}
+
+%%%%%% BEGINNING OF EXPERIMENTAL SIMULATION RESULTS SECTION %%%%%%%
+\input{sections/experimental_simulation_results}
 
 % if have a single appendix:
 %\appendix[Proof of the Zonklar Equations]
@@ -2055,10 +596,7 @@ Based on these categorizations presented in the prediction-based solution, we se
 %
 %\appendices
 
-\section*{Conclusion}
-Transactions within a web service context have always been given a higher priority to efficiency over consistency, and for good reason. When web services are collaborated together by business process languages, the time it takes to complete can be a duration hours and performance cannot be sacrificed. However, allowing the underlying database to reach an inconsistent state frequently is not acceptable. With the prediction-based solution we ensure consistency without the performance hit of traditional locking. The three scheduler actions (\textit{grant, decline,} and \textit{elevate}) combined with the four transactional categories ($HCHE$ $HCLE$ $LCHE$ and $LCLE$) associated with a performance metric based on efficiency rate and commit rate, develop a solution that can be easily extended to a distributed web service context in order to improve the current concurrency control mechanisms that are available today.
-
-% Transactional correctness and consistency in web service based database transactions are still an after-thought. With the compensation transactions solution, having transactions generate inconsistent states has become acceptable. We show that the prediction-based performance metric that is proposed here is a scalable and efficient solution to web service transactions. This would drastically minimize the amount of compensation transactions needed to ensure consistency in concurrent database transactions. We also show that the solution will ensure a consistent state for transactions that have built a reputation for being reliable under the calculated performance metric.
+\input{sections/conclusion}
 
 % use section* for acknowledgement
 % \section*{Acknowledgment}
@@ -2108,13 +646,16 @@ Transactions within a web service context have always been given a higher priori
 % \includegraphics command within an optional argument. (You could create
 % your own custom macro containing the \includegraphics command to make things
 % simpler here.)
-%\begin{biography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
+% \begin{biography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
+% Text here
+% \end{biography}
 % or if you just want to reserve a space for a photo:
 
-%\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{picture}}]{John Doe}
-%\blindtext
-%\end{IEEEbiography}
-
+% \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{picture}}]{John Doe}
+% \blindtext
+% \end{IEEEbiography}
+\input{sections/biography}
+\vfill
 % You can push biographies down or up by placing
 % a \vfill before or after them. The appropriate
 % use of \vfill depends on what kind of text is
@@ -2126,9 +667,6 @@ Transactions within a web service context have always been given a higher priori
 % Can be used to pull up biographies so that the bottom of the last one
 % is flush with the other column.
 %\enlargethispage{-5in}
-
-
-
 
 % that's all folks
 \end{document}

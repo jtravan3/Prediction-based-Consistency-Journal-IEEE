@@ -1,0 +1,45 @@
+\begin{algorithm}
+\caption{T.M. Category Determination Algorithm}
+\label{alg:cat_for_trans}
+\begin{algorithmic}[1]
+
+ \Function{getcatfortrans}{Transaction t}
+    \\
+    \State // Category enum to be returned
+    \State Category c;
+    \\
+    \State // Obtain ID from transaction
+    \State String id = t.id; \label{l:tid}
+    \\
+    \State // Execute query to obtain transaction information
+    \State // This transaction does not have to worry about
+    \State // concurrency control issues since it is only
+    \State // known to this logical unit
+    \State MetricsData data = \Call{getMetricsData}{id};\label{l:metdata}
+    \\
+    \State // Categorization Graph data is also stored 
+    \State // in the database so that the categorization 
+    \State // bounds can be used easily. This data must 
+    \State // be returned before evaluation
+    \State TransBounds bounds = \Call{getTransBounds}{};\label{l:boundsdata}
+    \\
+    \State // Evaluate the data returned and return the category
+    \If{data.ER\_rate $>=$ bounds.ER\_rate} \label{l:start_eval}
+        \If{data.exec\_t $>=$ bounds.exec\_t}
+          \State c = HCLE;
+         \Else
+          \State c = HCHE;
+         \EndIf
+    \Else
+         \If{data.exec\_t $>=$ bounds.exec\_t}
+          \State c = LCLE;
+         \Else
+          \State c = LCHE;
+         \EndIf
+    \EndIf \label{l:end_eval}
+    \\
+    \State \Return c;
+ \EndFunction
+
+\end{algorithmic}
+\end{algorithm}

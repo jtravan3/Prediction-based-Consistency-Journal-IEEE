@@ -1,0 +1,34 @@
+\subsection{Transaction Metrics}
+The transaction metrics logical unit will contain all processing logic to accurately categorize the transactions submitted to the database. When a transaction is submitted to the scheduler to be added to a serializable schedule, the scheduler will look to the transaction metrics to determine the locking action that should be used for that particular transaction. All transaction metrics will be computed within the component before the scheduler issues a query so that the maximum time required for a response will be of complexity \textit{O(1)}. These metrics are updated as the execution environment matures and the Transaction Categorization Graph (see Section \ref{section_cat_graph}) becomes more densely populated. 
+
+\begin{figure}[ht]  
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{tikzpicture}
+    \node [draw, cylinder, shape border rotate=90, aspect=0.75, %
+      minimum height=30, minimum width=50] (data) {DB};
+    \node [block, above=2cm of data.south,anchor=south] (sched) {Scheduler};
+    \node [block, right=3cm of sched.south,anchor=south] (trans_met) {Transaction Metrics};
+    \node [webservice, above=2cm of sched] (ws1) {$WS_{1}$};
+    \node [webservice, right=of ws1] (ws2) {$WS_{2}$};
+    \node [webservice, right=of ws2] (wsN) {$WS_{N}$};
+    \path [line] (sched) -- (data);
+    \path [line] (data) -- (sched);
+    \path [line] (ws1) -- (sched);
+    \path [line] (ws2) -- (sched);
+    \path [line] (wsN) -- (sched);
+    \path [line] (trans_met) -- (sched);
+    \path [line] (sched) -- (trans_met);
+    \path [line] (trans_met) -- (data);
+    \put(5,105){$T_{1}$}
+    \put(50,105){$T_{2}$}
+    \put(95,105){$T_{N}$}
+    \put(5,30){$T_{Sched}$}
+    \put(55,30){$T_{Metrics}$}
+\end{tikzpicture}
+
+\caption{Web Service Environment with Transaction Metrics at Scheduling Level} % title of the Figure
+\label{fig:ws_env_with_metrics} % label to refer figure in text
+
+\end{figure}

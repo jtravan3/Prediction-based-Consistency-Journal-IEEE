@@ -1,0 +1,49 @@
+\begin{algorithm}
+\caption{Top Level Scheduler Algorithm}
+\label{alg:top_level}
+\begin{algorithmic}[1]
+
+\Procedure{manage\_transactions}{}
+  \State // This method is the top level procedure call
+  \State // that will be called as long as transactions
+  \State // are available and need to be scheduled
+  \State // for execution
+  \\
+  \While{true}
+    \State // Clears the list from last execution
+    \State trans.\Call{clear}{}
+    \\
+    \State // This method gets the available transactions that
+    \State // are submitted to the scheduler for processing.
+    \State // This includes preemptively aborted transactions
+    \State // from previous executions
+    \State Transaction[] aborted = \Call{getAbortedTrans}{}
+    \State Transaction[] schedTrans = \Call{getSchedTrans}{};
+    \\
+    \State // Adds the available transactions from the
+    \State // scheduler to the overall collection of
+    \State // transactions that need to be scheduled. 
+    \State // These are added behind any transactions that
+    \State // were aborted from the previous execution
+    \State trans.\Call{add}{aborted};
+    \State trans.\Call{add}{schedTrans};
+    \\
+    \State // Generates serializable schedules from the 
+    \State // available transactions
+    \State SerialSched[] ss = \Call{generate\_schedules}{trans};
+    \\
+    \State // Orders the generated schedules according to their
+    \State // priorities
+    \State ss = \Call{order\_schedules}{ss};
+    \\
+    \State // Executes each generated schedule. Transactions
+    \State // that are aborted preemptively will be scheduled
+    \State // in the next execution
+    \ForAll{s in ss}
+      \State \Call{exec\_sched}{s};
+    \EndFor
+  \EndWhile
+\EndProcedure
+
+\end{algorithmic}
+\end{algorithm}

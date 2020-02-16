@@ -1,0 +1,47 @@
+\subsection{Resource Category Data Structure}
+\label{RCDS}
+
+In Table \ref{tbl:read_lock_compatibility}, there are multiple \textit{grant actions} (see Definition \ref{legal_scheduler}) that could potentially cause multiple read-locks to be granted for a single resource. It is appropriate for a resource to grant multiple read-locks; however, in order to properly handle the \textit{elevate actions}, the comparison must be made with the granted lock of the highest priority. For example, a resource $R_{a}$ has granted two read-locks to transactions $T_{1}$ and $T_{2}$ with categories $HCLE_{r}$ and $LCLE_{r}$ respectively, while these two locks are still granted, a transaction $T_{3}$ categorized as $HCLE$ requests a write-lock $HCLE_{w}$ to $R_{a}$. If the evaluation based on Table \ref{tbl:read_lock_compatibility} is completed by using the read-lock granted to $T_{2}$, then an \textit{elevate action} would be issued, since the requesting lock contains a higher priority than the granted lock. However, if the evaluation is completed by using the read-lock granted to $T_{1}$, then a \textit{decline action} would be issued, since the requesting lock contains a priority of equal standing with the granted lock.
+
+When situations such as this arise in the system, the evaluation completed in the compatibility matrix should be completed against the granted lock with the highest priority. By evaluating against the granted lock whose transaction has been categorized with the highest priority, this prevents starvation of transactions with categorizations of lower priority. Using the example illustrated above, if the comparison was completed with transaction $T_{2}$ instead, then an \textit{elevate action} would be issued and the locks of transaction $T_{2}$ would be preemptively dropped and, therefore, cause $T_{2}$ to compete for the lock again. If transactions are continually submitted to the system that are categorized with a higher priority than $T_{2}$, then locks obtained by $T_{2}$ will continually be dropped and will never successfully complete.
+
+In order to ensure that Table \ref{tbl:read_lock_compatibility} is used with the transaction categorized with the highest priority, a new data structure is introduced. This data structure is used in order to maintain knowledge of all granted locks for a particular resource. It also allows efficient access to the lock with the highest priority for comparisons. The data structure is a combination of two established data structures used throughout computer science: linked list and min-heap (min-priority queue). The first part of the data structure, the linked list, contains all resources in the system that have a read-lock granted. It is a linear singly-linked list to allow processing in one direction. Each node in the linked list has a single reference to the root node of a min-heap. The min-heap contains all granted locks for the resource that has a reference to the min-heap root node. The min-heap property is calculated by the category priority of the locks that are granted. Since the highest priority, as shown in Table \ref{tbl:priority}, is represented by the lowest integer value, then the lock with the highest priority will make its way to the root node of the min-heap by nature of min-heap properties \cite[p.162]{Cormen_Algorithms}. This accommodates efficient processing for accessing the highest priority of all locks granted to a particular resource. More details of how the Resource Category Data Structure is used are outlined in Section \ref{sec:algorithms}. Figure \ref{fig:resource_cat_structure} displays a graphical representation of the Resource Category Data Structure.
+
+\begin{figure}[ht]  
+\captionsetup{justification=centering}
+\centering % used for centering Figure
+
+\begin{tikzpicture}
+    [list/.style={rectangle split, rectangle split parts=3,
+    draw, rectangle split horizontal}, >=stealth, start chain]
+
+  \node[list,on chain] (A) {$a$};
+  \node[list,on chain] (B) {$b$};
+  \node[list,on chain] (C) {$c$};
+  \node[rectangle, draw, below=.5cm of A] (HCHE1){$HCHE$};
+  \node[rectangle, draw, below=.7cm of HCHE1.west] (HCHE2){$HCHE$};
+  \node[rectangle, draw, below=.7cm of HCHE1.east] (LCLE1){$LCLE$};
+  \node[rectangle, draw, below=.7cm of HCHE2.west] (LCHE1){$LCHE$};
+  \node[rectangle, draw, below=.5cm of B] (LCHE2){$LCHE$};
+  \node[rectangle, draw, below=.5cm of C] (LCLE2){$LCLE$};
+  \node[rectangle, draw, below=.7cm of LCLE2.west] (LCLE3){$LCLE$};
+  \node[on chain,draw,inner sep=6pt] (D) {};
+  \draw (D.north east) -- (D.south west);
+  \draw (D.north west) -- (D.south east);
+  \draw[*->] let \p1 = (A.two), \p2 = (A.center) in (\x1 + 2,\y2 + 2) -- (HCHE1);
+  \draw[*->] let \p1 = (B.two), \p2 = (B.center) in (\x1 + 2,\y2 + 2) -- (LCHE2);
+  \draw[*->] let \p1 = (C.two), \p2 = (C.center) in (\x1 + 2,\y2 + 2) -- (LCLE2);
+  \draw[*->] let \p1 = (A.three), \p2 = (A.center) in (\x1,\y2) -- (B);
+  \draw[*->] let \p1 = (B.three), \p2 = (B.center) in (\x1,\y2) -- (C);
+  \draw[*->] let \p1 = (C.three), \p2 = (C.center) in (\x1,\y2) -- (D);
+  \path [line] (HCHE1) -- (HCHE2);
+  \path [line] (HCHE1) -- (LCLE1);
+  \path [line] (HCHE2) -- (LCHE1);
+  \path [line] (LCLE2) -- (LCLE3);
+  
+\end{tikzpicture}
+
+\caption{Resource Category Data Structure} % title of the Figure
+\label{fig:resource_cat_structure} % label to refer figure in text
+
+\end{figure}

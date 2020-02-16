@@ -1,0 +1,4 @@
+\section{Algorithms}
+\label{sec:algorithms}
+% In a web service environment, the scheduler is the first stage of the system where the transactions are submitted for processing. At this point, serializable schedules are created from the submitted transactions and executed on the database for processing. Here is where locking techniques, that the prediction-based solution provides, are leveraged to prevent any inconsistent database state. 
+There are two algorithms needed in order to accomplish the goals of the prediction-based solution. The first algorithm determines the proper action required for a given operation. This is outlined in Algorithm \ref{alg:determine_sched_action}. The second algorithm uses the functionality of the first algorithm in order to perform this action and execute the operations accordingly. This is outlined in Algorithm \ref{alg:exec_sched}. The next section explains the functionality of the algorithms and their complexity.

@@ -1,0 +1,32 @@
+\subsection{Transaction Concentration Ratio}
+\label{sec:TCR}
+
+As mentioned above, the categorization thresholds will flex depending on the execution environment that the transactions are a part of. This ensures that the thresholds that the categorization selection algorithm depends upon will be as accurate as possible. In order to obtain the most accurate thresholds within a changing environment we calculate the transaction concentration ratio. The transaction concentration ratio is a ratio between the sum of all transactions within a certain range on the categorization graph over the area of that range. The ratio is calculated using the formula below
+
+\[\textrm{$T_{Ratio}$} =\frac{\textrm{$T_{xy}{Count}$}}{x * y}\]
+
+In this ratio equation the $x$ represents the base length (x-axis) of the range that is taken into consideration where $y$ represents the height of the range (y-axis) that is taken into consideration. $T_{xy}{Count}$ is the sum of all transactions within the $x$ and $y$ range provided. Example \ref{ex_transaction_ratio} outlines the use of this equation.
+
+ \begin{example}
+ \label{ex_transaction_ratio}
+  We are calculating the concentration of transactions within the HCHE categorization zone. The base (x-axis) of the concentration zone is 20 and the height (y-axis) of the concentration zone is 15. The number of transactions that fall within this concentration range is 120. With these metrics we can form the following equation:
+  
+  \[\textrm{$T_{Ratio}$} =\frac{\textrm{120}}{20 * 15}\]
+  \[\textrm{$T_{Ratio}$} =\frac{\textrm{2}}{5}\]
+  
+  With these figures we can calculate that the ratio of transactions to the area of the range that the transactions were graphed is \( \frac{2}{5} \).
+  
+ \end{example}
+ 
+Once a ratio has been calculated for each range within a categorization zone the $x$ and $y$ values of the highest ratio calculated for that zone will be used as the thresholds. In the event that there are multiple ratios calculated for a particular zone of the same value, the concentration ratio with the largest denominator in the equation will be used. By using the largest acceptable threshold we increase the number of transactions that are categorized into the categorization zone and also decrease the number of transactions that are categorized into the default NO\_TREND category\footnote{Algorithm \ref{alg:cat_for_trans} makes use of these thresholds for the selection of categories for each transaction}. This increases the number of transactions that will be executed with more appropriate locking and scheduling techniques. Example \ref{ex_transaction_ratio_2} elaborates on this situation.
+
+ \begin{example}
+ \label{ex_transaction_ratio_2}
+ Building from Example \ref{ex_transaction_ratio} we build a situation where the base (x-axis) is 10 and the height (y-axis) is 15. The number of transactions within this range is 60. With these metrics we form the following equation:
+ 
+  \[\textrm{$T_{Ratio}$} =\frac{\textrm{60}}{10 * 15}\]
+  \[\textrm{$T_{Ratio}$} =\frac{\textrm{2}}{5}\]
+  
+  As shown in Example \ref{ex_transaction_ratio} we can see that the ratios are the same however this example contains half as many transactions as the previous example. By using the $x$ and $y$ thresholds in this example versus the $x$ and $y$ thresholds in Example \ref{ex_transaction_ratio}, we decrease the number of categorized transactions by 50\%.
+ 
+ \end{example}

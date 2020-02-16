@@ -1,0 +1,64 @@
+\begin{algorithm}
+\caption{Calculate Categorization Threshold}
+\label{alg:calc_threshold}
+\begin{algorithmic}[1]
+
+ \Procedure{calcCategoryThresholds}{}
+  \ForAll{c in CATEGORIES} \label{l:each_cat}
+    \State real $ratio$ = 0.0;
+    \State int $p_x$, $p_y$, $s_x$, $s_y$, $e_x$, $e_y$;
+    \State $s_x$ = \Call{getstartval}{x,c}; \label{l:getstart}
+    \State $s_y$ = \Call{getstartval}{y,c};
+    \State $e_x$ = \Call{getendval}{x,c};
+    \State $e_y$ = \Call{getendval}{y,c}; \label{l:getend}
+    \\
+    \ForAll{x between $s_x$ and $e_x$} \label{l:forx}
+      \ForAll{y between $s_y$ and $e_y$} \label{l:fory}
+        \State real $tmpRatio$;
+        \State int $c_x$, $c_y$, $t_{count}$;
+        \State $c_x$ = $|x$ - $s_x|$; \label{l:absx}
+        \State $c_y$ = $|y$ - $s_y|$; \label{l:absy}
+        \State $t_{count}$ = \Call{getNumOfTrans}{$c_x$,$c_y$}; \label{l:numtcount}
+        \\
+        \State $tmpRatio$ = $\dfrac{t_{count}}{c_x * c_y}$ \label{l:tmpratio}
+        \\
+        \If{$ratio > tmpRatio$} \label{l:comparestart}
+        \State // Already have a larger ratio.
+        \State // Do nothing
+        \ElsIf{$ratio < tmpRatio$}
+        \State // New ratio is larger than previous so
+        \State // we update our current values
+        \State $ratio = tmpRatio$; \label{l:ratiohigher_start}
+        \State $p_x = c_x$;
+        \State $p_y = c_y$;\label{l:ratiohigher_end}
+        \Else \label{l:equalstart}
+        \State // The ratio is equal so we must
+        \State // determine the greatest denominator
+        \State // and choose that one
+        \If{$(p_x * p_y) \ge (c_x * c_y)$}
+        \State // Values already set so we can just
+        \State // do nothing
+        \Else
+        \State $p_x = c_x$;
+        \State $p_y = c_y$;
+        \EndIf
+        \EndIf \label{l:compareend}
+      \EndFor
+    \EndFor
+    \\
+    \State // Once the largest threshold values are 
+    \State // obtained we can write them to disk
+    \State // for the categorization selection 
+    \State // algorithm to use
+    \State \Call{writetodb}{$p_x, p_y, c$}; \label{l:writetodb}
+    \State $p_x, p_y, ratio = 0$; \label{l:reset}
+  \EndFor
+ \EndProcedure
+
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Calculate Categorization Thresholds}
+Calculating the categorization thresholds for each category is a key algorithm to the solution in that it ensures the most accurate thresholds for which transactions will be categorized. This algorithm is executed after each transaction is submitted to the database. Due to the complexity of this algorithm a multi-threaded approach was taken to ensure that the selection of categories for each transaction would not contain the overhead of wait time.
+
+The first step of this algorithm is to step through each category available (line.\ref{l:each_cat}). This does not include the NO\_TREND category since this is the default category that transactions are placed if a categorization cannot be made. For each category that needs calculated thresholds we obtain the start and end values for both the x and y axis (lines.\ref{l:getstart}-\ref{l:getend}). This is a key section of the algorithm to ensure the correct calculations are made. For example, if the LCLE category was processed the start values for both axes would be 0 and the end values would be 25. However for a HCHE transaction the start values for both axes would be 100 and the end values would be 75. Once the start and end values are obtained we step through each possible x-value and y-value within each range (lines.\ref{l:forx} and \ref{l:fory}). For every x and y-value within the ranges, we calculate the absolute value of the current value subtracted from the start value (lines.\ref{l:absx} and \ref{l:absy}). In some cases the current value will always be greater than the start value (e.g. LCLE) but in other cases it will not (e.g. HCHE). By using the absolute value we are always guaranteed to have the positive x and y-values from which we are going to calculate the ratio. Next we count the number of transactions within the particular range (line.\ref{l:numtcount}). Once the transaction count is obtained we calculate a ratio of the number of transactions divided by the area of the particular range (line.\ref{l:tmpratio}). Once that ratio is calculated we compare it to highest ratio that was calculated for this particular category. At this point it becomes a simple comparison between which is higher and lower (lines.\ref{l:comparestart}-\ref{l:compareend}). If the new ratio is higher, it is cached and the new thresholds are also cached (lines.\ref{l:ratiohigher_start}-\ref{l:ratiohigher_end}). If the new ratio is lower, the algorithm continues processing (line.\ref{l:comparestart}). In the event that the new ratio is equal to the highest ratio for that category, the largest denominator will be stored (lines.\ref{l:equalstart}-\ref{l:compareend}). Once the thresholds have been calculated for each comparison for that particular category, the thresholds will be sent to the local relation through an SQL query (line. \ref{l:writetodb}). This will ensure that when Algorithm \ref{alg:cat_for_trans} executes a read on the local database to obtain the most recent thresholds that they will always be up to date. This also prevents Algorithm \ref{alg:cat_for_trans} from causing a bottleneck in the performance of the system. Before processing the next category, the variables used to store the ratio and the category thresholds are reset before the next category in the collection is calculated (line.\ref{l:reset}).

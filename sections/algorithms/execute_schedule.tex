@@ -1,0 +1,49 @@
+\begin{algorithm}
+\caption{Execute Schedule}
+\label{alg:exec_sched}
+\begin{algorithmic}[1]
+\Require $Transaction$ $T$
+\Ensure N/A
+\Procedure{execute\_schedule}{}
+    \ForAll{\textit{operations in T}}
+        \State \textit{Obtain required action returned}
+        \State \textit{from (Algorithm \ref{alg:determine_sched_action})} \label{alg2:get_action}
+        \\
+        \If{\textit{action is a decline (-) action}} \label{alg2:decline_action}
+            \State \textit{Wait until all locks are released.}
+            \State \textit{Then execute operation.}
+        \ElsIf{\textit{action is an elevate ($\delta$) action}}\label{alg2:elev_action}
+            \State \textit{Drop locks of lower priority }
+            \State \textit{transactions and execute operation}
+        \Else{ \textit{action is grant (+) action}}\label{alg2:grant_action}
+            \State \textit{Execute operation}
+        \EndIf
+        \\
+        \State \textit{Release operation's locks and update RCDS}
+    \EndFor
+    \\
+    \State \textit{Update Transaction Metrics}\label{alg2:update_metrics}
+    \\
+    \State \textit{Send aborted transactions back to}
+    \State \textit{scheduler to be rescheduled}\label{alg2:abort}
+\EndProcedure
+
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Execute Schedules}
+% Each execution of this procedure will be concurrent with other executions. This is what designates the need for the Resource Category Data Structure (RCDS) (Section \ref{RCDS}). Although there may be single scheduler organizing and submitting transactions, there can be multiple concurrent executions going on with varying execution times. The RCDS keeps track of the multiple read-locks that are granted for a resource so the correct comparison can be made between executions.
+
+The next algorithm (outlined in Algorithm \ref{alg:exec_sched}) is responsible for executing the operation on the database, but before the operation can be performed, there are numerous conditions to be taken into consideration. This procedure begins by iterating through each operation contained within a serializable schedule. Before the operation can be executed, the action must be obtained. This is accomplished from the previous algorithm outlined in Algorithm \ref{alg:determine_sched_action} (l. \ref{alg2:get_action}).
+
+If the action obtained is a \textit{decline action} (l. \ref{alg2:decline_action}), then by definition, the operation would wait until all locks were released, and then it would perform the operation. If the action obtained is an \textit{elevate action} (l. \ref{alg2:elev_action}), then all current locks granted for the operations resource would be dropped and then the operation would be executed. The final action, \textit{grant action} (l. \ref{alg2:grant_action}) requires no additional logic and the operation can be executed immediately. 
+
+% In each of the three action cases, if the operation requesting a lock is a read operation then an entry in the RCDS is added. This ensures that other executions that are occurring concurrently obtain the most accurate information for comparisons within the compatibility matrices. After the operation has completed processing from the DBMS, the entry in the RCDS is removed.
+
+Before each execution of any operation, an entry will be inserted into the RCDS with the resource and the category of the transaction. After each execution, the corresponding entry will be removed from the RCDS. This ensures the most appropriate action is always performed.
+
+After all operations have completed processing, the transactional metadata for all operation executions is retained. This information is then used to populate the Transactional Metrics (l. \ref{alg2:update_metrics}). 
+
+% This step ensures that the data pulled for Algorithm \ref{alg:cat_for_trans} is always up to date and the correct categorization is always used.
+
+The final step in the execution process is to reschedule any transactions that were preemptively aborted due to the \textit{elevate action}. These transactions are entered back into the scheduler for rescheduling. This prevents any starvation that could potentially occur from preemptive transactional aborts (l. \ref{alg2:abort}).

@@ -1,0 +1,61 @@
+\begin{algorithm}
+\caption{DBMS Scheduler Generation Algorithm}
+\label{alg:generate_sched}
+\begin{algorithmic}[1]
+
+ \Function{generate\_schedules}{Transaction[] trans} 
+  \\
+  \State // Create map of transaction and category
+  \State // relationships
+  \State Map[Transaction, Category] transCats;
+  \ForAll{t in trans}
+      \State // Transaction Metrics Algorithm Function Call
+      \State // Function call will take a max of O(1) time
+      \State // to complete.
+      \State Category c = \Call{getCatForTrans}{t}; \label{l:getcatfortrans}
+      \\
+      \State // Assign lock behavior to the transaction from
+      \State // the compatibility matrices provided. The 
+      \State // lock behaviors are associated directly with
+      \State // a category
+      \State LockBehavior[] lb = c.\Call{getLockBehaviors}{}; 
+      \State t.\Call{setLockBehaviors}{lb}; \label{l:setlockbehaviors}
+      \\
+      \State transCats.\Call{add}{t,c}; \label{l:tcadd}
+  \EndFor
+  \\
+  \State // Create collection of serializable schedules to
+  \State // be returned
+  \State SerialSched[] schedules;
+  \State // Create temporary collection of non-conflicting
+  \State // transactions
+  \State Transaction[] nonConflictingTrans;
+  \ForAll{entry in transCats}
+      \State // Method call to determine if the category 
+      \State // passed in will conflict with other transactions
+      \State // based on the definition of conflicting transactions
+      \State bool isConflict = \Call{isCatConflict}{entry.cat};
+      \If{isConflict}
+        \State // Generate serializable schedule with only one
+        \State // transaction using the existing scheduler 
+        \State // mechanism
+        \State SerialSched s = \Call{genSchedule}{entry.trans};\label{l:gencsched}
+        \State schedules.\Call{add}{s};
+      \Else
+        \State // Add transaction to a temporary collection
+        \State // to generate schedule
+        \State nonConflictingTrans.\Call{add}{entry.trans}; \label{l:tempds}
+      \EndIf
+  \EndFor
+  \\
+  \State // Generate a bulk schedule composed of 
+  \State // non-conflicting transactions that can execute
+  \State // concurrently without consequence
+  \State SerialSched s = \Call{genSchedule}{nonConflictingTrans};\label{l:bulksched}
+  \State schedules.\Call{add}{s};
+  \\
+  \State \Return schedules; \label{l:rtnsched}
+ \EndFunction
+ 
+\end{algorithmic}
+\end{algorithm}

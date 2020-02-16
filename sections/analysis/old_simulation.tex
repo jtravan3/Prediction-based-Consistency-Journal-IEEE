@@ -1,0 +1,92 @@
+In order to record experimentation data we built a standard two-phase locking implementation and prediction-based implementation. Both implementations were built within the application layer using an object-oriented language and multi-threading to simulate concurrent transactions that were scheduled and executed. In both simulations we were able to control and manipulate the different operations, resources, execution time per operation, and, with the prediction-based simulation, what category the transaction was associated with. By manipulating these different data points we were able to see each simulation handle different situations differently. In the prediction-based simulation, we were able to see all three actions performed within a legal scheduler (see Definition \ref{legal_scheduler}).
+
+Our parameters into the simulation were different for two different execution groups. The first execution group contained two static transactions where the only parameter into the system was the category of each transaction. We ran this simulation multiple times with all combinations of categories. This allowed us to ensure the system was working properly and executing the correct path in the algorithms for all possible situations.
+
+The second execution group parameters involved randomly generated transactions. The transactions contained random operations, resources, and execution times. The only thing that we controlled explicitly was the categories that each transaction contained. This allowed us to see how the system behaved with different loads while ensuring that every possible algorithmic situation was covered.
+
+The initial intent of the simulation was to determine the efficiency increase in the prediction-based solution but not only did we discover an efficiency increase; we discovered that the prediction-based solution provided deadlock avoidance. The \textit{elevate action} outlined in Definition \ref{legal_scheduler} prevented deadlock in cases where the standard two-phase locking solution could not avoid. The only situation in which deadlock was not avoided was when dependent operations were competing for a resource's lock and both transactions were categorized in the same category. In this situation, an \textit{elevate action} would never be issued and the prediction-based solution performs exactly the same as the standard two-phase locking solution.
+
+By controlling the different execution inputs into the system, we were able to test all scenarios of transaction categories. Running all scenarios through the prediction-based solution allowed us to see that for conflicting transactions (excluding those with the same categorization) we see an average increase of 55\%. Although this seems unreasonable, this is much more acceptable than the 2PL solution's outcome which always ended in deadlock.
+
+We then tested both solutions with multiple examples of non-conflicting transactions in order to see the performance decrease of the added overhead of the prediction-based solution. We discovered that not only was the overhead of the prediction-based solution acceptable, but it only increased overhead by approximately 7.6\% in relation to the 2PL solution. This was a shocking discovery given the increased deadlock avoidance that the proposed solution also provides. Tables \ref{graph:conflicting_metrics}, and \ref{graph:non_conflicting_metrics} show the findings from both simulations.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={PB Metrics with Conflicting Transactions},
+        width  = 8.5cm,
+        height = 8cm,
+        major x tick style = transparent,
+        ybar=2*\pgflinewidth,
+        %bar width=14pt,
+        ymajorgrids = true,
+        ylabel = {Total execution time (in milliseconds)},
+        symbolic x coords={HCHE, HCLE, LCHE, LCLE},
+        xtick = data,
+        scaled y ticks = false,
+        enlarge x limits=0.25,
+        ymin=0,
+        legend cell align={left},
+        legend style={
+            at={(0.5,-0.2)},
+            anchor=north,
+            legend columns=1,
+            /tikz/every even column/.append style={column sep=0.5cm}
+        }
+    ]
+        \addplot[style={bblue,fill=bblue,mark=none}]
+            coordinates {(HCHE,4100.658) (HCLE,4100.658) (LCHE,4100.658) (LCLE, 4100.658)};
+
+        \addplot[style={rred,fill=rred,mark=none}]
+             coordinates {(HCHE, 5699.666) (HCLE,5954.161) (LCHE, 6725.366) (LCLE, 6695.033)};
+
+        \legend{Serial Execution, Prediction-Based Scheduler}
+    
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Metrics with Conflicting Transactions}
+    \label{graph:conflicting_metrics}
+% \end{figure}
+
+% \begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={PB Metrics with Non-Conflicting Transactions},
+        width  = 8.5cm,
+        height = 8cm,
+        major x tick style = transparent,
+        ybar=2*\pgflinewidth,
+        %bar width=14pt,
+        ymajorgrids = true,
+        ylabel = {Total execution time (in milliseconds)},
+        symbolic x coords={HCHE, HCLE, LCHE, LCLE},
+        xtick = data,
+        scaled y ticks = false,
+        enlarge x limits=0.25,
+        ymin=0,
+        legend cell align={left},
+        legend style={
+            at={(0.5,-0.2)},
+            anchor=north,
+            legend columns=1,
+            /tikz/every even column/.append style={column sep=0.5cm}
+        }
+    ]
+        \addplot[style={bblue,fill=bblue,mark=none}]
+            coordinates {(HCHE,6523.32) (HCLE,6523.32) (LCHE,6523.32) (LCLE, 6523.32)};
+
+        \addplot[style={rred,fill=rred,mark=none}]
+             coordinates {(HCHE, 4317.21) (HCLE,4301.125) (LCHE, 4299.95) (LCLE, 4300.025)};
+             
+        \addplot[style={ggreen,fill=ggreen,mark=none}]
+             coordinates {(HCHE, 4662.95) (HCLE,4662.95) (LCHE, 4662.95) (LCLE, 4662.95)};
+
+        \legend{Serial Execution, Two-Phase Locking, Prediction-based Scheduler}
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Metrics with Non-Conflicting Transactions}
+    \label{graph:non_conflicting_metrics}
+\end{figure}
+%%%%%%%%%%%%%%% OLD SIMULATION TEXT - END %%%%%%%%%%%%%%%%%%%%%%%

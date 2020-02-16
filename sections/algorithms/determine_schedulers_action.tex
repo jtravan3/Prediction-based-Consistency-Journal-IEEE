@@ -1,0 +1,56 @@
+\subsubsection{Determine Scheduler's Action for each Operation}
+The first algorithm needed for our solution (outlined in Algorithm \ref{alg:determine_sched_action}) determines the action that our prediction-based solution is required to perform for a given operation. The algorithm's input parameters are the transaction being executed ($T_{i}$), two instances of the proposed RCDS (outlined in Section \ref{RCDS}) for both READ and WRITE operations, the requesting lock for the given operation \textit{o}, and the data item \textit{d} that is is operating on ($l_{req} = (o,d)$). The algorithm's output after successful execution will be the matrix intersection of either the Read-Compatibility Matrix or the Write-Compatibility Matrix (outlined in Table \ref{tbl:read_lock_compatibility} and Table \ref{tbl:write_lock_compatibility}), depending on the operation type. This intersection will be an action. There are three different actions the prediction-based solution leverages: \textit{grant action}, \textit{decline action}, and \textit{elevate action}. These actions are defined in Definition \ref{legal_scheduler}.
+
+The logic for determining the proper action for a particular operation begins by determining the type of operation requesting a lock on a particular data item (l. \ref{l1}). From there we determine if the the RCDS for WRITE operations has a lock granted for the particular data item that the operation is requesting a lock for (l. \ref{l2}). From this point, the logic depends on whether or not a READ or WRITE operation is requesting a lock. For the sake of covering the most complex branch of logic, we will discuss if the operation is a WRITE operation. After checking the RCDS for WRITE operations, we are then checking the RCDS for READ operations (l. \ref{l3}). If both are empty, we update the RCDS and return a grant action to be taken (l. \ref{l4}). When we update the RCDS, we make an entry in the the RCDS of the operation type with the data item that the lock is granted for and the category of $T_{i}$. This continual update ensures that the granted lock with the highest category is always referenced when making comparisons. Continuing in the logic of the algorithm, if the RCDS for read operations is not empty then we compare the top category of the transaction that the operation is in (l. \ref{l5}). If the operation's transaction has a category with a higher priority than the highest category of the granted lock then we update the RCDS as mentioned above and then return an elevate action (l. \ref{l6}). Otherwise we return a decline action (l. \ref{l7}). Throughout, the logic of the algorithm more comparisons much like the ones outlined above are executed in order to make sure the correct action is returned for processing. After successful execution of Algorithm \ref{alg:determine_sched_action} one of the three given actions will be returned for the scheduler to perform. The next algorithm outlines how that action is performed in the prediction-based scheduler.
+
+
+\begin{algorithm}
+\caption{Determine Scheduler's Action}
+\label{alg:determine_sched_action}
+\begin{algorithmic}[1]
+\Require $T_{i}, RCDS_{read}, RCDS_{write}, l_{req} = (o,d)$
+\Ensure $RM(x,y)$ or $WM(x,y)$ \textit{(intersection in matrices equates to an action)}
+\Function{determine\_scheduler\_action}{}
+    \If{\textit{o is a WRITE}}\label{l1}
+        \If{\textit{$RCDS_{write}(d)$ is empty}}\label{l2}
+            \If{\textit{$RCDS_{read}(d)$ is empty}}\label{l3}
+                \State \textit{Update $RCDS_{write}$} 
+                \State \textit{return grant action (+)}\label{l4}
+            \ElsIf{$RCDS_{read}(top) < T_{i}$}\label{l5}
+                \State \textit{Update $RCDS_{write}$} 
+                \State \textit{return elevate action ($\delta$)}\label{l6}
+            \Else
+                \State \textit{return decline action (-)}\label{l7}
+            \EndIf
+        \Else
+            \If{$RCDS_{write}(top) \geq T_{i}$}
+                \State \textit{return decline action (-)}
+            \Else
+                \If{\textit{$RCDS_{read}(d)$ is empty}}
+                    \State \textit{Update $RCDS_{write}$} 
+                    \State \textit{return elevate action ($\delta$)}
+                \ElsIf{$RCDS_{read}(top) < T_{i}$}
+                    \State \textit{Update $RCDS_{write}$} 
+                    \State \textit{return elevate action ($\delta$)}
+                \Else
+                    \State \textit{return decline action (-)}
+                \EndIf
+            \EndIf
+        \EndIf
+    \Else 
+        \If{\textit{$RCDS_{write}(d)$ is empty}}
+            \State \textit{Update $RCDS_{read}$}
+            \State \textit{return grant action (+)}
+        \Else 
+            \If{$RCDS_{write}(top) \geq T_{i}$}
+                \State \textit{return decline action (-)}
+            \Else
+                \State \textit{Update $RCDS_{read}$} 
+                \State \textit{return elevate action ($\delta$)}
+            \EndIf
+        \EndIf
+    \EndIf
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
